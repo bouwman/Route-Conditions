@@ -17,7 +17,8 @@ class WeatherDataHelper: ObservableObject {
     
     @Published var currentWeather: CurrentWeather?
     @Published var hourlyForecast: Forecast<HourWeather>?
-
+    @Published var attributionInfo: WeatherAttribution?
+    
     func updateCurrentWeather(userLocation: CLLocation) {
         Task.detached(priority: .userInitiated) {
             do {
@@ -44,6 +45,15 @@ class WeatherDataHelper: ObservableObject {
                 }
             } catch {
                 print(error.localizedDescription)
+            }
+        }
+    }
+    
+    func updateAttributionInfo() {
+        Task.detached(priority: .background) {
+            let attribution = try await self.service.attribution
+            DispatchQueue.main.async {
+                self.attributionInfo = attribution
             }
         }
     }

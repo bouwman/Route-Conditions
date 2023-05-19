@@ -11,6 +11,8 @@ import CoreLocation
 
 struct ContentView: View {
     
+    @Environment(\.colorScheme) var colorScheme
+    
     @ObservedObject var weatherDataHelper = WeatherDataHelper.shared
     @ObservedObject var userLocationHelper = LocationManager.shared
     
@@ -28,6 +30,22 @@ struct ContentView: View {
                             .font(.system(size: 60))
                         Spacer()
                     }
+                } footer: {
+                    attribution
+                }
+            }
+            if let hourlyWeather = weatherDataHelper.hourlyForecast {
+                Section {
+                    ForEach(hourlyWeather, id: \.self.date) { weatherEntry in
+                        HStack {
+                            Text(DateFormatter.localizedString(from: weatherEntry.date, dateStyle: .short, timeStyle: .short))
+                            Spacer()
+                            Image(systemName: weatherEntry.symbolName)
+                            Text(weatherEntry.temperature.formatted(.measurement(width: .abbreviated, usage: .weather)))
+                        }
+                    }
+                } footer: {
+                    attribution
                 }
             }
             Section {
@@ -43,16 +61,26 @@ struct ContentView: View {
                     loadHourlyWeatherData()
                 }
             }
-            if let hourlyWeather = weatherDataHelper.hourlyForecast {
-                ForEach(hourlyWeather, id: \.self.date) { weatherEntry in
-                    HStack {
-                        Text(DateFormatter.localizedString(from: weatherEntry.date, dateStyle: .short, timeStyle: .short))
-                        Spacer()
-                        Image(systemName: weatherEntry.symbolName)
-                        Text(weatherEntry.temperature.formatted(.measurement(width: .abbreviated, usage: .weather)))
+        }
+    }
+    
+    var attribution: some View {
+        HStack {
+            Spacer()
+            VStack {
+                if let attribution = weatherDataHelper.attributionInfo {
+                    AsyncImage(url: colorScheme == .light ? attribution.combinedMarkLightURL : attribution.combinedMarkDarkURL) { image in
+                        image
+                            .resizable()
+                            .scaledToFit()
+                            .frame(height: 20)
+                    } placeholder: {
+                        ProgressView()
                     }
+                    Link("more", destination: attribution.legalPageURL)
                 }
             }
+            Spacer()
         }
     }
     
@@ -67,6 +95,7 @@ struct ContentView: View {
         }
         Task.detached { @MainActor in
             weatherDataHelper.updateCurrentWeather(userLocation: userLocation)
+            weatherDataHelper.updateAttributionInfo()
         }
     }
     
@@ -76,6 +105,7 @@ struct ContentView: View {
         }
         Task.detached { @MainActor in
             weatherDataHelper.updateHourlyWeather(userLocation: userLocation)
+            weatherDataHelper.updateAttributionInfo()
         }
     }
 }
