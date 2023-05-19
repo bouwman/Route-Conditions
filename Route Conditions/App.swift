@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct Route_ConditionsApp: App {
+struct RouteConditionsApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()

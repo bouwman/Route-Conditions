@@ -7,19 +7,24 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4799D6912A17C20A0090EBF1 /* Route_ConditionsApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4799D6902A17C20A0090EBF1 /* Route_ConditionsApp.swift */; };
+		4799D6912A17C20A0090EBF1 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4799D6902A17C20A0090EBF1 /* App.swift */; };
 		4799D6932A17C20A0090EBF1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4799D6922A17C20A0090EBF1 /* ContentView.swift */; };
 		4799D6952A17C2120090EBF1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4799D6942A17C2120090EBF1 /* Assets.xcassets */; };
 		4799D6992A17C2120090EBF1 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4799D6982A17C2120090EBF1 /* Preview Assets.xcassets */; };
+		4799D6A02A17C4850090EBF1 /* WeatherDataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4799D69F2A17C4850090EBF1 /* WeatherDataHelper.swift */; };
+		4799D6A22A17C4D90090EBF1 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4799D6A12A17C4D90090EBF1 /* LocationManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		4799D68D2A17C20A0090EBF1 /* Route Conditions.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Route Conditions.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		4799D6902A17C20A0090EBF1 /* Route_ConditionsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route_ConditionsApp.swift; sourceTree = "<group>"; };
+		4799D6902A17C20A0090EBF1 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		4799D6922A17C20A0090EBF1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		4799D6942A17C2120090EBF1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		4799D6962A17C2120090EBF1 /* Route_Conditions.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Route_Conditions.entitlements; sourceTree = "<group>"; };
 		4799D6982A17C2120090EBF1 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		4799D69F2A17C4850090EBF1 /* WeatherDataHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherDataHelper.swift; sourceTree = "<group>"; };
+		4799D6A12A17C4D90090EBF1 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
+		4799D6A32A17C67C0090EBF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -52,8 +57,11 @@
 		4799D68F2A17C20A0090EBF1 /* Route Conditions */ = {
 			isa = PBXGroup;
 			children = (
-				4799D6902A17C20A0090EBF1 /* Route_ConditionsApp.swift */,
+				4799D6902A17C20A0090EBF1 /* App.swift */,
 				4799D6922A17C20A0090EBF1 /* ContentView.swift */,
+				4799D69F2A17C4850090EBF1 /* WeatherDataHelper.swift */,
+				4799D6A12A17C4D90090EBF1 /* LocationManager.swift */,
+				4799D6A32A17C67C0090EBF1 /* Info.plist */,
 				4799D6942A17C2120090EBF1 /* Assets.xcassets */,
 				4799D6962A17C2120090EBF1 /* Route_Conditions.entitlements */,
 				4799D6972A17C2120090EBF1 /* Preview Content */,
@@ -139,8 +147,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4799D6A22A17C4D90090EBF1 /* LocationManager.swift in Sources */,
 				4799D6932A17C20A0090EBF1 /* ContentView.swift in Sources */,
-				4799D6912A17C20A0090EBF1 /* Route_ConditionsApp.swift in Sources */,
+				4799D6A02A17C4850090EBF1 /* WeatherDataHelper.swift in Sources */,
+				4799D6912A17C20A0090EBF1 /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -269,6 +279,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -307,6 +318,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Info.plist;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
