@@ -8,6 +8,7 @@
 import SwiftUI
 import WeatherKit
 import CoreLocation
+import MapKit
 
 struct ContentView: View {
     
@@ -16,7 +17,15 @@ struct ContentView: View {
     @ObservedObject var weatherDataHelper = WeatherDataHelper.shared
     @ObservedObject var userLocationHelper = LocationManager.shared
     
+    @State private var region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 53.0, longitude: 0.0), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5))
+    @State private var selectedItem: MKAnnotation?
+    
     var body: some View {
+        MapClusterView(region: region, selectedItem: $selectedItem)
+            .ignoresSafeArea(edges: .vertical)
+    }
+    
+    var form: some View {
         Form {
             if let currentWeather = weatherDataHelper.currentWeather {
                 Section {
