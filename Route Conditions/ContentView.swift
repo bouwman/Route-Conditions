@@ -10,11 +10,15 @@ import WeatherKit
 import CoreLocation
 import MapKit
 
-class Item: NSObject, MKAnnotation {
+class Item: NSObject, MKAnnotation, Identifiable {
     var coordinate: CLLocationCoordinate2D
     
     init(coordinate: CLLocationCoordinate2D) {
         self.coordinate = coordinate
+    }
+    
+    var location: CLLocation {
+        CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
     }
 }
 
@@ -33,74 +37,49 @@ struct ContentView: View {
         MapClusterView(region: $region, items: $items, selectedItem: $selectedItem) { coordinate in
             items.append(Item(coordinate: coordinate))
         }
-            .ignoresSafeArea(edges: .vertical)
+        .onChange(of: selectedItem) { item in            
+            loadCurrentWeatherData()
+        }
+        .ignoresSafeArea(edges: .vertical)
+        .sheet(item: $selectedItem) {
+            // On dismiss
+            selectedItem = nil
+        } content: { item in
+            Form {
+                Section {
+                    locationWeather
+                } footer: {
+                    attribution
+                }
+            }
+            .presentationDetents([.medium, .large])
+        }
     }
     
-    var form: some View {
-        Form {
+    var locationWeather: some View {
+        Section {
             if let currentWeather = weatherDataHelper.currentWeather {
-                Section {
-                    Label(currentWeather.temperature.formatted(), systemImage: "thermometer")
-                    Label("\(Int(currentWeather.humidity * 100))%", systemImage: "humidity.fill")
-                    Label(currentWeather.isDaylight ? "Day time" : "Night time", systemImage: currentWeather.isDaylight ? "sun.max.fill" : "moon.stars.fill")
-                } header: {
-                    HStack {
-                        Spacer()
-                        Image(systemName: currentWeather.symbolName)
-                            .font(.system(size: 60))
-                        Spacer()
-                    }
-                } footer: {
-                    attribution
-                }
-            }
-            if let hourlyWeather = weatherDataHelper.hourlyForecast {
-                Section {
-                    ForEach(hourlyWeather, id: \.self.date) { weatherEntry in
-                        HStack {
-                            Text(DateFormatter.localizedString(from: weatherEntry.date, dateStyle: .short, timeStyle: .short))
-                            Spacer()
-                            Image(systemName: weatherEntry.symbolName)
-                            Text(weatherEntry.temperature.formatted(.measurement(width: .abbreviated, usage: .weather)))
-                        }
-                    }
-                } footer: {
-                    attribution
-                }
-            }
-            Section {
-                if userLocationHelper.userLocation == nil {
-                    Button("Load user current location") {
-                        loadUserCurrentLocation()
-                    }
-                }
-                Button("Fetch current weather") {
-                    loadCurrentWeatherData()
-                }
-                Button("Fetch hourly weather") {
-                    loadHourlyWeatherData()
-                }
+                Label(currentWeather.temperature.formatted(), systemImage: "thermometer")
+                Label("\(Int(currentWeather.humidity * 100))%", systemImage: "humidity.fill")
+                Label(currentWeather.isDaylight ? "Day time" : "Night time", systemImage: currentWeather.isDaylight ? "sun.max.fill" : "moon.stars.fill")
+                
             }
         }
     }
     
     var attribution: some View {
-        HStack {
-            Spacer()
-            VStack {
-                if let attribution = weatherDataHelper.attributionInfo {
-                    AsyncImage(url: colorScheme == .light ? attribution.combinedMarkLightURL : attribution.combinedMarkDarkURL) { image in
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(height: 20)
-                    } placeholder: {
-                        ProgressView()
-                    }
-                    Link("more", destination: attribution.legalPageURL)
+        HStack(spacing: 8.0) {
+            if let attribution = weatherDataHelper.attributionInfo {
+                AsyncImage(url: colorScheme == .light ? attribution.combinedMarkLightURL : attribution.combinedMarkDarkURL) { image in
+                    image
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 12)
+                } placeholder: {
+                    ProgressView()
                 }
+                Link("more", destination: attribution.legalPageURL)
             }
-            Spacer()
         }
     }
     
@@ -110,21 +89,17 @@ struct ContentView: View {
     }
     
     func loadCurrentWeatherData() {
-        guard let userLocation = LocationManager.shared.userLocation else {
-            return
-        }
+        guard let selectedItem else { return }
         Task.detached { @MainActor in
-            weatherDataHelper.updateCurrentWeather(userLocation: userLocation)
+            weatherDataHelper.updateCurrentWeather(location: selectedItem.location)
             weatherDataHelper.updateAttributionInfo()
         }
     }
     
     func loadHourlyWeatherData() {
-        guard let userLocation = LocationManager.shared.userLocation else {
-            return
-        }
+        guard let selectedItem else { return }
         Task.detached { @MainActor in
-            weatherDataHelper.updateHourlyWeather(userLocation: userLocation)
+            weatherDataHelper.updateHourlyWeather(userLocation: selectedItem.location)
             weatherDataHelper.updateAttributionInfo()
         }
     }

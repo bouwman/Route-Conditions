@@ -40,12 +40,7 @@ struct MapClusterView <T>: ViewRepresentable where T: MKAnnotation {
                 uiView.deselectAnnotation(annotation, animated: true)
             }
         }
-        if items.count != 0 {
-            // Add annotations
-            for item in items {
-                uiView.addAnnotation(item)
-            }
-        }
+        uiView.addAnnotations(items)
     }
     
     #endif
@@ -62,12 +57,7 @@ struct MapClusterView <T>: ViewRepresentable where T: MKAnnotation {
                 nsView.deselectAnnotation(annotation, animated: true)
             }
         }
-        if items.count != 0 {
-            // Add annotations
-            for item in items {
-                nsView.addAnnotation(item)
-            }
-        }
+        nsView.addAnnotations(items)
     }
     
     #endif

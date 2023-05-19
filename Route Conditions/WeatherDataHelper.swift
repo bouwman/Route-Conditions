@@ -19,11 +19,11 @@ class WeatherDataHelper: ObservableObject {
     @Published var hourlyForecast: Forecast<HourWeather>?
     @Published var attributionInfo: WeatherAttribution?
     
-    func updateCurrentWeather(userLocation: CLLocation) {
+    func updateCurrentWeather(location: CLLocation) {
         Task.detached(priority: .userInitiated) {
             do {
                 let forcast = try await self.service.weather(
-                    for: userLocation,
+                    for: location,
                     including: .current)
                 DispatchQueue.main.async {
                     self.currentWeather = forcast
