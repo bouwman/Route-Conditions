@@ -10,6 +10,14 @@ import WeatherKit
 import CoreLocation
 import MapKit
 
+class Item: NSObject, MKAnnotation {
+    var coordinate: CLLocationCoordinate2D
+    
+    init(coordinate: CLLocationCoordinate2D) {
+        self.coordinate = coordinate
+    }
+}
+
 struct ContentView: View {
     
     @Environment(\.colorScheme) var colorScheme
@@ -18,10 +26,13 @@ struct ContentView: View {
     @ObservedObject var userLocationHelper = LocationManager.shared
     
     @State private var region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 53.0, longitude: 0.0), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5))
-    @State private var selectedItem: MKAnnotation?
+    @State private var items: [Item] = []
+    @State private var selectedItem: Item?
     
     var body: some View {
-        MapClusterView(region: region, selectedItem: $selectedItem)
+        MapClusterView(region: $region, items: $items, selectedItem: $selectedItem) { coordinate in
+            items.append(Item(coordinate: coordinate))
+        }
             .ignoresSafeArea(edges: .vertical)
     }
     

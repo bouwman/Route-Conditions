@@ -14,13 +14,15 @@ public typealias ViewRepresentable = NSViewRepresentable
 public typealias ViewRepresentable = UIViewRepresentable
 #endif
 
-struct MapClusterView: ViewRepresentable {
+struct MapClusterView <T>: ViewRepresentable where T: MKAnnotation {
     
-    var region: MKCoordinateRegion
+    @Binding var region: MKCoordinateRegion
+    @Binding var items: [T]
+    @Binding var selectedItem: T?
+    
+    let onLongPress: (CLLocationCoordinate2D) -> ()
     
     lazy var locationService = LocationManager(accuracy: .greatestFiniteMagnitude)
-    
-    @Binding var selectedItem: MKAnnotation?
     
     func makeCoordinator() -> Coordinator {
         MapClusterView.Coordinator(self)
@@ -38,6 +40,12 @@ struct MapClusterView: ViewRepresentable {
                 uiView.deselectAnnotation(annotation, animated: true)
             }
         }
+        if items.count != 0 {
+            // Add annotations
+            for item in items {
+                uiView.addAnnotation(item)
+            }
+        }
     }
     
     #endif
@@ -52,6 +60,12 @@ struct MapClusterView: ViewRepresentable {
         if selectedItem == nil {
             for annotation in nsView.selectedAnnotations {
                 nsView.deselectAnnotation(annotation, animated: true)
+            }
+        }
+        if items.count != 0 {
+            // Add annotations
+            for item in items {
+                nsView.addAnnotation(item)
             }
         }
     }
@@ -93,12 +107,6 @@ struct MapClusterView: ViewRepresentable {
         compass.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: compassYPosition).isActive = true
         compass.compassVisibility = .adaptive
         
-        
-        // Add annotations
-//        for item in items {
-//            view.addAnnotation(item)
-//        }
-        
         return view
     }
     
@@ -132,7 +140,7 @@ struct MapClusterView: ViewRepresentable {
                 // Zoom to cluster
                 mapView.fitMapViewToAnnotations(annotations: cluster.memberAnnotations)
                 
-            } else if let item = view.annotation {
+            } else if let item = view.annotation as? T {
                 
                 parent.selectedItem = item
             }
@@ -151,18 +159,7 @@ struct MapClusterView: ViewRepresentable {
             
             guard let newCoordinates else { return }
             
-//            Task {
-//                do {
-//                    if let station = try await tideProvider.createCustomStation(latitude: newCoordinates.latitude, longitude: newCoordinates.longitude) {
-//                        
-//                        DispatchQueue.main.async {
-//                            let stationMainQueue = self.tideProvider.viewContext.object(with: station.objectID) as! Station
-//                            map?.addAnnotation(stationMainQueue)
-//                            self.parent.selectedItem = stationMainQueue
-//                        }
-//                    }
-//                } catch { }
-//            }
+            parent.onLongPress(newCoordinates)
         }
     }
 }
