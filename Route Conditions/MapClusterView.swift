@@ -20,6 +20,7 @@ struct MapClusterView <T>: ViewRepresentable where T: MKAnnotation {
     @Binding var items: [T]
     @Binding var selectedItem: T?
     
+    let customAnnotation: ((MKAnnotation) -> MKAnnotationView)?
     let onLongPress: (CLLocationCoordinate2D) -> ()
     
     lazy var locationService = LocationManager(accuracy: .greatestFiniteMagnitude)
@@ -110,7 +111,17 @@ struct MapClusterView <T>: ViewRepresentable where T: MKAnnotation {
         
         /// showing annotation on the map
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-            return AnnotationView(annotation: annotation, reuseIdentifier: AnnotationView.ReuseID)
+            
+            let annotationView: MKAnnotationView
+            
+            if let customAnnotation = parent.customAnnotation {
+                annotationView = customAnnotation(annotation)
+            } else {
+                annotationView = MKMarkerAnnotationView(annotation: annotation, reuseIdentifier: "annotation")
+                annotationView.clusteringIdentifier = "cluster"
+            }
+            
+            return annotationView
         }
         
         func mapView(_ mapView: MKMapView, didChange mode: MKUserTrackingMode, animated: Bool) {
@@ -151,30 +162,6 @@ struct MapClusterView <T>: ViewRepresentable where T: MKAnnotation {
             
             parent.onLongPress(newCoordinates)
         }
-    }
-}
-
-/// here posible to customize annotation view
-let clusterID = "clustering"
-
-class AnnotationView: MKMarkerAnnotationView {
-    
-    static let ReuseID = "stationAnnotation"
-    
-    /// setting the key for clustering annotations
-    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
-        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        clusteringIdentifier = clusterID
-    }
-    
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func prepareForDisplay() {
-        super.prepareForDisplay()
-        displayPriority = .defaultLow
     }
 }
 

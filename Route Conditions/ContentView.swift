@@ -10,8 +10,29 @@ import WeatherKit
 import CoreLocation
 import MapKit
 
+class WeatherAnnotationView: MKMarkerAnnotationView {
+    
+    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
+        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
+        self.clusteringIdentifier = "weather"
+        self.canShowCallout = true
+        self.displayPriority = .defaultLow
+        
+        guard let weatherItem = annotation as? Item else { return }
+        
+        self.glyphText = weatherItem.temperature ?? "-"
+        self.selectedGlyphImage = UIImage(systemName: "circle.fill")
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+}
+
 class Item: NSObject, MKAnnotation, Identifiable {
     var coordinate: CLLocationCoordinate2D
+    var temperature: String?
     
     init(coordinate: CLLocationCoordinate2D) {
         self.coordinate = coordinate
@@ -34,9 +55,13 @@ struct ContentView: View {
     @State private var selectedItem: Item?
     
     var body: some View {
-        MapClusterView(region: $region, items: $items, selectedItem: $selectedItem) { coordinate in
+        MapClusterView(region: $region, items: $items, selectedItem: $selectedItem, customAnnotation: { annotation in
+            return WeatherAnnotationView(annotation: annotation, reuseIdentifier: "weather")
+        }, onLongPress: { coordinate in
+            let item = Item(coordinate: coordinate)
+            i
             items.append(Item(coordinate: coordinate))
-        }
+        })
         .onChange(of: selectedItem) { item in            
             loadCurrentWeatherData()
         }
