@@ -10,6 +10,29 @@ import WeatherKit
 import CoreLocation
 import MapKit
 
+extension Wind.CompassDirection {
+    var imageName: String {
+        switch self {
+        case .north, .northNortheast, .northNorthwest:
+            return "arrow.up"
+        case .northeast:
+            return "arrow.up.right"
+        case .east, .eastNortheast, .eastSoutheast:
+            return "arrow.right"
+        case .southeast:
+            return "arrow.down.right"
+        case .south, .southSoutheast, .southSouthwest:
+            return "arrow.down"
+        case .southwest:
+            return "arrow.down.left"
+        case .west, .westNorthwest, .westSouthwest:
+            return "arrow.left"
+        case .northwest:
+            return "arrow.up.left"
+        }
+    }
+}
+
 class WeatherAnnotationView: MKMarkerAnnotationView {
     
     override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
@@ -17,11 +40,13 @@ class WeatherAnnotationView: MKMarkerAnnotationView {
         self.clusteringIdentifier = "weather"
         self.canShowCallout = true
         self.displayPriority = .defaultLow
+        self.subtitleVisibility = .visible
+        self.titleVisibility = .visible
         
-        guard let weatherItem = annotation as? Item else { return }
+        guard let weatherItem = annotation as? WeatherItem else { return }
+        guard let imageName = weatherItem.windDirectionImageName else { return }
         
-        self.glyphText = weatherItem.temperature ?? "-"
-        self.selectedGlyphImage = UIImage(systemName: "circle.fill")
+        self.glyphImage = UIImage(systemName: imageName)
     }
     
     required init?(coder: NSCoder) {
@@ -30,12 +55,22 @@ class WeatherAnnotationView: MKMarkerAnnotationView {
     
 }
 
-class Item: NSObject, MKAnnotation, Identifiable {
+class WeatherItem: NSObject, MKAnnotation, Identifiable {
     var coordinate: CLLocationCoordinate2D
-    var temperature: String?
+    var windSpeed: String?
+    var windGustSpeed: String?
+    var windDirectionImageName: String?
     
     init(coordinate: CLLocationCoordinate2D) {
         self.coordinate = coordinate
+    }
+    
+    var title: String? {
+        windSpeed
+    }
+    
+    var subtitle: String? {
+        windGustSpeed
     }
     
     var location: CLLocation {
@@ -51,34 +86,49 @@ struct ContentView: View {
     @ObservedObject var userLocationHelper = LocationManager.shared
     
     @State private var region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 53.0, longitude: 0.0), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5))
-    @State private var items: [Item] = []
-    @State private var selectedItem: Item?
+    @State private var items: [WeatherItem] = []
+    @State private var selectedItem: WeatherItem?
     
     var body: some View {
         MapClusterView(region: $region, items: $items, selectedItem: $selectedItem, customAnnotation: { annotation in
             return WeatherAnnotationView(annotation: annotation, reuseIdentifier: "weather")
         }, onLongPress: { coordinate in
-            let item = Item(coordinate: coordinate)
-            i
-            items.append(Item(coordinate: coordinate))
+            Task {
+                do {
+                    let item = WeatherItem(coordinate: coordinate)
+                    let forcast = try await WeatherService.shared.weather(
+                        for: item.location,
+                        including: .current)
+                    
+                    item.windSpeed = forcast.wind.speed.formatted()
+                    item.windGustSpeed = forcast.wind.gust?.formatted()
+                    item.windDirectionImageName = forcast.wind.compassDirection.imageName
+                    
+                    DispatchQueue.main.async {
+                        items.append(item)
+                    }
+                } catch {
+                    print(error.localizedDescription)
+                }
+            }
         })
         .onChange(of: selectedItem) { item in            
             loadCurrentWeatherData()
         }
         .ignoresSafeArea(edges: .vertical)
-        .sheet(item: $selectedItem) {
-            // On dismiss
-            selectedItem = nil
-        } content: { item in
-            Form {
-                Section {
-                    locationWeather
-                } footer: {
-                    attribution
-                }
-            }
-            .presentationDetents([.medium, .large])
-        }
+//        .sheet(item: $selectedItem) {
+//            // On dismiss
+//            selectedItem = nil
+//        } content: { item in
+//            Form {
+//                Section {
+//                    locationWeather
+//                } footer: {
+//                    attribution
+//                }
+//            }
+//            .presentationDetents([.medium, .large])
+//        }
     }
     
     var locationWeather: some View {
