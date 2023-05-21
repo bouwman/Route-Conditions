@@ -10,51 +10,6 @@ import WeatherKit
 import CoreLocation
 import MapKit
 
-extension Wind.CompassDirection {
-    var imageName: String {
-        switch self {
-        case .north, .northNortheast, .northNorthwest:
-            return "arrow.up"
-        case .northeast:
-            return "arrow.up.right"
-        case .east, .eastNortheast, .eastSoutheast:
-            return "arrow.right"
-        case .southeast:
-            return "arrow.down.right"
-        case .south, .southSoutheast, .southSouthwest:
-            return "arrow.down"
-        case .southwest:
-            return "arrow.down.left"
-        case .west, .westNorthwest, .westSouthwest:
-            return "arrow.left"
-        case .northwest:
-            return "arrow.up.left"
-        }
-    }
-}
-
-class WeatherAnnotationView: MKMarkerAnnotationView {
-    
-    override init(annotation: MKAnnotation?, reuseIdentifier: String?) {
-        super.init(annotation: annotation, reuseIdentifier: reuseIdentifier)
-        self.clusteringIdentifier = "weather"
-        self.canShowCallout = true
-        self.displayPriority = .defaultLow
-        self.subtitleVisibility = .visible
-        self.titleVisibility = .visible
-        
-        guard let weatherItem = annotation as? WeatherItem else { return }
-        guard let imageName = weatherItem.windDirectionImageName else { return }
-        
-        self.glyphImage = UIImage(systemName: imageName)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-}
-
 class WeatherItem: NSObject, MKAnnotation, Identifiable {
     var coordinate: CLLocationCoordinate2D
     var windSpeed: String?
@@ -90,7 +45,7 @@ struct ContentView: View {
     @State private var selectedItem: WeatherItem?
     
     var body: some View {
-        MapClusterView(region: $region, items: $items, selectedItem: $selectedItem, customAnnotation: { annotation in
+        MapView(region: $region, items: $items, selectedItem: $selectedItem, customAnnotation: { annotation in
             return WeatherAnnotationView(annotation: annotation, reuseIdentifier: "weather")
         }, onLongPress: { coordinate in
             Task {
@@ -116,28 +71,29 @@ struct ContentView: View {
             loadCurrentWeatherData()
         }
         .ignoresSafeArea(edges: .vertical)
-//        .sheet(item: $selectedItem) {
-//            // On dismiss
-//            selectedItem = nil
-//        } content: { item in
-//            Form {
-//                Section {
-//                    locationWeather
-//                } footer: {
-//                    attribution
-//                }
-//            }
-//            .presentationDetents([.medium, .large])
-//        }
+        .sheet(item: $selectedItem) {
+            // On dismiss
+            selectedItem = nil
+        } content: { item in
+            Form {
+                Section {
+                    locationWeather
+                }
+            }
+            .presentationDetents([.medium, .large])
+        }
     }
     
     var locationWeather: some View {
         Section {
             if let currentWeather = weatherDataHelper.currentWeather {
+                Label(currentWeather.condition.description, systemImage: currentWeather.symbolName)
                 Label(currentWeather.temperature.formatted(), systemImage: "thermometer")
                 Label("\(Int(currentWeather.humidity * 100))%", systemImage: "humidity.fill")
+                Label(currentWeather.wind.compassDirection.description, systemImage: currentWeather.wind.compassDirection.imageName)
+                Label(currentWeather.wind.speed.formatted() + ", max: " + (currentWeather.wind.gust?.formatted() ?? "-"), systemImage: "wind")
+                Label(currentWeather.pressure.formatted() + ", " + currentWeather.pressureTrend.description, systemImage: "barometer")
                 Label(currentWeather.isDaylight ? "Day time" : "Night time", systemImage: currentWeather.isDaylight ? "sun.max.fill" : "moon.stars.fill")
-                
             }
         }
     }

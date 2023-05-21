@@ -14,7 +14,7 @@ public typealias ViewRepresentable = NSViewRepresentable
 public typealias ViewRepresentable = UIViewRepresentable
 #endif
 
-struct MapClusterView <T>: ViewRepresentable where T: MKAnnotation {
+struct MapView <T>: ViewRepresentable where T: MKAnnotation {
     
     @Binding var region: MKCoordinateRegion
     @Binding var items: [T]
@@ -26,7 +26,7 @@ struct MapClusterView <T>: ViewRepresentable where T: MKAnnotation {
     lazy var locationService = LocationManager(accuracy: .greatestFiniteMagnitude)
     
     func makeCoordinator() -> Coordinator {
-        MapClusterView.Coordinator(self)
+        MapView.Coordinator(self)
     }
     
     #if os(iOS)
@@ -103,14 +103,17 @@ struct MapClusterView <T>: ViewRepresentable where T: MKAnnotation {
     
     class Coordinator: NSObject, MKMapViewDelegate {
         
-        var parent: MapClusterView
+        var parent: MapView
         
-        init(_ parent: MapClusterView) {
+        init(_ parent: MapView) {
             self.parent = parent
         }
         
         /// showing annotation on the map
         func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+            
+            //  Don't want to show a custom image if the annotation is the user's location.
+            guard (annotation is MKUserLocation) == false else { return nil }
             
             let annotationView: MKAnnotationView
             
