@@ -40,37 +40,23 @@ struct ContentView: View {
     @ObservedObject var weatherDataHelper = WeatherDataHelper.shared
     @ObservedObject var userLocationHelper = LocationManager.shared
     
-    @State private var region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 53.0, longitude: 0.0), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5))
+    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    
     @State private var items: [WeatherItem] = []
     @State private var selectedItem: WeatherItem?
     
     var body: some View {
-        MapView(region: $region, items: $items, selectedItem: $selectedItem, customAnnotation: { annotation in
-            return WeatherAnnotationView(annotation: annotation, reuseIdentifier: "weather")
-        }, onLongPress: { coordinate in
-            Task {
-                do {
-                    let item = WeatherItem(coordinate: coordinate)
-                    let forcast = try await WeatherService.shared.weather(
-                        for: item.location,
-                        including: .current)
-                    
-                    item.windSpeed = forcast.wind.speed.formatted()
-                    item.windGustSpeed = forcast.wind.gust?.formatted()
-                    item.windDirectionImageName = forcast.wind.compassDirection.imageName
-                    
-                    DispatchQueue.main.async {
-                        items.append(item)
-                    }
-                } catch {
-                    print(error.localizedDescription)
-                }
-            }
-        })
-        .onChange(of: selectedItem) { item in            
+        Map(position: $position) {
+            UserAnnotation()
+        }
+        .mapControls {
+            MapCompass()
+            MapUserLocationButton()
+            MapScaleView()
+        }
+        .onChange(of: selectedItem) {
             loadCurrentWeatherData()
         }
-        .ignoresSafeArea(edges: .vertical)
         .sheet(item: $selectedItem) {
             // On dismiss
             selectedItem = nil
@@ -81,6 +67,25 @@ struct ContentView: View {
                 }
             }
             .presentationDetents([.medium, .large])
+        }
+    }
+    
+    func getWeather(coordinate: CLLocationCoordinate2D) async {
+        do {
+            let item = WeatherItem(coordinate: coordinate)
+            let forcast = try await WeatherService.shared.weather(
+                for: item.location,
+                including: .current)
+            
+            item.windSpeed = forcast.wind.speed.formatted()
+            item.windGustSpeed = forcast.wind.gust?.formatted()
+            item.windDirectionImageName = forcast.wind.compassDirection.imageName
+            
+            DispatchQueue.main.async {
+                items.append(item)
+            }
+        } catch {
+            print(error.localizedDescription)
         }
     }
     
