@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+enum Constants {
+    static var name = String(localized: "Route Conditions")
+    static let earthRadius = 6371000.0 // meters
+}

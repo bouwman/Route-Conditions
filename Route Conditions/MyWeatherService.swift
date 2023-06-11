@@ -1,5 +1,5 @@
 //
-//  WeatherService.swift
+//  MyWeatherService.swift
 //  Route Conditions
 //
 //  Created by Tassilo Bouwman on 11.06.23.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-class WeatherService {
+class MyWeatherService {
     var apiKey: String
     var baseUrl: String
     

@@ -37,10 +37,17 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     }
     
     func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
+        #if os(macOS)
+        if manager.authorizationStatus == .authorizedAlways ||
+            manager.authorizationStatus == .authorized {
+            self.locationManager.requestLocation()
+        }
+        #else
         if manager.authorizationStatus == .authorizedAlways ||
             manager.authorizationStatus == .authorizedWhenInUse {
             self.locationManager.requestLocation()
         }
+        #endif
     }
     
 }
