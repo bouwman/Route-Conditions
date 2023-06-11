@@ -17,11 +17,6 @@ class WeatherAnnotationView: MKMarkerAnnotationView {
         self.subtitleVisibility = .visible
         self.titleVisibility = .visible
         self.animatesWhenAdded = true
-        
-        guard let weatherItem = annotation as? WeatherItem else { return }
-        guard let imageName = weatherItem.windDirectionImageName else { return }
-        
-        self.glyphImage = UIImage(systemName: imageName)
     }
     
     required init?(coder: NSCoder) {

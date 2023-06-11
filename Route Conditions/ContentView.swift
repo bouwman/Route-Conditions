@@ -10,29 +10,6 @@ import WeatherKit
 import CoreLocation
 import MapKit
 
-class WeatherItem: NSObject, MKAnnotation, Identifiable {
-    var coordinate: CLLocationCoordinate2D
-    var windSpeed: String?
-    var windGustSpeed: String?
-    var windDirectionImageName: String?
-    
-    init(coordinate: CLLocationCoordinate2D) {
-        self.coordinate = coordinate
-    }
-    
-    var title: String? {
-        windSpeed
-    }
-    
-    var subtitle: String? {
-        windGustSpeed
-    }
-    
-    var location: CLLocation {
-        CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
-    }
-}
-
 struct ContentView: View {
     
     @Environment(\.colorScheme) var colorScheme
@@ -40,53 +17,30 @@ struct ContentView: View {
     @ObservedObject var weatherDataHelper = WeatherDataHelper.shared
     @ObservedObject var userLocationHelper = LocationManager.shared
     
-    @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
+    @State private var route: Route = Route()
+    @State private var predictedRoute: Route? = nil
+    @State private var selectedItem: MKAnnotation? = nil
     
-    @State private var items: [WeatherItem] = []
-    @State private var selectedItem: WeatherItem?
+    private var routeCalcService = RouteCalculationService(boat: Boat())
+    
+    @State private var region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 53.0, longitude: 0.0), span: MKCoordinateSpan(latitudeDelta: 5, longitudeDelta: 5))
     
     var body: some View {
-        Map(position: $position) {
-            UserAnnotation()
-        }
-        .mapControls {
-            MapCompass()
-            MapUserLocationButton()
-            MapScaleView()
-        }
-        .onChange(of: selectedItem) {
-            loadCurrentWeatherData()
-        }
-        .sheet(item: $selectedItem) {
-            // On dismiss
-            selectedItem = nil
-        } content: { item in
-            Form {
-                Section {
-                    locationWeather
+        MapView(region: $region, items: $route.annotations, selectedItem: $selectedItem, customAnnotation: { annotation in
+            return WeatherAnnotationView(annotation: annotation, reuseIdentifier: "weather")
+        }, onLongPress: { coordinate in
+            let waypoint = Waypoint(latitude: coordinate.latitude, longitude: coordinate.longitude)
+            route.waypoints.append(waypoint)
+        })
+        .toolbar {
+            ToolbarItemGroup(placement: .bottomBar) {
+                Button("Calculate") {
+                    routeCalcService.route = route
+                    predictedRoute = routeCalcService.calculatePredictedRoute()
                 }
             }
-            .presentationDetents([.medium, .large])
         }
-    }
-    
-    func getWeather(coordinate: CLLocationCoordinate2D) async {
-        do {
-            let item = WeatherItem(coordinate: coordinate)
-            let forcast = try await WeatherService.shared.weather(
-                for: item.location,
-                including: .current)
-            
-            item.windSpeed = forcast.wind.speed.formatted()
-            item.windGustSpeed = forcast.wind.gust?.formatted()
-            item.windDirectionImageName = forcast.wind.compassDirection.imageName
-            
-            DispatchQueue.main.async {
-                items.append(item)
-            }
-        } catch {
-            print(error.localizedDescription)
-        }
+        .toolbarBackground(.visible, for: .bottomBar)
     }
     
     var locationWeather: some View {
@@ -122,22 +76,6 @@ struct ContentView: View {
     func loadUserCurrentLocation() {
         userLocationHelper.requestPermission()
         userLocationHelper.locationManager.requestLocation()
-    }
-    
-    func loadCurrentWeatherData() {
-        guard let selectedItem else { return }
-        Task.detached { @MainActor in
-            weatherDataHelper.updateCurrentWeather(location: selectedItem.location)
-            weatherDataHelper.updateAttributionInfo()
-        }
-    }
-    
-    func loadHourlyWeatherData() {
-        guard let selectedItem else { return }
-        Task.detached { @MainActor in
-            weatherDataHelper.updateHourlyWeather(userLocation: selectedItem.location)
-            weatherDataHelper.updateAttributionInfo()
-        }
     }
 }
 

@@ -7,173 +7,141 @@
 
 import Foundation
 
+import Foundation
+
 class RouteCalculationService {
     var boat: Boat
     var route: Route
-    var weatherForecast: WeatherForecast
-    var weatherForecastService: MyWeatherService
     
-    init(boat: Boat, route: Route, weatherForecast: WeatherForecast, weatherForecastService: MyWeatherService) {
+    init(boat: Boat) {
         self.boat = boat
-        self.route = route
-        self.weatherForecast = weatherForecast
-        self.weatherForecastService = weatherForecastService
-    }
-    
-    func calculateRoute() -> [Waypoint] {
-        var waypoints: [Waypoint] = []
-        var previousWaypoint: Waypoint?
-        
-        for (index, waypoint) in route.waypoints.enumerated() {
-            var estimatedTime: Date
-            
-            if let previousWaypoint = previousWaypoint {
-                let timeInterval = calculateTimeInterval(previousWaypoint: previousWaypoint, currentWaypoint: waypoint)
-                estimatedTime = Calendar.current.date(byAdding: .second, value: Int(timeInterval), to: previousWaypoint.time)!
-            } else {
-                estimatedTime = route.departureDate
-            }
-            
-            let boatSpeed = calculateBoatSpeed(waypoint: waypoint, date: estimatedTime)
-            let estimatedLocation = calculateEstimatedLocation(previousWaypoint: previousWaypoint, currentWaypoint: waypoint, totalSpeed: boatSpeed)
-            let weatherForecast = calculateWeatherForecastAtWaypoint(waypoint: waypoint)
-            
-            let estimatedWaypoint = Waypoint(location: estimatedLocation, time: estimatedTime, weatherForecast: weatherForecast)
-            waypoints.append(estimatedWaypoint)
-            
-            previousWaypoint = estimatedWaypoint
-            
-            if index == route.waypoints.count - 1 {
-                let arrivalTime = Calendar.current.date(byAdding: .second, value: Int(calculateTimeInterval(previousWaypoint: estimatedWaypoint, currentWaypoint: waypoint)), to: estimatedWaypoint.time)!
-                let finalWaypoint = Waypoint(location: waypoint.location, time: arrivalTime, weatherForecast: calculateWeatherForecastAtWaypoint(waypoint: waypoint))
-                waypoints.append(finalWaypoint)
-            }
-        }
-        
-        return waypoints
+        self.route = Route()
     }
 
-    
-    func calculateWaypointTime(previousWaypoint: Waypoint?, currentWaypoint: Waypoint, totalSpeed: Double) -> Date {
-        guard let previousWaypoint = previousWaypoint else {
-            return currentWaypoint.time
+    func calculatePredictedRoute() -> Route {
+        var predictedRoute = Route()
+        var currentTime = Date()
+        let timeIntervalBetweenWaypoints: TimeInterval = 60 * 60 // 1 hour, for example
+
+        for (index, waypoint) in route.waypoints.enumerated() {
+            if let weather = getWeatherDataForWaypoint(waypoint: waypoint) {
+                let boatSpeed = calculateBoatSpeedAtWaypoint(waypoint: waypoint, weather: weather)
+                let estimatedTimeOfArrival = calculateEstimatedTimeOfArrival(waypoint: waypoint, boatSpeed: boatSpeed)
+                let newWaypoint = Waypoint(latitude: waypoint.latitude, longitude: waypoint.longitude, time: estimatedTimeOfArrival, weather: weather)
+                predictedRoute.waypoints.append(newWaypoint)
+
+                if index < route.waypoints.count - 1 {
+                    currentTime = estimatedTimeOfArrival
+                    let nextWaypoint = route.waypoints[index + 1]
+
+                    while currentTime < nextWaypoint.time {
+                        currentTime += timeIntervalBetweenWaypoints
+                        let newIntermediateWaypoint = calculateNewWaypoint(waypoint: waypoint, boatSpeed: boatSpeed, timeInterval: timeIntervalBetweenWaypoints)
+                        if let intermediateWeather = getWeatherDataForWaypoint(waypoint: newIntermediateWaypoint) {
+                            let intermediateWaypoint = Waypoint(latitude: newIntermediateWaypoint.latitude, longitude: newIntermediateWaypoint.longitude, time: currentTime, weather: intermediateWeather)
+                            predictedRoute.waypoints.append(intermediateWaypoint)
+                        }
+                    }
+                }
+            }
         }
-        
-        let distance = calculateDistance(previousLocation: previousWaypoint.location, currentLocation: currentWaypoint.location)
-        let timeInterval = distance / totalSpeed
-        let estimatedTime = previousWaypoint.time.addingTimeInterval(timeInterval)
-        
-        return estimatedTime
+
+        return predictedRoute
     }
-    
-    func calculateBoatSpeed(waypoint: Waypoint, date: Date) -> Double {
-        // TODO: Add time to forecast
-        let weatherForecast = weatherForecastService.getWeatherForecast(location: waypoint.location, date: date)
-        let windSpeed = weatherForecast.windSpeed
-        let windDirection = weatherForecast.windDirection
-        let currentSpeed = weatherForecast.oceanCurrentSpeed
-        let currentDirection = weatherForecast.oceanCurrentDirection
-        
-        let windInfluence = calculateWindInfluenceAtWaypoint(waypoint: waypoint, windSpeed: windSpeed, windDirection: windDirection)
-        let currentInfluence = calculateOceanCurrentInfluenceAtWaypoint(waypoint: waypoint, currentSpeed: currentSpeed, currentDirection: currentDirection)
-        let boatSpeed = boat.averageSpeed * windInfluence * currentInfluence
-        
+
+
+    private func calculateBoatSpeedAtWaypoint(waypoint: Waypoint, weather: WeatherData) -> Double {
+        let windDirection = weather.windDirection
+        let windSpeed = weather.windSpeed
+        let oceanCurrentDirection = weather.oceanCurrentDirection
+        let oceanCurrentSpeed = weather.oceanCurrentSpeed
+
+        let windInfluenceFactorIndex = Int(windDirection / 360.0 * Double(boat.windInfluenceFactors.count))
+        let windInfluenceFactor = boat.windInfluenceFactors[windInfluenceFactorIndex]
+
+        let windEffect = windSpeed * windInfluenceFactor
+
+        let boatDirection = calculateDirection(from: waypoint, to: waypoint) // Assuming the boat is moving in a straight line between waypoints
+        let currentDirectionDifference = abs(boatDirection - oceanCurrentDirection)
+        let currentEffect = oceanCurrentSpeed * cos(currentDirectionDifference * .pi / 180.0)
+
+        let boatSpeed = boat.averageSpeed + windEffect + currentEffect
         return boatSpeed
     }
     
-    func calculateWindInfluenceAtWaypoint(waypoint: Waypoint, windSpeed: Double, windDirection: Double) -> Double {
-        // TODO: Calculate wind influence
-        return 1.0
-    }
-    
-    func calculateOceanCurrentInfluenceAtWaypoint(waypoint: Waypoint, currentSpeed: Double, currentDirection: Double) -> Double {
-        // TODO: Calculate current influence
-        return 1.0
-    }
-    
-    func calculateTimeInterval(previousWaypoint: Waypoint, currentWaypoint: Waypoint) -> TimeInterval {
-        let distance = calculateDistance(previousLocation: previousWaypoint.location, currentLocation: currentWaypoint.location)
-        let boatSpeed = calculateBoatSpeed(waypoint: currentWaypoint, date: currentWaypoint.time)
-        let timeInterval = distance / boatSpeed
-        
-        return timeInterval
-    }
-    
-    func calculateEstimatedLocation(previousWaypoint: Waypoint?, currentWaypoint: Waypoint, totalSpeed: Double) -> Location {
-        guard let previousWaypoint = previousWaypoint else {
-            return currentWaypoint.location
-        }
-        
-        let distance = calculateDistance(previousLocation: previousWaypoint.location, currentLocation: currentWaypoint.location)
-        let timeInterval = distance / totalSpeed
-        let bearing = calculateBearing(previousLocation: previousWaypoint.location, currentLocation: currentWaypoint.location)
-        let estimatedLocation = calculateLocationFromDistanceAndBearing(startLocation: previousWaypoint.location, distance: totalSpeed * timeInterval, bearing: bearing)
-        
-        return estimatedLocation
+    private func calculateDirection(from startWaypoint: Waypoint, to endWaypoint: Waypoint) -> Double {
+        let lat1 = startWaypoint.latitude * .pi / 180.0
+        let lon1 = startWaypoint.longitude * .pi / 180.0
+        let lat2 = endWaypoint.latitude * .pi / 180.0
+        let lon2 = endWaypoint.longitude * .pi / 180.0
+
+        let dLon = lon2 - lon1
+        let y = sin(dLon) * cos(lat2)
+        let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
+        let bearing = atan2(y, x)
+
+        return (bearing * 180.0 / .pi + 360).truncatingRemainder(dividingBy: 360)
     }
 
-    func calculateWeatherForecastAtWaypoint(waypoint: Waypoint) -> WeatherForecast {
-        let weatherForecast = weatherForecastService.getWeatherForecast(location: waypoint.location, date: waypoint.time)
-        return weatherForecast
+
+    private func calculateNewWaypoint(waypoint: Waypoint, boatSpeed: Double, timeInterval: TimeInterval) -> Waypoint {
+        let distance = boatSpeed * timeInterval
+        let bearing = calculateDirection(from: waypoint, to: waypoint) * .pi / 180.0
+
+        let earthRadius = 6371.0 // Earth's radius in kilometers
+        let angularDistance = distance / earthRadius
+
+        let lat1 = waypoint.latitude * .pi / 180.0
+        let lon1 = waypoint.longitude * .pi / 180.0
+
+        let newLat = asin(sin(lat1) * cos(angularDistance) + cos(lat1) * sin(angularDistance) * cos(bearing))
+        let newLon = lon1 + atan2(sin(bearing) * sin(angularDistance) * cos(lat1), cos(angularDistance) - sin(lat1) * sin(newLat))
+
+        let newLatitude = newLat * 180.0 / .pi
+        let newLongitude = newLon * 180.0 / .pi
+
+        let newWaypoint = Waypoint(latitude: newLatitude, longitude: newLongitude, time: waypoint.time.addingTimeInterval(timeInterval), weather: waypoint.weather!)
+
+        return newWaypoint
+    }
+
+    private func calculateEstimatedTimeOfArrival(waypoint: Waypoint, boatSpeed: Double) -> Date {
+        let nextIndex = route.waypoints.firstIndex { $0 == waypoint }! + 1
+        if nextIndex < route.waypoints.count {
+            let nextWaypoint = route.waypoints[nextIndex]
+            let distance = calculateDistance(from: waypoint, to: nextWaypoint)
+            let timeToNextWaypoint = distance / boatSpeed
+            return waypoint.time.addingTimeInterval(timeToNextWaypoint)
+        } else {
+            return waypoint.time
+        }
     }
     
-    func calculateDistance(previousLocation: Location, currentLocation: Location) -> Double {
-        let previousLatitude = previousLocation.latitude.toRadians()
-        let previousLongitude = previousLocation.longitude.toRadians()
-        let currentLatitude = currentLocation.latitude.toRadians()
-        let currentLongitude = currentLocation.longitude.toRadians()
-        
-        let deltaLatitude = currentLatitude - previousLatitude
-        let deltaLongitude = currentLongitude - previousLongitude
-        
-        let a = sin(deltaLatitude / 2) * sin(deltaLatitude / 2) + cos(previousLatitude) * cos(currentLatitude) * sin(deltaLongitude / 2) * sin(deltaLongitude / 2)
+    private func getWeatherDataForWaypoint(waypoint: Waypoint) -> WeatherData? {
+        let weatherService = RouteWeatherService()
+        let weatherData = weatherService.getWeatherData(latitude: waypoint.latitude, longitude: waypoint.longitude, time: waypoint.time)
+        return weatherData
+    }
+    
+    private func calculateDistance(from startWaypoint: Waypoint, to endWaypoint: Waypoint) -> Double {
+        let lat1 = startWaypoint.latitude * .pi / 180.0
+        let lon1 = startWaypoint.longitude * .pi / 180.0
+        let lat2 = endWaypoint.latitude * .pi / 180.0
+        let lon2 = endWaypoint.longitude * .pi / 180.0
+
+        let dLat = lat2 - lat1
+        let dLon = lon2 - lon1
+
+        let a = sin(dLat / 2) * sin(dLat / 2) + cos(lat1) * cos(lat2) * sin(dLon / 2) * sin(dLon / 2)
         let c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        
-        let distance = Constants.earthRadius * c
-        
-        return distance
-    }
-    
-    func calculateBearing(previousLocation: Location, currentLocation: Location) -> Double {
-        let previousLatitude = previousLocation.latitude.toRadians()
-        let previousLongitude = previousLocation.longitude.toRadians()
-        let currentLatitude = currentLocation.latitude.toRadians()
-        let currentLongitude = currentLocation.longitude.toRadians()
-        
-        let deltaLongitude = currentLongitude - previousLongitude
-        
-        let y = sin(deltaLongitude) * cos(currentLatitude)
-        let x = cos(previousLatitude) * sin(currentLatitude) - sin(previousLatitude) * cos(currentLatitude) * cos(deltaLongitude)
-        
-        let bearing = atan2(y, x)
-        
-        return (bearing.toDegrees() + 360.0).truncatingRemainder(dividingBy: 360.0)
-    }
-    
-    func calculateLocationFromDistanceAndBearing(startLocation: Location, distance: Double, bearing: Double) -> Location {
-        let startLatitude = startLocation.latitude.toRadians()
-        let startLongitude = startLocation.longitude.toRadians()
-        let angularDistance = distance / Constants.earthRadius
-        let bearingRadians = bearing.toRadians()
-        
-        let endLatitude = asin(sin(startLatitude) * cos(angularDistance) + cos(startLatitude) * sin(angularDistance) * cos(bearingRadians))
-        let endLongitude = startLongitude + atan2(sin(bearingRadians) * sin(angularDistance) * cos(startLatitude), cos(angularDistance) - sin(startLatitude) * sin(endLatitude))
-        
-        let latitude = endLatitude.toDegrees()
-        let longitude = endLongitude.toDegrees()
-        
-        let location = Location(latitude: latitude, longitude: longitude)
-        
-        return location
+
+        let earthRadius = 6371.0 // Earth's radius in kilometers
+        return earthRadius * c
     }
 }
 
-extension Double {
-    func toRadians() -> Double {
-        return self * .pi / 180.0
-    }
-    
-    func toDegrees() -> Double {
-        return self * 180.0 / .pi
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        return indices.contains(index) ? self[index] : nil
     }
 }
