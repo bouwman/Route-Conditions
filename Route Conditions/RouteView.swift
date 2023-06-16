@@ -28,16 +28,10 @@ struct RouteView: View {
         Map(position: $position) {
             UserAnnotation()
             ForEach(route.waypoints) { waypoint in
-                Marker(coordinate: waypoint.coordinate) {
-                    
-                }
+                Marker("", systemImage: "wind", coordinate: waypoint.coordinate)
             }
             if let predictedWaypoints = route.predictedWaypoints {
-                ForEach(predictedWaypoints) { waypoint in
-                    Marker(coordinate: waypoint.coordinate) {
-                        
-                    }
-                }
+                MapPolyline(coordinates: predictedWaypoints.coordinates)
             }
         }
         .mapControls {

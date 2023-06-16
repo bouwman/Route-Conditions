@@ -72,22 +72,3 @@ extension CLLocationDegrees {
         return self * 180.0 / .pi
     }
 }
-
-extension Collection where Element == Waypoint {
-    var mapRect: MKMapRect {
-        let mapEdgePadding = UIEdgeInsets(top: 70, left: 70, bottom: 70, right: 70)
-        var zoomRect = MKMapRect.null
-
-        for annotation in self {
-            let aPoint = MKMapPoint(annotation.coordinate)
-            let rect = MKMapRect(x: aPoint.x, y: aPoint.y, width: 0.1, height: 0.1)
-
-            if zoomRect.isNull {
-                zoomRect = rect
-            } else {
-                zoomRect = zoomRect.union(rect)
-            }
-        }
-        return zoomRect
-    }
-}
