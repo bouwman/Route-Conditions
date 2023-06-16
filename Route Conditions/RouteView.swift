@@ -47,21 +47,25 @@ struct RouteView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .bottomBar) {
-                Button("Add") {
-                    let waypoint = Waypoint(latitude: centerCoordinate.latitude, longitude: centerCoordinate.longitude)
-                    route.waypoints.append(waypoint)
-                }
-                Button("Calculate") {
-                    route.predictedWaypoints = routeCalculationService.calculateRoute(vehicle: Vehicle(), inputRoute: route.waypoints, departureTime: Date(), timeInterval: 60 * 60)
-                }
                 Button("Clear") {
                     route.waypoints = []
                     route.predictedWaypoints = []
                     do { try context.save() } catch { print(error) }
                 }
+                Spacer()
+                Button("Add") {
+                    let waypoint = Waypoint(latitude: centerCoordinate.latitude, longitude: centerCoordinate.longitude)
+                    route.waypoints.append(waypoint)
+                }
+            }
+            ToolbarItem(placement: .navigation) {
+                Button("Calculate") {
+                    route.predictedWaypoints = routeCalculationService.calculateRoute(vehicle: Vehicle(), inputRoute: route.waypoints, departureTime: Date(), timeInterval: 60 * 60)
+                }
             }
         }
         .toolbarBackground(.visible, for: .bottomBar)
+        .toolbarBackground(.visible, for: .navigationBar)
     }
     
     init(route: Route) {

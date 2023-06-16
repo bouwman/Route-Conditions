@@ -28,6 +28,13 @@ struct ContentView: View {
             .toolbar {
                 Button("Add") {
                     let route = Route(name: "New Route")
+                    
+                    let london = Waypoint(latitude: 51.5074, longitude: -0.1278, time: Date())
+                    let manchester = Waypoint(latitude: 53.4808, longitude: -2.2426, time: Date())
+                    let edinburgh = Waypoint(latitude: 55.9533, longitude: -3.1883, time: Date())
+                    
+                    route.waypoints = [london, manchester, edinburgh]
+                    
                     context.insert(route)
                 }
             }

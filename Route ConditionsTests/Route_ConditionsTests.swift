@@ -28,7 +28,9 @@ class RouteCalculationServiceTests: XCTestCase {
         let manchester = Waypoint(latitude: 53.4808, longitude: -2.2426, time: Date())
         let edinburgh = Waypoint(latitude: 55.9533, longitude: -3.1883, time: Date())
         
-        let inputRoute = Route(id: UUID(), name: "UK Trip", waypoints: [london, manchester, edinburgh])
+        let inputRoute = Route(name: "UK Trip")
+        
+        inputRoute.waypoints = [london, manchester, edinburgh]
         
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy/MM/dd HH:mm"
@@ -36,9 +38,9 @@ class RouteCalculationServiceTests: XCTestCase {
         
         let timeInterval: TimeInterval = 30 * 60 // 30 minutes in seconds
         
-        let calculatedRoute = routeCalculationService.calculateRoute(vehicle: vehicle, inputRoute: inputRoute, departureTime: departureTime, timeInterval: timeInterval)
+        let calculatedRoute = routeCalculationService.calculateRoute(vehicle: vehicle, inputRoute: inputRoute.waypoints, departureTime: departureTime, timeInterval: timeInterval)
         
-        XCTAssertEqual(calculatedRoute.waypoints.count, 16, "The number of waypoints should be 16")
+        XCTAssertEqual(calculatedRoute.count, 16, "The number of waypoints should be 16")
         
         let expectedTimes = [
             "2023/06/14 10:00",
@@ -59,7 +61,7 @@ class RouteCalculationServiceTests: XCTestCase {
             "2023/06/14 16:42"
         ]
         
-        for (index, waypoint) in calculatedRoute.waypoints.enumerated() {
+        for (index, waypoint) in calculatedRoute.enumerated() {
             let expectedTime = dateFormatter.date(from: expectedTimes[index])!
             XCTAssertEqual(waypoint.time, expectedTime, "The waypoint time at index \(index) should be \(expectedTimes[index])")
         }
