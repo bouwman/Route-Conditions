@@ -6,12 +6,19 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct RouteConditionsApp: App {
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: [Route.self, Waypoint.self, Vehicle.self])
+        
+//        DocumentGroup(viewing: Route.self, contentType: Constants.documentType) {
+//            ContentView()
+//        }
     }
 }

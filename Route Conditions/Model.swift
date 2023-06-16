@@ -10,60 +10,42 @@ import CoreLocation
 import SwiftUI
 import Observation
 import MapKit
+import SwiftData
 
-struct Boat {
-    var id: UUID
-    var name: String
-    var averageSpeed: Double
-    var windInfluenceFactors: [Double] // Factors for each wind direction
+@Model class Vehicle {
+    @Attribute var id: UUID
+    @Attribute var name: String
+    @Attribute var averageSpeed: Double
     
-    init(id: UUID, name: String, averageSpeed: Double, windInfluenceFactors: [Double]) {
+    init(id: UUID, name: String, averageSpeed: Double) {
         self.id = id
         self.name = name
         self.averageSpeed = averageSpeed
-        self.windInfluenceFactors = windInfluenceFactors
     }
     
-    init() {
-        self.init(id: UUID(), name: "My Boat", averageSpeed: 5.0, windInfluenceFactors: [0.9, 1.0, 1.1])
+    convenience init() {
+        self.init(id: UUID(), name: "My Boat", averageSpeed: 5.0)
     }
 }
 
-@Observable struct Route {
-    var id: UUID = UUID()
-    var name: String = "New Route"
-    var waypoints: [Waypoint] = []
+@Model class Route {
+    @Attribute(.unique) var id: UUID
+    @Attribute var name: String
+    @Relationship(.cascade) var waypoints: [Waypoint]
+    @Relationship(.cascade) var predictedWaypoints: [Waypoint]?
     
-    var coordinates: [CLLocationCoordinate2D] {
-        waypoints.map { $0.coordinate }
-    }
-    
-    var annotations: [MKAnnotation] {
-        get {
-            access(keyPath: \.annotations)
-            return waypoints.map { WaypointAnnotation(waypoint: $0) }
-        }
-        set {
-            withMutation(keyPath: \.annotations) {
-                waypoints = newValue.map { Waypoint(latitude: $0.coordinate.latitude, longitude: $0.coordinate.longitude) }
-            }
-        }
-    }
-    
-    private class WaypointAnnotation: NSObject, MKAnnotation {
-        var coordinate: CLLocationCoordinate2D
-        
-        init(waypoint: Waypoint) {
-            self.coordinate = waypoint.coordinate
-        }
+    init(name: String) {
+        self.id = UUID()
+        self.name = String("New Route")
+        self.waypoints = []
+        self.predictedWaypoints = []
     }
 }
 
-struct Waypoint: Equatable, Identifiable {
-    var latitude: Double
-    var longitude: Double
-    var time: Date
-    var weather: WeatherData?
+@Model class Waypoint {
+    @Attribute var latitude: Double
+    @Attribute var longitude: Double
+    @Attribute var time: Date?
     
     var id: Double {
         return latitude + longitude
@@ -73,18 +55,10 @@ struct Waypoint: Equatable, Identifiable {
         return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
     
-    init(latitude: Double, longitude: Double, time: Date, weather: WeatherData) {
+    init(latitude: Double, longitude: Double, time: Date? = nil) {
         self.latitude = latitude
         self.longitude = longitude
         self.time = time
-        self.weather = weather
-    }
-    
-    init(latitude: Double, longitude: Double) {
-        self.latitude = latitude
-        self.longitude = longitude
-        self.time = Date()
-        self.weather = nil
     }
 }
 
@@ -96,3 +70,7 @@ struct WeatherData: Equatable {
     var waveHeight: Double
     var waveDirection: Double
 }
+
+
+
+

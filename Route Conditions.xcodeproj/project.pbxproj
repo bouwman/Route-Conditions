@@ -20,7 +20,19 @@
 		4799D6A02A17C4850090EBF1 /* WeatherDataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4799D69F2A17C4850090EBF1 /* WeatherDataHelper.swift */; };
 		4799D6A22A17C4D90090EBF1 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4799D6A12A17C4D90090EBF1 /* LocationManager.swift */; };
 		4799D6A52A17CEE30090EBF1 /* MapView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4799D6A42A17CEE30090EBF1 /* MapView.swift */; };
+		47BB75E52A38EF950086ECFD /* Route_ConditionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47BB75E42A38EF950086ECFD /* Route_ConditionsTests.swift */; };
+		47EE83EA2A3B9F88001B2CC8 /* RouteView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47EE83E92A3B9F88001B2CC8 /* RouteView.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		47BB75E62A38EF950086ECFD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4799D6852A17C20A0090EBF1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4799D68C2A17C20A0090EBF1;
+			remoteInfo = "Route Conditions";
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		4745334B2A1AC01100AA32D7 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
@@ -39,10 +51,20 @@
 		4799D6A12A17C4D90090EBF1 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		4799D6A32A17C67C0090EBF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = SOURCE_ROOT; };
 		4799D6A42A17CEE30090EBF1 /* MapView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MapView.swift; sourceTree = "<group>"; };
+		47BB75E22A38EF950086ECFD /* Route ConditionsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "Route ConditionsTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		47BB75E42A38EF950086ECFD /* Route_ConditionsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route_ConditionsTests.swift; sourceTree = "<group>"; };
+		47EE83E92A3B9F88001B2CC8 /* RouteView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		4799D68A2A17C20A0090EBF1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		47BB75DF2A38EF950086ECFD /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -56,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				4799D68F2A17C20A0090EBF1 /* Route Conditions */,
+				47BB75E32A38EF950086ECFD /* Route ConditionsTests */,
 				4799D68E2A17C20A0090EBF1 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -64,6 +87,7 @@
 			isa = PBXGroup;
 			children = (
 				4799D68D2A17C20A0090EBF1 /* Route Conditions.app */,
+				47BB75E22A38EF950086ECFD /* Route ConditionsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,15 +96,16 @@
 			isa = PBXGroup;
 			children = (
 				4799D6902A17C20A0090EBF1 /* App.swift */,
-				47555E542A33775F0051568A /* Constants.swift */,
+				47555E5E2A35BC610051568A /* Model.swift */,
 				4799D6922A17C20A0090EBF1 /* ContentView.swift */,
+				47EE83E92A3B9F88001B2CC8 /* RouteView.swift */,
 				47555E5C2A35BC400051568A /* RouteCalculationService.swift */,
 				47555E602A35C0A50051568A /* RouteWeatherService.swift */,
-				47555E5E2A35BC610051568A /* Model.swift */,
 				4799D6A42A17CEE30090EBF1 /* MapView.swift */,
 				4745334D2A1AC04A00AA32D7 /* WeatherAnnotationView.swift */,
 				4799D69F2A17C4850090EBF1 /* WeatherDataHelper.swift */,
 				4799D6A12A17C4D90090EBF1 /* LocationManager.swift */,
+				47555E542A33775F0051568A /* Constants.swift */,
 				4745334B2A1AC01100AA32D7 /* Extensions.swift */,
 				4799D6A32A17C67C0090EBF1 /* Info.plist */,
 				4799D6942A17C2120090EBF1 /* Assets.xcassets */,
@@ -96,6 +121,14 @@
 				4799D6982A17C2120090EBF1 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		47BB75E32A38EF950086ECFD /* Route ConditionsTests */ = {
+			isa = PBXGroup;
+			children = (
+				47BB75E42A38EF950086ECFD /* Route_ConditionsTests.swift */,
+			);
+			path = "Route ConditionsTests";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -120,6 +153,24 @@
 			productReference = 4799D68D2A17C20A0090EBF1 /* Route Conditions.app */;
 			productType = "com.apple.product-type.application";
 		};
+		47BB75E12A38EF950086ECFD /* Route ConditionsTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 47BB75EA2A38EF950086ECFD /* Build configuration list for PBXNativeTarget "Route ConditionsTests" */;
+			buildPhases = (
+				47BB75DE2A38EF950086ECFD /* Sources */,
+				47BB75DF2A38EF950086ECFD /* Frameworks */,
+				47BB75E02A38EF950086ECFD /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				47BB75E72A38EF950086ECFD /* PBXTargetDependency */,
+			);
+			name = "Route ConditionsTests";
+			productName = "Route ConditionsTests";
+			productReference = 47BB75E22A38EF950086ECFD /* Route ConditionsTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -127,11 +178,15 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1430;
+				LastSwiftUpdateCheck = 1500;
 				LastUpgradeCheck = 1500;
 				TargetAttributes = {
 					4799D68C2A17C20A0090EBF1 = {
 						CreatedOnToolsVersion = 14.3;
+					};
+					47BB75E12A38EF950086ECFD = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = 4799D68C2A17C20A0090EBF1;
 					};
 				};
 			};
@@ -152,6 +207,7 @@
 			projectRoot = "";
 			targets = (
 				4799D68C2A17C20A0090EBF1 /* Route Conditions */,
+				47BB75E12A38EF950086ECFD /* Route ConditionsTests */,
 			);
 		};
 /* End PBXProject section */
@@ -166,6 +222,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		47BB75E02A38EF950086ECFD /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -177,6 +240,7 @@
 				4799D6A22A17C4D90090EBF1 /* LocationManager.swift in Sources */,
 				47555E612A35C0A50051568A /* RouteWeatherService.swift in Sources */,
 				4745334C2A1AC01100AA32D7 /* Extensions.swift in Sources */,
+				47EE83EA2A3B9F88001B2CC8 /* RouteView.swift in Sources */,
 				4799D6932A17C20A0090EBF1 /* ContentView.swift in Sources */,
 				4799D6A52A17CEE30090EBF1 /* MapView.swift in Sources */,
 				47555E5F2A35BC610051568A /* Model.swift in Sources */,
@@ -187,7 +251,23 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		47BB75DE2A38EF950086ECFD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				47BB75E52A38EF950086ECFD /* Route_ConditionsTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		47BB75E72A38EF950086ECFD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4799D68C2A17C20A0090EBF1 /* Route Conditions */;
+			targetProxy = 47BB75E62A38EF950086ECFD /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		4799D69A2A17C2120090EBF1 /* Debug */ = {
@@ -320,6 +400,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Current Location";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -360,6 +441,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Current Location";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -385,6 +467,55 @@
 			};
 			name = Release;
 		};
+		47BB75E82A38EF950086ECFD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A66LE5ZVQX;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tassilobouwman.Route-ConditionsTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Route Conditions.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Route Conditions";
+			};
+			name = Debug;
+		};
+		47BB75E92A38EF950086ECFD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = A66LE5ZVQX;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.3;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "com.tassilobouwman.Route-ConditionsTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Route Conditions.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Route Conditions";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -402,6 +533,15 @@
 			buildConfigurations = (
 				4799D69D2A17C2120090EBF1 /* Debug */,
 				4799D69E2A17C2120090EBF1 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		47BB75EA2A38EF950086ECFD /* Build configuration list for PBXNativeTarget "Route ConditionsTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				47BB75E82A38EF950086ECFD /* Debug */,
+				47BB75E92A38EF950086ECFD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

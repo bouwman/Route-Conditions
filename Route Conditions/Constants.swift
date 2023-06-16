@@ -6,8 +6,11 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 enum Constants {
-    static var name = String(localized: "Route Conditions")
+    static let name = String(localized: "Route Conditions")
     static let earthRadius = 6371000.0 // meters
+    
+    static let documentType = UTType(exportedAs: "com.tassilobouwman.Route-Conditions")
 }

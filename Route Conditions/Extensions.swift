@@ -7,6 +7,7 @@
 
 import Foundation
 import WeatherKit
+import CoreLocation
 
 extension Wind.CompassDirection {
     var imageName: String {
@@ -30,3 +31,44 @@ extension Wind.CompassDirection {
         }
     }
 }
+
+extension CLLocation {
+    
+    func bearing(to destination: CLLocation) -> CLLocationDegrees {
+        let lat1 = self.coordinate.latitude.toRadians()
+        let lon1 = self.coordinate.longitude.toRadians()
+        let lat2 = destination.coordinate.latitude.toRadians()
+        let lon2 = destination.coordinate.longitude.toRadians()
+        
+        let dLon = lon2 - lon1
+        
+        let y = sin(dLon) * cos(lat2)
+        let x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(dLon)
+        let radiansBearing = atan2(y, x)
+        
+        return radiansBearing.toDegrees()
+    }
+    
+    func destinationLocation(bearing: CLLocationDegrees, distance: CLLocationDistance) -> CLLocation {
+        let radius = self.horizontalAccuracy + distance
+        let radiansBearing = bearing.toRadians()
+        let lat1 = self.coordinate.latitude.toRadians()
+        let lon1 = self.coordinate.longitude.toRadians()
+        
+        let lat2 = asin(sin(lat1) * cos(distance / radius) + cos(lat1) * sin(distance / radius) * cos(radiansBearing))
+        let lon2 = lon1 + atan2(sin(radiansBearing) * sin(distance / radius) * cos(lat1), cos(distance / radius) - sin(lat1) * sin(lat2))
+        
+        return CLLocation(latitude: lat2.toDegrees(), longitude: lon2.toDegrees())
+    }
+}
+
+extension CLLocationDegrees {
+    func toRadians() -> CLLocationDegrees {
+        return self * .pi / 180.0
+    }
+    
+    func toDegrees() -> CLLocationDegrees {
+        return self * 180.0 / .pi
+    }
+}
+
