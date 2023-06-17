@@ -77,6 +77,9 @@ import WeatherKit
         }
         .toolbarBackground(.visible, for: .bottomBar)
         .toolbarBackground(.visible, for: .navigationBar)
+        .onAppear {
+            LocationManager.shared.requestPermission()
+        }
     }
     
     private let routeCalculationService = RouteCalculationService()
@@ -105,8 +108,4 @@ import WeatherKit
         let waypoint = Waypoint(position: route.waypoints.count, latitude: centerCoordinate.latitude, longitude: centerCoordinate.longitude)
         route.waypoints.append(waypoint)
     }
-}
-
-enum RouteConditionsError: Error {
-    case unknown
 }

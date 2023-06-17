@@ -15,7 +15,7 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     let locationManager = CLLocationManager()
     
     // We just want the weather, so hundred meters accruacy should be good.
-    static let shared = LocationManager(accuracy: kCLLocationAccuracyHundredMeters)
+    static let shared = LocationManager(accuracy: kCLLocationAccuracyBest)
     
     init(accuracy: CLLocationAccuracy) {
         super.init()

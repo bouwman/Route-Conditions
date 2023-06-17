@@ -4,7 +4,7 @@
 <dict>
 	<key>NSLocationUsageDescription</key>
 	<string>See your current location on the map.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>See your current location on the map.</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>

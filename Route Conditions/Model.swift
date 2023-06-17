@@ -112,7 +112,7 @@ import WeatherKit
 
 extension Collection where Element == Waypoint {
     var mapRect: MKMapRect {
-        let mapEdgePadding = UIEdgeInsets(top: 70, left: 70, bottom: 70, right: 70)
+        // let mapEdgePadding = UIEdgeInsets(top: 70, left: 70, bottom: 70, right: 70)
         var zoomRect = MKMapRect.null
 
         for annotation in self {
