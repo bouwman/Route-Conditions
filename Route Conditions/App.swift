@@ -15,7 +15,7 @@ struct RouteConditionsApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: [Route.self, Waypoint.self, Vehicle.self])
+        .modelContainer(for: [Route.self, Waypoint.self, Vehicle.self, WeatherData.self, WindData.self])
         
 //        DocumentGroup(viewing: Route.self, contentType: Constants.documentType) {
 //            ContentView()

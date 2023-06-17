@@ -6,32 +6,21 @@
 //
 
 import Foundation
+import CoreLocation
+import WeatherKit
 
 class RouteWeatherService {
+    
     private let apiKey: String = ""
     private let baseUrl: String = ""
     
-    func getWeatherData(latitude: Double, longitude: Double, time: Date) -> WeatherData? {
-        let exampleWeatherData = WeatherData(
-            windDirection: 45.0,
-            windSpeed: 10.0,
-            oceanCurrentDirection: 90.0,
-            oceanCurrentSpeed: 1.0,
-            waveHeight: 2.0,
-            waveDirection: 45.0
-        )
-        return exampleWeatherData
-    }
+    static let shared = RouteWeatherService()
+    private let service = WeatherService.shared
     
-    //    func getWeatherConditionsAtLocation(location: Location) -> WeatherConditions {
-//        // Implementation goes here
-//    }
-//    
-//    func getTideInformationAtLocation(location: Location) -> TideInformation {
-//        // Implementation goes here
-//    }
-//    
-//    func getSunriseAndSunsetTimesAtLocation(location: Location) -> SunriseAndSunsetTimes {
-//        // Implementation goes here
-//    }
+    func weather(coordinate: CLLocationCoordinate2D, date: Date) async throws -> [WeatherData] {
+        let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
+        let forecast = try await WeatherService.shared.weather(for: location, including: .hourly)
+        
+        return forecast.map { WeatherData(weatherKit: $0) }
+    }
 }
