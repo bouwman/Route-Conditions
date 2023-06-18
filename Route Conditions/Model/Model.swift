@@ -55,10 +55,10 @@ struct Vehicle {
 struct WeatherData {
     var date: Date
     var wind: WindData?
-    var currentDirection: Double?
-    var currentSpeed: Double?
-    var waveHeight: Double?
-    var waveDirection: Double?
+    var currentDirection: Measurement<UnitAngle>?
+    var currentSpeed: Measurement<UnitSpeed>?
+    var waveHeight: Measurement<UnitLength>?
+    var waveDirection: Measurement<UnitAngle>?
     var symbolName: String?
     
     init(weatherKit: HourWeather) {

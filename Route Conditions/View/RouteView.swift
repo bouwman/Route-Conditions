@@ -68,6 +68,7 @@ import WeatherKit
             }
         }
         .toolbarBackground(.visible, for: .bottomBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .toolbarRole(.editor)
         .onAppear {
             prepareView()

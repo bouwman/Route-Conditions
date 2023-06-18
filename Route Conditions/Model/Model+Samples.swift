@@ -35,12 +35,12 @@ extension WeatherData {
     
     static func sample() -> WeatherData {
         var weather = WeatherData()
-        let wind = WindData(compassDirection: .east, direction: .init(value: 90, unit: .degrees), speed: .init(value: 10, unit: .knots))
+        let wind = WindData(compassDirection: .east, direction: .init(value: 80, unit: .degrees), speed: .init(value: 10, unit: .knots))
         
-        weather.currentSpeed = 1.0
-        weather.currentDirection = 44
-        weather.waveHeight = 0.3
-        weather.waveDirection = 90
+        weather.currentSpeed = .init(value: 15, unit: .knots)
+        weather.currentDirection = .init(value: 270, unit: .degrees)
+        weather.waveHeight = .init(value: 0.2, unit: .meters)
+        weather.waveDirection = .init(value: 80, unit: .degrees)
         weather.wind = wind
         weather.symbolName = "cloud.sun"
         
