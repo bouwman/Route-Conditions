@@ -20,6 +20,7 @@ import WeatherKit
     
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedWaypoint: WeatherWaypoint?
+    @State private var showSheet: Bool = false
     
     private let routeCalculationService = RouteCalculationService()
     private let weatherService = RouteWeatherService.shared
@@ -30,13 +31,15 @@ import WeatherKit
     
     var body: some View {
         ZStack {
-            Map(position: $position) {
+            Map(position: $position, selection: $selectedWaypoint) {
                 UserAnnotation()
-                ForEach(waypoints) { waypoint in
-                    Marker("", coordinate: waypoint.coordinate)
-                }
                 ForEach(predictedWaypoints) { waypoint in
                     WeatherMarker(coordinate: waypoint.coordinate, weather: waypoint.currentWeather)
+                }
+                ForEach(waypoints) { waypoint in
+                    Annotation("", coordinate: waypoint.coordinate) {
+                        Circle().fill(.accent).frame(width: 10, height: 10, alignment: .center)
+                    }
                 }
             }
             .mapControls {
@@ -65,10 +68,14 @@ import WeatherKit
             }
         }
         .toolbarBackground(.visible, for: .bottomBar)
-        .toolbarBackground(.visible, for: .navigationBar)
         .toolbarRole(.editor)
         .onAppear {
             prepareView()
+        }
+        .sheet(item: $selectedWaypoint) {
+            selectedWaypoint = nil
+        } content: { waypoint in
+            WeatherWaypointDetailView(waypoint: waypoint)
         }
     }
     
@@ -87,9 +94,9 @@ import WeatherKit
     }
     
     private func calculateWaypoints() {
-        let waypoints = routeCalculationService.calculateRoute(vehicle: Vehicle.sample(), inputRoute: waypoints, departureTime: Date(), timeInterval: 60 * 60 * 5)
+        let newWaypoints = routeCalculationService.calculateRoute(vehicle: Vehicle.sample(), inputRoute: waypoints, departureTime: Date(), timeInterval: 60 * 60 * 5)
         
-        for waypoint in waypoints {
+        for waypoint in newWaypoints {
             context.insert(waypoint)
         }
         save()
@@ -143,4 +150,3 @@ let previewContainer: ModelContainer = {
         fatalError("Failed to create container")
     }
 }()
-

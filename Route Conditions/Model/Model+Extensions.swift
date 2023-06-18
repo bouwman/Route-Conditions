@@ -56,6 +56,12 @@ extension WeatherData {
     }
 }
 
+extension WeatherWaypoint {
+    var dateString: String {
+        dateFormatter.string(from: time)
+    }
+}
+
 extension Collection where Element: Waypoint {
     var mapRect: MKMapRect {
         // let mapEdgePadding = UIEdgeInsets(top: 70, left: 70, bottom: 70, right: 70)

@@ -26,8 +26,8 @@ struct Vehicle {
 
 @Model final class CustomWaypoint: Waypoint {
     var position: Int
-    var latitude: Double
-    var longitude: Double
+    @Attribute(.unique) var latitude: Double
+    @Attribute(.unique) var longitude: Double
     
     init(position: Int, latitude: Double, longitude: Double) {
         self.position = position
@@ -36,10 +36,10 @@ struct Vehicle {
     }
 }
 
-@Model final class WeatherWaypoint: Waypoint {
+@Model final class WeatherWaypoint: Waypoint, Equatable {
     var position: Int
-    var latitude: Double
-    var longitude: Double
+    @Attribute(.unique) var latitude: Double
+    @Attribute(.unique) var longitude: Double
     var time: Date
     
     @Transient var weather: [WeatherData] = []
