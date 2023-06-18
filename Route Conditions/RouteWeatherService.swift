@@ -17,7 +17,7 @@ class RouteWeatherService {
     static let shared = RouteWeatherService()
     private let service = WeatherService.shared
     
-    func weather(coordinate: CLLocationCoordinate2D, date: Date) async throws -> [WeatherData] {
+    func weather(coordinate: CLLocationCoordinate2D) async throws -> [WeatherData] {
         let location = CLLocation(latitude: coordinate.latitude, longitude: coordinate.longitude)
         let forecast = try await WeatherService.shared.weather(for: location, including: .hourly)
         

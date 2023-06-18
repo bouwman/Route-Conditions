@@ -8,8 +8,8 @@
 import Foundation
 
 class RouteCalculationService {
-    func calculateRoute(vehicle: Vehicle, inputRoute: [Waypoint], departureTime: Date, timeInterval: TimeInterval) -> [Waypoint] {
-        var waypoints: [Waypoint] = []
+    func calculateRoute(vehicle: Vehicle, inputRoute: [CustomWaypoint], departureTime: Date, timeInterval: TimeInterval) -> [WeatherWaypoint] {
+        var waypoints: [WeatherWaypoint] = []
         let waypointCount = inputRoute.count
         var currentTime = departureTime
         
@@ -27,14 +27,14 @@ class RouteCalculationService {
                 let latitude = startWaypoint.latitude + (endWaypoint.latitude - startWaypoint.latitude) * ratio
                 let longitude = startWaypoint.longitude + (endWaypoint.longitude - startWaypoint.longitude) * ratio
                 let time = currentTime.addingTimeInterval(TimeInterval(j) * timeInterval)
-                let waypoint = Waypoint(position: i+j, latitude: latitude, longitude: longitude, time: time)
+                let waypoint = WeatherWaypoint(position: i+j, latitude: latitude, longitude: longitude, time: time)
                 waypoints.append(waypoint)
             }
             
             currentTime = currentTime.addingTimeInterval((travelTime * 3600) + timeInterval) // Convert hours to seconds and add timeInterval
         }
         
-        let finalWaypoint = Waypoint(position: waypoints.count + 1, latitude: inputRoute.last!.latitude, longitude: inputRoute.last!.longitude, time: currentTime)
+        let finalWaypoint = WeatherWaypoint(position: waypoints.count + 1, latitude: inputRoute.last!.latitude, longitude: inputRoute.last!.longitude, time: currentTime)
         waypoints.append(finalWaypoint)
         
         return waypoints

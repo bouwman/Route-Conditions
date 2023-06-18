@@ -32,8 +32,8 @@ import WeatherKit
 @Model class Route {
     @Attribute(.unique) var id: UUID
     var name: String
-    @Relationship(.cascade) var waypoints: [Waypoint]
-    @Relationship(.cascade) var predictedWaypoints: [Waypoint]?
+    @Relationship(.cascade) var waypoints: [CustomWaypoint]
+    @Relationship(.cascade) var predictedWaypoints: [WeatherWaypoint]?
     
     init(name: String) {
         self.id = UUID()
@@ -43,30 +43,48 @@ import WeatherKit
     }
 }
 
-@Model class Waypoint {
-    var position: Int
-    var latitude: Double
-    var longitude: Double
-    var time: Date?
-    @Relationship(.cascade) var weather: [WeatherData]
-    
-    var id: Double {
-        return latitude + longitude
-    }
-    
+protocol Waypoint {
+    var position: Int { get set }
+    var latitude: Double { get set }
+    var longitude: Double { get set }
+}
+
+extension Waypoint {
     var coordinate: CLLocationCoordinate2D {
         return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
+}
+
+@Model final class CustomWaypoint: Waypoint {
+    var position: Int
+    var latitude: Double
+    var longitude: Double
     
-    init(position: Int, latitude: Double, longitude: Double, time: Date? = nil) {
+    init(position: Int, latitude: Double, longitude: Double) {
+        self.position = position
+        self.latitude = latitude
+        self.longitude = longitude
+    }
+}
+
+@Model final class WeatherWaypoint: Waypoint {
+    var position: Int
+    var latitude: Double
+    var longitude: Double
+    var time: Date
+    
+    @Transient var weather: [WeatherData] = []
+    
+    init(position: Int, latitude: Double, longitude: Double, time: Date) {
         self.position = position
         self.latitude = latitude
         self.longitude = longitude
         self.time = time
     }
-    
+}
+
+extension WeatherWaypoint {
     var currentWeather: WeatherData? {
-        guard let time else { return nil }
         let sort = weather.sorted { $0.date < $1.date }
         let first = sort.first { $0.date.timeIntervalSince(time) > 0 }
         
@@ -74,7 +92,7 @@ import WeatherKit
     }
 }
 
-@Model class WeatherData {
+struct WeatherData {
     var date: Date
     var wind: WindData?
     var currentDirection: Double?
@@ -85,7 +103,7 @@ import WeatherKit
     
     init(weatherKit: HourWeather) {
         self.date = weatherKit.date
-        self.wind = WindData(compassDirection: weatherKit.wind.compassDirection, windDirection: weatherKit.wind.direction, windSpeed: weatherKit.wind.speed, gust: weatherKit.wind.gust)
+        self.wind = WindData(compassDirection: weatherKit.wind.compassDirection, direction: weatherKit.wind.direction, speed: weatherKit.wind.speed, gust: weatherKit.wind.gust)
         self.currentDirection = nil
         self.currentSpeed = nil
         self.waveHeight = nil
@@ -93,24 +111,38 @@ import WeatherKit
         self.symbolName = weatherKit.symbolName
     }
     
-    
-}
-
-@Model class WindData {
-    var compassDirection: Wind.CompassDirection
-    var windDirection: Double
-    var windSpeed: Double
-    var gust: Double?
-    
-    init(compassDirection: Wind.CompassDirection, windDirection: Measurement<UnitAngle>, windSpeed: Measurement<UnitSpeed>, gust: Measurement<UnitSpeed>? = nil) {
-        self.compassDirection = compassDirection
-        self.windDirection = windDirection.value
-        self.windSpeed = windSpeed.value
-        self.gust = gust?.value
+    init() {
+        date = Date()
     }
 }
 
-extension Collection where Element == Waypoint {
+let measurementFormatter = MeasurementFormatter()
+
+struct WindData {
+    var compassDirection: Wind.CompassDirection
+    var direction: Measurement<UnitAngle>
+    var speed: Measurement<UnitSpeed>
+    var gust: Measurement<UnitSpeed>?
+    
+    init(compassDirection: Wind.CompassDirection, direction: Measurement<UnitAngle>, speed: Measurement<UnitSpeed>, gust: Measurement<UnitSpeed>? = nil) {
+        self.compassDirection = compassDirection
+        self.direction = direction
+        self.speed = speed
+        self.gust = gust
+    }
+}
+
+extension WindData {
+    var speedString: String {
+        measurementFormatter.string(from: speed)
+    }
+    
+    var directionString: String {
+        measurementFormatter.string(from: direction)
+    }
+}
+
+extension Collection where Element: Waypoint {
     var mapRect: MKMapRect {
         // let mapEdgePadding = UIEdgeInsets(top: 70, left: 70, bottom: 70, right: 70)
         var zoomRect = MKMapRect.null
@@ -125,10 +157,51 @@ extension Collection where Element == Waypoint {
                 zoomRect = zoomRect.union(rect)
             }
         }
+                
         return zoomRect
+    }
+    
+    var region: MKCoordinateRegion {
+        var region = MKCoordinateRegion(mapRect)
+        
+        region.span.latitudeDelta += 5
+        region.span.longitudeDelta += 5
+        
+        return region
     }
     
     var coordinates: [CLLocationCoordinate2D] {
         map { $0.coordinate }
+    }
+    
+    var points: [MKMapPoint] {
+        map { MKMapPoint($0.coordinate) }
+    }
+}
+
+extension CustomWaypoint {
+    static func samples() -> [CustomWaypoint] {
+        let london = CustomWaypoint(position: 1, latitude: 51.5074, longitude: -0.1278)
+        let manchester = CustomWaypoint(position: 2, latitude: 53.4808, longitude: -2.2426)
+        let edinburgh = CustomWaypoint(position: 3, latitude: 55.9533, longitude: -3.1883)
+        
+        return [london, manchester, edinburgh]
+    }
+}
+
+extension WeatherData {
+    
+    static func sample() -> WeatherData {
+        var weather = WeatherData()
+        let wind = WindData(compassDirection: .east, direction: .init(value: 90, unit: .degrees), speed: .init(value: 10, unit: .knots))
+        
+        weather.currentSpeed = 1.0
+        weather.currentDirection = 44
+        weather.waveHeight = 0.3
+        weather.waveDirection = 90
+        weather.wind = wind
+        weather.symbolName = "cloud.sun"
+        
+        return weather
     }
 }

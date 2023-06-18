@@ -12,63 +12,48 @@ import SwiftData
 import WeatherKit
 
 @MainActor struct RouteView: View {
-    var route: Route
+    
+    @Query(sort: \.position, order: .forward) private var waypoints: [CustomWaypoint]
+    @Query(sort: \.position, order: .forward) private var predictedWaypoints: [WeatherWaypoint]
     
     @Environment(\.modelContext) var context
     
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
-    @State private var selectedWaypoint: Waypoint?
+    @State private var selectedWaypoint: WeatherWaypoint?
     
-    private var centerCoordinate: CLLocationCoordinate2D {
-        return position.camera?.centerCoordinate ?? position.fallbackPosition?.camera?.centerCoordinate ?? position.region?.center ?? position.rect?.origin.coordinate ?? CLLocationCoordinate2D(latitude: 37, longitude: -122)
-    }
+    private let routeCalculationService = RouteCalculationService()
+    private let weatherService = RouteWeatherService.shared
     
-    init(route: Route) {
-        self.route = route
-        let region = MKCoordinateRegion(center: CLLocationCoordinate2D(latitude: 53.0, longitude: -3.0), span: MKCoordinateSpan(latitudeDelta: 10, longitudeDelta: 10))
-        self._position = State(initialValue: MapCameraPosition.region(region))
+    private var centerCoordinate: Binding<CLLocationCoordinate2D> {
+        Binding(get: { position.camera?.centerCoordinate ?? position.fallbackPosition?.camera?.centerCoordinate ?? position.region?.center ?? position.rect?.origin.coordinate ?? CLLocationCoordinate2D(latitude: 53, longitude: 0) }, set: { _ in } )
     }
     
     var body: some View {
-        Map(position: $position) {
-            UserAnnotation()
-            ForEach(route.waypoints) { waypoint in
-                Marker("", coordinate: waypoint.coordinate)
+        ZStack {
+            Map(position: $position) {
+                UserAnnotation()
+                Waypoints()
+                PredictedWaypoints()
             }
-            if let predictedWaypoints = route.predictedWaypoints {
-                ForEach(predictedWaypoints) { waypoint in
-                    if let weather = selectedWaypoint?.currentWeather {
-                        if let wind = weather.wind {
-                            Marker("\(wind.windSpeed)", systemImage: wind.compassDirection.imageName, coordinate: waypoint.coordinate)
-                        } else if let symbolName = weather.symbolName {
-                            Marker("", systemImage: symbolName, coordinate: waypoint.coordinate)
-                        } else {
-                            Marker("", systemImage: "exclamationmark.triangle", coordinate: waypoint.coordinate)
-                        }
-                    } else {
-                        Marker(coordinate: waypoint.coordinate) {
-                            ProgressView()
-                        }
-                    }
+            .mapControls {
+                MapCompass()
+                MapUserLocationButton()
+                MapScaleView()
+                Button {
+                    addWaypoint()
+                } label: {
+                    Label("", systemImage: "plus")
                 }
             }
-        }
-        .mapControls {
-            MapCompass()
-            MapUserLocationButton()
-            MapScaleView()
+            Text("\(centerCoordinate.latitude.wrappedValue)")
         }
         .toolbar {
             ToolbarItemGroup(placement: .bottomBar) {
                 Button("Clear") {
                     deletePrediction()
                 }
-                Spacer()
-                Button("Add") {
-                    addWaypoint()
-                }
             }
-            ToolbarItem(placement: .navigation) {
+            ToolbarItem(id: "calculate", placement: .primaryAction) {
                 Button("Calculate") {
                     calculateWaypoints()
                     updateWeather()
@@ -77,35 +62,104 @@ import WeatherKit
         }
         .toolbarBackground(.visible, for: .bottomBar)
         .toolbarBackground(.visible, for: .navigationBar)
+        .toolbarRole(.editor)
         .onAppear {
-            LocationManager.shared.requestPermission()
+            prepareView()
         }
     }
     
-    private let routeCalculationService = RouteCalculationService()
-    
-    func calculateWaypoints() {
-        route.predictedWaypoints = routeCalculationService.calculateRoute(vehicle: Vehicle(), inputRoute: route.waypoints, departureTime: Date(), timeInterval: 60 * 60 * 5)
+    private func Waypoints() -> some MapContent {
+        ForEach(waypoints) { waypoint in
+            Marker("", coordinate: waypoint.coordinate)
+        }
     }
     
-    private let weatherService = RouteWeatherService.shared
-    
-    func updateWeather() {
-        for waypoint in route.predictedWaypoints {
-            Task {
-                let weatherData = try! await weatherService.weather(coordinate: waypoint.coordinate, date: waypoint.time ?? Date())
-                waypoint.weather = weatherData
+    private func PredictedWaypoints() -> some MapContent {
+        ForEach(predictedWaypoints) { waypoint in
+            let coordinate = waypoint.coordinate
+            if let weather = waypoint.currentWeather {
+                if let wind = weather.wind {
+                    Marker(wind.speedString, systemImage: wind.compassDirection.imageName, coordinate: coordinate)
+                } else if let symbolName = weather.symbolName {
+                    Marker("", systemImage: symbolName, coordinate: coordinate)
+                } else {
+                    Marker("", systemImage: "exclamationmark.triangle", coordinate: coordinate)
+                }
+            } else {
+                Marker("", monogram: "-", coordinate: coordinate)
             }
         }
     }
     
-    func deletePrediction() {
-        route.predictedWaypoints = []
-        do { try context.save() } catch { print(error) }
+    private func prepareView() {
+        if waypoints.count == 0 {
+            createSampleRoute()
+        }
+        
+        LocationManager.shared.requestPermission()
+        
+        if waypoints.count == 0 {
+            position = .userLocation(fallback: .automatic)
+        } else {
+            position = MapCameraPosition.region(waypoints.region)
+        }
     }
     
-    func addWaypoint() {
-        let waypoint = Waypoint(position: route.waypoints.count, latitude: centerCoordinate.latitude, longitude: centerCoordinate.longitude)
-        route.waypoints.append(waypoint)
+    private func calculateWaypoints() {
+        let waypoints = routeCalculationService.calculateRoute(vehicle: Vehicle(), inputRoute: waypoints, departureTime: Date(), timeInterval: 60 * 60 * 5)
+        
+        for waypoint in waypoints {
+            context.insert(waypoint)
+        }
+        save()
+    }
+        
+    private func updateWeather() {
+        for waypoint in predictedWaypoints {
+            Task {
+                let weatherData = try? await weatherService.weather(coordinate: waypoint.coordinate)
+                waypoint.weather = weatherData ?? [WeatherData.sample()]
+            }
+        }
+    }
+    
+    private func deletePrediction() {
+        for waypoint in predictedWaypoints {
+            context.delete(waypoint)
+        }
+        save()
+    }
+    
+    private func addWaypoint() {
+        let waypoint = CustomWaypoint(position: waypoints.count + 1, latitude: centerCoordinate.latitude.wrappedValue, longitude: centerCoordinate.longitude.wrappedValue)
+        context.insert(waypoint)
+        save()
+    }
+    
+    private func createSampleRoute() {
+        for waypoint in CustomWaypoint.samples() {
+            context.insert(waypoint)
+        }
+        save()
+    }
+    
+    private func save() {
+        do { try context.save() } catch { print(error) }
     }
 }
+
+#Preview {
+    ContentView()
+        .modelContainer(previewContainer)
+}
+
+@MainActor
+let previewContainer: ModelContainer = {
+    do {
+        let container = try ModelContainer(for: [Route.self, CustomWaypoint.self, WeatherWaypoint.self, Vehicle.self], ModelConfiguration(inMemory: true))
+        return container
+    } catch {
+        fatalError("Failed to create container")
+    }
+}()
+

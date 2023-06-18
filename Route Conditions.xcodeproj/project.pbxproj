@@ -7,8 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		472DA9522A3EDD3F008E16F2 /* WeatherMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472DA9512A3EDD3F008E16F2 /* WeatherMarker.swift */; };
+		473E9C352A3EEB7A00247F74 /* Design.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473E9C342A3EEB7A00247F74 /* Design.swift */; };
 		4745334C2A1AC01100AA32D7 /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4745334B2A1AC01100AA32D7 /* Extensions.swift */; };
-		4745334E2A1AC04A00AA32D7 /* WeatherAnnotationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4745334D2A1AC04A00AA32D7 /* WeatherAnnotationView.swift */; };
 		47555E552A33775F0051568A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47555E542A33775F0051568A /* Constants.swift */; };
 		47555E5D2A35BC400051568A /* RouteCalculationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47555E5C2A35BC400051568A /* RouteCalculationService.swift */; };
 		47555E5F2A35BC610051568A /* Model.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47555E5E2A35BC610051568A /* Model.swift */; };
@@ -35,8 +36,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		472DA9512A3EDD3F008E16F2 /* WeatherMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherMarker.swift; sourceTree = "<group>"; };
+		473E9C342A3EEB7A00247F74 /* Design.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Design.swift; sourceTree = "<group>"; };
 		4745334B2A1AC01100AA32D7 /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
-		4745334D2A1AC04A00AA32D7 /* WeatherAnnotationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherAnnotationView.swift; sourceTree = "<group>"; };
 		47555E542A33775F0051568A /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		47555E5C2A35BC400051568A /* RouteCalculationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouteCalculationService.swift; sourceTree = "<group>"; };
 		47555E5E2A35BC610051568A /* Model.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Model.swift; sourceTree = "<group>"; };
@@ -99,14 +101,15 @@
 				47555E5E2A35BC610051568A /* Model.swift */,
 				4799D6922A17C20A0090EBF1 /* ContentView.swift */,
 				47EE83E92A3B9F88001B2CC8 /* RouteView.swift */,
+				472DA9512A3EDD3F008E16F2 /* WeatherMarker.swift */,
 				47555E5C2A35BC400051568A /* RouteCalculationService.swift */,
 				47555E602A35C0A50051568A /* RouteWeatherService.swift */,
 				4799D6A42A17CEE30090EBF1 /* MapView.swift */,
-				4745334D2A1AC04A00AA32D7 /* WeatherAnnotationView.swift */,
 				4799D69F2A17C4850090EBF1 /* WeatherDataHelper.swift */,
 				4799D6A12A17C4D90090EBF1 /* LocationManager.swift */,
 				47555E542A33775F0051568A /* Constants.swift */,
 				4745334B2A1AC01100AA32D7 /* Extensions.swift */,
+				473E9C342A3EEB7A00247F74 /* Design.swift */,
 				4799D6A32A17C67C0090EBF1 /* Info.plist */,
 				4799D6942A17C2120090EBF1 /* Assets.xcassets */,
 				4799D6962A17C2120090EBF1 /* Route_Conditions.entitlements */,
@@ -236,6 +239,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				473E9C352A3EEB7A00247F74 /* Design.swift in Sources */,
 				47555E5D2A35BC400051568A /* RouteCalculationService.swift in Sources */,
 				4799D6A22A17C4D90090EBF1 /* LocationManager.swift in Sources */,
 				47555E612A35C0A50051568A /* RouteWeatherService.swift in Sources */,
@@ -244,7 +248,7 @@
 				4799D6932A17C20A0090EBF1 /* ContentView.swift in Sources */,
 				4799D6A52A17CEE30090EBF1 /* MapView.swift in Sources */,
 				47555E5F2A35BC610051568A /* Model.swift in Sources */,
-				4745334E2A1AC04A00AA32D7 /* WeatherAnnotationView.swift in Sources */,
+				472DA9522A3EDD3F008E16F2 /* WeatherMarker.swift in Sources */,
 				4799D6A02A17C4850090EBF1 /* WeatherDataHelper.swift in Sources */,
 				4799D6912A17C20A0090EBF1 /* App.swift in Sources */,
 				47555E552A33775F0051568A /* Constants.swift in Sources */,

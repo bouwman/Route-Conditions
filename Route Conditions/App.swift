@@ -12,13 +12,8 @@ import SwiftData
 struct RouteConditionsApp: App {
     
     var body: some Scene {
-        WindowGroup {
+        DocumentGroup(editing: [Route.self, WeatherWaypoint.self, CustomWaypoint.self, Vehicle.self], contentType: Constants.documentType) {
             ContentView()
         }
-        .modelContainer(for: [Route.self, Waypoint.self, Vehicle.self, WeatherData.self, WindData.self])
-        
-//        DocumentGroup(viewing: Route.self, contentType: Constants.documentType) {
-//            ContentView()
-//        }
     }
 }
