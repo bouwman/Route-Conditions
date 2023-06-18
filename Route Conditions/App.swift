@@ -12,7 +12,7 @@ import SwiftData
 struct RouteConditionsApp: App {
     
     var body: some Scene {
-        DocumentGroup(editing: [Route.self, WeatherWaypoint.self, CustomWaypoint.self, Vehicle.self], contentType: Constants.documentType) {
+        DocumentGroup(editing: [WeatherWaypoint.self, CustomWaypoint.self], contentType: Constants.documentType) {
             ContentView()
         }
     }

@@ -17,7 +17,7 @@ class RouteCalculationService {
             let startWaypoint = inputRoute[i]
             let endWaypoint = inputRoute[i + 1]
             let distance = calculateDistance(start: startWaypoint, end: endWaypoint)
-            let travelTime = distance / vehicle.averageSpeed
+            let travelTime = distance / vehicle.averageSpeed.converted(to: .metersPerSecond).value
             
             let waypointTimeInterval = timeInterval / 3600 // Convert seconds to hours
             let numberOfIntermediateWaypoints = Int(travelTime / waypointTimeInterval)
@@ -54,6 +54,7 @@ class RouteCalculationService {
         let a = sin(deltaLatitude / 2) * sin(deltaLatitude / 2) + cos(startLatitudeRadians) * cos(endLatitudeRadians) * sin(deltaLongitude / 2) * sin(deltaLongitude / 2)
         let c = 2 * atan2(sqrt(a), sqrt(1 - a))
         let distance = earthRadius * c
+        
         return distance
     }
 }

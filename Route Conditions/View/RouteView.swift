@@ -32,8 +32,12 @@ import WeatherKit
         ZStack {
             Map(position: $position) {
                 UserAnnotation()
-                Waypoints()
-                PredictedWaypoints()
+                ForEach(waypoints) { waypoint in
+                    Marker("", coordinate: waypoint.coordinate)
+                }
+                ForEach(predictedWaypoints) { waypoint in
+                    WeatherMarker(coordinate: waypoint.coordinate, weather: waypoint.currentWeather)
+                }
             }
             .mapControls {
                 MapCompass()
@@ -68,29 +72,6 @@ import WeatherKit
         }
     }
     
-    private func Waypoints() -> some MapContent {
-        ForEach(waypoints) { waypoint in
-            Marker("", coordinate: waypoint.coordinate)
-        }
-    }
-    
-    private func PredictedWaypoints() -> some MapContent {
-        ForEach(predictedWaypoints) { waypoint in
-            let coordinate = waypoint.coordinate
-            if let weather = waypoint.currentWeather {
-                if let wind = weather.wind {
-                    Marker(wind.speedString, systemImage: wind.compassDirection.imageName, coordinate: coordinate)
-                } else if let symbolName = weather.symbolName {
-                    Marker("", systemImage: symbolName, coordinate: coordinate)
-                } else {
-                    Marker("", systemImage: "exclamationmark.triangle", coordinate: coordinate)
-                }
-            } else {
-                Marker("", monogram: "-", coordinate: coordinate)
-            }
-        }
-    }
-    
     private func prepareView() {
         if waypoints.count == 0 {
             createSampleRoute()
@@ -106,7 +87,7 @@ import WeatherKit
     }
     
     private func calculateWaypoints() {
-        let waypoints = routeCalculationService.calculateRoute(vehicle: Vehicle(), inputRoute: waypoints, departureTime: Date(), timeInterval: 60 * 60 * 5)
+        let waypoints = routeCalculationService.calculateRoute(vehicle: Vehicle.sample(), inputRoute: waypoints, departureTime: Date(), timeInterval: 60 * 60 * 5)
         
         for waypoint in waypoints {
             context.insert(waypoint)
@@ -118,7 +99,7 @@ import WeatherKit
         for waypoint in predictedWaypoints {
             Task {
                 let weatherData = try? await weatherService.weather(coordinate: waypoint.coordinate)
-                waypoint.weather = weatherData ?? [WeatherData.sample()]
+                waypoint.weather = weatherData ?? []
             }
         }
     }
@@ -156,7 +137,7 @@ import WeatherKit
 @MainActor
 let previewContainer: ModelContainer = {
     do {
-        let container = try ModelContainer(for: [Route.self, CustomWaypoint.self, WeatherWaypoint.self, Vehicle.self], ModelConfiguration(inMemory: true))
+        let container = try ModelContainer(for: [CustomWaypoint.self, WeatherWaypoint.self], ModelConfiguration(inMemory: true))
         return container
     } catch {
         fatalError("Failed to create container")
