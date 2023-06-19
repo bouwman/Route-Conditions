@@ -85,7 +85,7 @@ import WeatherKit
         .sheet(item: $selectedWaypoint) {
             selectedWaypoint = nil
         } content: { waypoint in
-            WeatherWaypointDetailView(waypoint: waypoint)
+            WeatherDetailView(waypoint: waypoint)
         }
     }
     

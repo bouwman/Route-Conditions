@@ -1,5 +1,5 @@
 //
-//  WeatherWaypointDetailView.swift
+//  WeatherDetailView.swift
 //  Route Conditions
 //
 //  Created by Tassilo Bouwman on 18.06.23.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct WeatherWaypointDetailView: View {
+struct WeatherDetailView: View {
     var waypoint: WeatherWaypoint
     
     var body: some View {
@@ -31,5 +31,5 @@ struct WeatherWaypointDetailView: View {
 }
 
 #Preview {
-    WeatherWaypointDetailView(waypoint: WeatherWaypoint.samples().first!)
+    WeatherDetailView(waypoint: WeatherWaypoint.samples().first!)
 }
