@@ -20,7 +20,7 @@ import WeatherKit
     
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedWaypoint: WeatherWaypoint?
-    @State private var showSheet: Bool = false
+    @State private var selectedWeatherAttribute: WeatherAttribute = .wind
     
     private let routeCalculationService = RouteCalculationService()
     private let weatherService = RouteWeatherService.shared
@@ -34,7 +34,7 @@ import WeatherKit
             Map(position: $position, selection: $selectedWaypoint) {
                 UserAnnotation()
                 ForEach(predictedWaypoints) { waypoint in
-                    WeatherMarker(coordinate: waypoint.coordinate, weather: waypoint.currentWeather)
+                    WeatherMarker(weatherAttribute: $selectedWeatherAttribute, coordinate: waypoint.coordinate, weather: waypoint.currentWeather)
                 }
                 ForEach(waypoints) { waypoint in
                     Annotation("", coordinate: waypoint.coordinate) {
@@ -60,10 +60,19 @@ import WeatherKit
                     deletePrediction()
                 }
             }
-            ToolbarItem(id: "calculate", placement: .primaryAction) {
+            ToolbarItem(id: "calculate", placement: .bottomBar) {
                 Button("Calculate") {
                     calculateWaypoints()
                     updateWeather()
+                }
+            }
+            ToolbarItem(id: "weather_selection", placement: .primaryAction) {
+                Picker(selection: $selectedWeatherAttribute) {
+                    ForEach(WeatherAttribute.all) { attribute in
+                        Label(attribute.string, systemImage: attribute.imageName)
+                    }
+                } label: {
+                    Label(selectedWeatherAttribute.string, systemImage: selectedWeatherAttribute.imageName)
                 }
             }
         }
@@ -95,14 +104,14 @@ import WeatherKit
     }
     
     private func calculateWaypoints() {
-        let newWaypoints = routeCalculationService.calculateRoute(vehicle: Vehicle.sample(), inputRoute: waypoints, departureTime: Date(), timeInterval: 60 * 60 * 5)
+        let newWaypoints = routeCalculationService.calculateRoute(vehicle: Vehicle.sample(), inputRoute: waypoints, departureTime: Date(), timeInterval: 60 * 60 * 3)
         
         for waypoint in newWaypoints {
             context.insert(waypoint)
         }
         save()
     }
-        
+    
     private func updateWeather() {
         for waypoint in predictedWaypoints {
             Task {

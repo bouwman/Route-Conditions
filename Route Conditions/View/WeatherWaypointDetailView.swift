@@ -14,7 +14,7 @@ struct WeatherWaypointDetailView: View {
         NavigationStack {
             Form {
                 Section {
-                    if let weather = waypoint.currentWeather, let symbolName = weather.symbolName, let wind = weather.wind {
+                    if let weather = waypoint.currentWeather, let symbolName = weather.conditions?.symbolName, let wind = weather.wind {
                         Label(symbolName, systemImage: symbolName)
                         // Label(weather.temperature.formatted(), systemImage: "thermometer")
                         // Label("\(Int(currentWeather.humidity * 100))%", systemImage: "humidity.fill")

@@ -33,13 +33,9 @@ extension WeatherWaypoint {
 
 let measurementFormatter = MeasurementFormatter()
 
-extension WindData {
-    var speedString: String {
-        measurementFormatter.string(from: speed)
-    }
-    
-    var directionString: String {
-        measurementFormatter.string(from: direction)
+extension Measurement {
+    var string: String {
+        measurementFormatter.string(from: self)
     }
 }
 
@@ -53,6 +49,17 @@ let dateFormatter: DateFormatter = {
 extension WeatherData {
     var dateString: String {
         dateFormatter.string(from: date)
+    }
+}
+
+extension TimeData {
+    var daylightSymbolName: String {
+        isDaylight ? "sun.max" : "moon.stars"
+    }
+    
+    // TODO: Use NSLocalizedString
+    var description: String {
+        isDaylight ? "Day" : "Night"
     }
 }
 
