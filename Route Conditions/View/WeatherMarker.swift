@@ -42,7 +42,7 @@ struct WeatherMarker: MapContent {
                 }
             case .conditions:
                 if let conditions = weather.conditions {
-                    Marker(conditions.description, systemImage: conditions.symbolName, coordinate: coordinate)
+                    Marker(conditions.title, systemImage: conditions.symbolName, coordinate: coordinate)
                 } else {
                     Marker(weather.dateString, systemImage: "questionmark", coordinate: coordinate)
                 }

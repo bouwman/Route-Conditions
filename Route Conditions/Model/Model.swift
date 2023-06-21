@@ -42,7 +42,7 @@ struct Vehicle {
     @Attribute(.unique) var longitude: Double
     var time: Date
     
-    @Transient var weather: [WeatherData] = []
+    var weather: [WeatherData] = []
     
     init(position: Int, latitude: Double, longitude: Double, time: Date) {
         self.position = position
@@ -52,7 +52,7 @@ struct Vehicle {
     }
 }
 
-struct WeatherData {
+@Model class WeatherData {
     var date: Date
     var wind: WindData?
     var current: CurrentData?
@@ -62,11 +62,20 @@ struct WeatherData {
     
     init(weatherKit: HourWeather) {
         self.date = weatherKit.date
-        self.wind = WindData(speed: weatherKit.wind.speed, direction: weatherKit.wind.direction, compassDirection: weatherKit.wind.compassDirection, gust: weatherKit.wind.gust)
+        self.wind = WindData(speed: weatherKit.wind.speed, direction: weatherKit.wind.direction, gust: weatherKit.wind.gust)
+        self.conditions = ConditionsData(title: weatherKit.condition.description, symbolName: weatherKit.symbolName)
+        self.timeInfo = TimeData(isDaylight: weatherKit.isDaylight)
         self.current = nil
         self.waves = nil
-        self.conditions = ConditionsData(description: weatherKit.condition.description, symbolName: weatherKit.symbolName)
-        self.timeInfo = TimeData(isDaylight: weatherKit.isDaylight)
+    }
+    
+    init(weatherKit: DayWeather) {
+        self.date = weatherKit.date
+        self.wind = WindData(speed: weatherKit.wind.speed, direction: weatherKit.wind.direction, gust: weatherKit.wind.gust)
+        self.conditions = ConditionsData(title: weatherKit.condition.description, symbolName: weatherKit.symbolName)
+        self.current = nil
+        self.waves = nil
+        self.timeInfo = nil
     }
     
     init() {
@@ -74,30 +83,52 @@ struct WeatherData {
     }
 }
 
-struct WindData {
-    var speed: Measurement<UnitSpeed>
-    var direction: Measurement<UnitAngle>
-    var compassDirection: Wind.CompassDirection
-    var gust: Measurement<UnitSpeed>?
+@Model class WindData {
+    var speedData: Double
+    var directionData: Double
+    var gustData: Double?
+    
+    init(speed: Measurement<UnitSpeed>, direction: Measurement<UnitAngle>, gust: Measurement<UnitSpeed>? = nil) {
+        self.speedData = speed.converted(to: .kilometersPerHour).value
+        self.directionData = direction.converted(to: .degrees).value
+        self.gustData = gust?.converted(to: .kilometersPerHour).value
+    }
 }
 
-struct CurrentData {
-    var speed: Measurement<UnitSpeed>
-    var direction: Measurement<UnitAngle>
-    var compassDirection: Wind.CompassDirection
+@Model class CurrentData {
+    var speedData: Double
+    var directionData: Double
+    
+    init(speed: Measurement<UnitSpeed>, direction: Measurement<UnitAngle>) {
+        self.speedData = speed.converted(to: .kilometersPerHour).value
+        self.directionData = direction.converted(to: .degrees).value
+    }
 }
 
-struct WaveData {
-    var height: Measurement<UnitLength>
-    var direction: Measurement<UnitAngle>
-    var compassDirection: Wind.CompassDirection
+@Model class WaveData {
+    var heightData: Double
+    var directionData: Double
+    
+    init(height: Measurement<UnitLength>, direction: Measurement<UnitAngle>) {
+        self.heightData = height.converted(to: .meters).value
+        self.directionData = direction.converted(to: .degrees).value
+    }
 }
 
-struct ConditionsData {
-    var description: String
+@Model class ConditionsData {
+    var title: String
     var symbolName: String
+    
+    init(title: String, symbolName: String) {
+        self.title = title
+        self.symbolName = symbolName
+    }
 }
 
-struct TimeData {
+@Model class TimeData {
     var isDaylight: Bool
+    
+    init(isDaylight: Bool) {
+        self.isDaylight = isDaylight
+    }
 }

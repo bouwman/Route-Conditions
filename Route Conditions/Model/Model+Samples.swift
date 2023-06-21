@@ -34,12 +34,12 @@ extension WeatherWaypoint {
 extension WeatherData {
     
     static func sample() -> WeatherData {
-        var weather = WeatherData()
+        let weather = WeatherData()
         
-        weather.current = CurrentData(speed: .init(value: 15, unit: .knots), direction: .init(value: 270, unit: .degrees), compassDirection: .west)
-        weather.waves = WaveData(height: .init(value: 0.2, unit: .meters), direction: .init(value: 80, unit: .degrees), compassDirection: .east)
-        weather.wind = WindData(speed: .init(value: 10, unit: .knots), direction: .init(value: 80, unit: .degrees), compassDirection: .east)
-        weather.conditions = ConditionsData(description: "Partially sunny", symbolName: "could.sun")
+        weather.current = CurrentData(speed: .init(value: 15, unit: .knots), direction: .init(value: 270, unit: .degrees))
+        weather.waves = WaveData(height: .init(value: 0.2, unit: .meters), direction: .init(value: 80, unit: .degrees))
+        weather.wind = WindData(speed: .init(value: 10, unit: .knots), direction: .init(value: 80, unit: .degrees))
+        weather.conditions = ConditionsData(title: "Partially sunny", symbolName: "could.sun")
         weather.timeInfo = TimeData(isDaylight: false)
         
         return weather

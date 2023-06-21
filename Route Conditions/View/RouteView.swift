@@ -23,7 +23,6 @@ import WeatherKit
     @State private var selectedWeatherAttribute: WeatherAttribute = .wind
     
     private let routeCalculationService = RouteCalculationService()
-    private let weatherService = RouteWeatherService.shared
     
     private var centerCoordinate: Binding<CLLocationCoordinate2D> {
         Binding(get: { position.camera?.centerCoordinate ?? position.fallbackPosition?.camera?.centerCoordinate ?? position.region?.center ?? position.rect?.origin.coordinate ?? CLLocationCoordinate2D(latitude: 53, longitude: 0) }, set: { _ in } )
@@ -42,6 +41,7 @@ import WeatherKit
                     }
                 }
             }
+            .mapStyle(.standard(elevation: .automatic, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
             .mapControls {
                 MapCompass()
                 MapUserLocationButton()
@@ -113,9 +113,11 @@ import WeatherKit
     }
     
     private func updateWeather() {
+        let weatherService = RouteWeatherService(context: context)
         for waypoint in predictedWaypoints {
             Task {
-                let weatherData = try? await weatherService.weather(coordinate: waypoint.coordinate)
+                // TODO: Add error handling
+                let weatherData = try? await weatherService.fetchWeather(coordinate: waypoint.coordinate, existingData: waypoint.weather)
                 waypoint.weather = weatherData ?? []
             }
         }
