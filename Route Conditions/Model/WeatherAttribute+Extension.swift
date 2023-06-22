@@ -7,13 +7,7 @@
 
 import Foundation
 
-enum WeatherAttribute: Identifiable {
-    case wind
-    case current
-    case waves
-    case conditions
-    case time
-    
+extension WeatherAttribute {
     static var all: [WeatherAttribute] {
         [.wind, .current, .waves, .conditions, .time]
     }
@@ -47,7 +41,9 @@ enum WeatherAttribute: Identifiable {
             "moon"
         }
     }
-    
+}
+
+extension WeatherAttribute: Identifiable {
     var id: Self {
         return self
     }

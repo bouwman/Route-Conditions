@@ -13,14 +13,51 @@ import MapKit
 import SwiftData
 import WeatherKit
 
-struct Vehicle {
+enum VehicleType: String, Codable {
+    case car
+    case truck
+    case speedboat
+    case sailboat
+    case bicycle
+}
+
+enum WeatherAttribute {
+    case wind
+    case current
+    case waves
+    case conditions
+    case time
+}
+
+@Observable class Vehicle {
     let id: UUID = UUID()
-    var name: String
-    var averageSpeed: Measurement<UnitSpeed>
+    var name: String = "Car"
+    var speed: Measurement<UnitSpeed> = .init(value: 90, unit: .kilometersPerHour)
+    var type: VehicleType = .car
+    var unit: UnitSpeed = .kilometersPerHour
     
-    init(name: String, averageSpeed: Measurement<UnitSpeed>) {
+    var speedString: String = "90" {
+        didSet {
+            speed = Measurement(value: Double(speedString) ?? Double(oldValue) ?? 1.0, unit: self.unit)
+        }
+    }
+    
+//    var speedString: String {
+//        get {
+//            measurementFormatter.string(from: self.speed)
+//        }
+//        set {
+//            self.speed = Measurement(value: Double(newValue) ?? 0.0, unit: self.unit)
+//        }
+//    }
+    
+    init(name: String, averageSpeed: Measurement<UnitSpeed>, type: VehicleType = .car, unit: UnitSpeed = .kilometersPerHour) {
         self.name = name
-        self.averageSpeed = averageSpeed
+        self.speed = averageSpeed
+        self.type = type
+        self.unit = unit
+        
+        self.speedString = numberFormatter.string(from: speed.converted(to: unit).value as NSNumber) ?? ""
     }
 }
 

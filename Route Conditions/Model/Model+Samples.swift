@@ -49,7 +49,7 @@ extension WeatherData {
 
 extension Vehicle {
     static func sample() -> Vehicle {
-        return Vehicle(name: "Car", averageSpeed: .init(value: 80, unit: .kilometersPerHour))
+        return Vehicle(name: "Car", averageSpeed: .init(value: 90, unit: .kilometersPerHour), type: .car)
     }
 }
 

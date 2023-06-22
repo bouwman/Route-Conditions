@@ -27,6 +27,9 @@ import WeatherKit
     
     @State private var selectedWeatherAttribute: WeatherAttribute = .wind
     
+    @State private var vehicle = Vehicle(name: "My Vehicle", averageSpeed: .init(value: 90, unit: .kilometersPerHour), type: .car)
+    @State private var isVehicleInspectorOpen = false
+    
     private let routeCalculationService = RouteCalculationService()
     
     private var centerCoordinate: Binding<CLLocationCoordinate2D> {
@@ -45,8 +48,6 @@ import WeatherKit
                         Circle().fill(.accent).frame(width: 10, height: 10, alignment: .center)
                     }
                 }
-                MapPolyline(coordinates: [waypoints[0].coordinate, waypoints[1].coordinate])
-                    .stroke()
             }
             .mapStyle(.standard(elevation: .automatic, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
             .mapControls {
@@ -68,13 +69,16 @@ import WeatherKit
                 if let selectedWaypoint {
                     WeatherDetailView(waypoint: selectedWaypoint)
                         .presentationDetents([.medium, .large])
-                        .presentationBackgroundInteraction(.enabled(upThrough: .height(200)))
+                        .presentationBackgroundInteraction(.enabled(upThrough: .medium))
                 } else {
                     Text("Inspector opened without waypoint selected")
                 }
             }
-            .presentationDetents([.height(200), .medium, .large])
-                .presentationBackgroundInteraction(.enabled(upThrough: .height(200)))
+            .inspector(isPresented: $isVehicleInspectorOpen, content: {
+                VehicleForm(vehicle: $vehicle)
+                    .presentationDetents([.medium, .large])
+                    .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+            })
             Text("\(centerCoordinate.latitude.wrappedValue)")
         }
         .toolbar {
@@ -108,6 +112,14 @@ import WeatherKit
                     Label(selectedWeatherAttribute.string, systemImage: selectedWeatherAttribute.imageName)
                 }
             }
+            ToolbarItem(id: "vehicle_selection", placement: .primaryAction) {
+                Button {
+                    isVehicleInspectorOpen = true
+                } label: {
+                    Label("Edit Vehicle", systemImage: "car")
+                }
+
+            }
         }
         .toolbarBackground(.visible, for: .bottomBar)
         .toolbarBackground(.visible, for: .navigationBar)
@@ -132,7 +144,7 @@ import WeatherKit
     }
     
     private func calculateWaypoints() {
-        let newWaypoints = routeCalculationService.calculateRoute(vehicle: Vehicle.sample(), inputRoute: waypoints, departureTime: Date(), timeInterval: 60 * 60 * 3)
+        let newWaypoints = routeCalculationService.calculateRoute(vehicle: vehicle, inputRoute: waypoints, departureTime: Date(), timeInterval: 60 * 60 * 3)
         
         for waypoint in newWaypoints {
             context.insert(waypoint)

@@ -180,3 +180,4 @@ extension Collection where Element: Waypoint {
         map { MKMapPoint($0.coordinate) }
     }
 }
+

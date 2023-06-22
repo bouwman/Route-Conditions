@@ -72,3 +72,18 @@ extension CLLocationDegrees {
         return self * 180.0 / .pi
     }
 }
+
+extension Measurement<UnitSpeed>: Strideable {
+    public func distance(to other: Measurement<UnitSpeed>) -> Double {
+        self.value.distance(to: other.value)
+    }
+    
+    public func advanced(by n: Double) -> Measurement<UnitSpeed> {
+        let value = self.converted(to: .kilometersPerHour).value
+        return Measurement<UnitSpeed>.init(value: value.advanced(by: n), unit: .kilometersPerHour)
+    }
+    
+    public typealias Stride = Double
+    
+    
+}
