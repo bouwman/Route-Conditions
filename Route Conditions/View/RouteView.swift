@@ -114,9 +114,9 @@ import WeatherKit
             }
             ToolbarItem(id: "vehicle_selection", placement: .primaryAction) {
                 Button {
-                    isVehicleInspectorOpen = true
+                    isVehicleInspectorOpen.toggle()
                 } label: {
-                    Label("Edit Vehicle", systemImage: "car")
+                    Label("Edit Vehicle", systemImage: vehicle.type.imageName)
                 }
 
             }
