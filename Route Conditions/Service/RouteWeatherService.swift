@@ -17,21 +17,10 @@ class RouteWeatherService {
     
     private let weatherKitService = WeatherService.shared
     
-    var context: ModelContext
-    
-    init(context: ModelContext) {
-        self.context = context
-    }
-    
     func fetchWeather(coordinate: CLLocationCoordinate2D, existingData: [WeatherData]) async throws -> [WeatherData] {
         let upcomingWeather = existingData.filter { $0.date > Date() }
         
         if upcomingWeather.count < 24 {
-            // Delete existing data
-            for weather in existingData {
-                context.delete(weather)
-            }
-            
             let hourlyForecast = try await fetchHourlyWeather(coordinate: coordinate)
             let dailyForecast = try await fetchDailyWeather(coordinate: coordinate)
             

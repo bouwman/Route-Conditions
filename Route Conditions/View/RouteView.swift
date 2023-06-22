@@ -20,6 +20,11 @@ import WeatherKit
     
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedWaypoint: WeatherWaypoint?
+    
+    private var showInspector: Binding<Bool> {
+        Binding { selectedWaypoint != nil } set: { newValue in selectedWaypoint = nil }
+    }
+    
     @State private var selectedWeatherAttribute: WeatherAttribute = .wind
     
     private let routeCalculationService = RouteCalculationService()
@@ -52,6 +57,22 @@ import WeatherKit
                     Label("", systemImage: "plus")
                 }
             }
+            .sheet(item: $selectedWaypoint) {
+                selectedWaypoint = nil
+            } content: { waypoint in
+                WeatherDetailView(waypoint: waypoint)
+            }
+            .inspector(isPresented: showInspector) {
+                if let selectedWaypoint {
+                    WeatherDetailView(waypoint: selectedWaypoint)
+                        .presentationDetents([.medium, .large])
+                        .presentationBackgroundInteraction(.enabled(upThrough: .height(200)))
+                } else {
+                    Text("Inspector opened without waypoint selected")
+                }
+            }
+            .presentationDetents([.height(200), .medium, .large])
+                .presentationBackgroundInteraction(.enabled(upThrough: .height(200)))
             Text("\(centerCoordinate.latitude.wrappedValue)")
         }
         .toolbar {
@@ -59,12 +80,14 @@ import WeatherKit
                 Button("Clear") {
                     deletePrediction()
                 }
+                .buttonStyle(.borderedProminent)
             }
             ToolbarItem(id: "calculate", placement: .bottomBar) {
                 Button("Calculate") {
                     calculateWaypoints()
                     updateWeather()
                 }
+                .buttonStyle(.borderedProminent)
             }
             ToolbarItem(id: "weather_selection", placement: .primaryAction) {
                 Picker(selection: $selectedWeatherAttribute) {
@@ -81,11 +104,6 @@ import WeatherKit
         .toolbarRole(.editor)
         .onAppear {
             prepareView()
-        }
-        .sheet(item: $selectedWaypoint) {
-            selectedWaypoint = nil
-        } content: { waypoint in
-            WeatherDetailView(waypoint: waypoint)
         }
     }
     
@@ -113,7 +131,7 @@ import WeatherKit
     }
     
     private func updateWeather() {
-        let weatherService = RouteWeatherService(context: context)
+        let weatherService = RouteWeatherService()
         for waypoint in predictedWaypoints {
             Task {
                 // TODO: Add error handling
