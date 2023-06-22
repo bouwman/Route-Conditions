@@ -42,6 +42,10 @@ class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             manager.authorizationStatus == .authorized {
             self.locationManager.requestLocation()
         }
+        #elseif os(xrOS)
+        if manager.authorizationStatus == .authorizedWhenInUse {
+            self.locationManager.requestLocation()
+        }
         #else
         if manager.authorizationStatus == .authorizedAlways ||
             manager.authorizationStatus == .authorizedWhenInUse {

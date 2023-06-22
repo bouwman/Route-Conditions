@@ -30,6 +30,6 @@ struct WeatherDetailView: View {
     }
 }
 
-#Preview {
-    WeatherDetailView(waypoint: WeatherWaypoint.samples().first!)
-}
+//#Preview {
+//    WeatherDetailView(waypoint: WeatherWaypoint.samples().first!)
+//}
