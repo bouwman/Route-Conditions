@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 extension CustomWaypoint {
     static func samples() -> [CustomWaypoint] {
@@ -49,5 +50,20 @@ extension WeatherData {
 extension Vehicle {
     static func sample() -> Vehicle {
         return Vehicle(name: "Car", averageSpeed: .init(value: 80, unit: .kilometersPerHour))
+    }
+}
+
+extension CLLocationCoordinate2D {
+    /// Random locations across the UK
+    static func random() -> CLLocationCoordinate2D {
+        let minLatitude = 50.8 // Minimum latitude of the UK
+        let maxLatitude = 58.5 // Maximum latitude of the UK
+        let minLongitude = -8.649357 // Minimum longitude of the UK
+        let maxLongitude = 1.763335 // Maximum longitude of the UK
+        
+        let latitude = Double.random(in: minLatitude...maxLatitude)
+        let longitude = Double.random(in: minLongitude...maxLongitude)
+        
+        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
 }

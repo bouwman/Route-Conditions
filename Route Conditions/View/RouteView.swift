@@ -30,7 +30,7 @@ import WeatherKit
     private let routeCalculationService = RouteCalculationService()
     
     private var centerCoordinate: Binding<CLLocationCoordinate2D> {
-        Binding(get: { position.camera?.centerCoordinate ?? position.fallbackPosition?.camera?.centerCoordinate ?? position.region?.center ?? position.rect?.origin.coordinate ?? CLLocationCoordinate2D(latitude: 53, longitude: 0) }, set: { _ in } )
+        Binding(get: { position.camera?.centerCoordinate ?? position.fallbackPosition?.camera?.centerCoordinate ?? position.region?.center ?? position.rect?.origin.coordinate ?? CLLocationCoordinate2D.random() }, set: { _ in } )
     }
     
     var body: some View {
@@ -45,6 +45,8 @@ import WeatherKit
                         Circle().fill(.accent).frame(width: 10, height: 10, alignment: .center)
                     }
                 }
+                MapPolyline(coordinates: [waypoints[0].coordinate, waypoints[1].coordinate])
+                    .stroke()
             }
             .mapStyle(.standard(elevation: .automatic, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
             .mapControls {
@@ -87,6 +89,14 @@ import WeatherKit
                     calculateWaypoints()
                     updateWeather()
                 }
+                .buttonStyle(.borderedProminent)
+            }
+            ToolbarItem(id: "add", placement: .bottomBar) {
+                Button(action: {
+                    addWaypoint()
+                }, label: {
+                    Label("", systemImage: "plus")
+                })
                 .buttonStyle(.borderedProminent)
             }
             ToolbarItem(id: "weather_selection", placement: .primaryAction) {
