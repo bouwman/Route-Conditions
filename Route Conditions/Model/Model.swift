@@ -34,7 +34,12 @@ enum WeatherAttribute {
     var name: String = "Car"
     var speed: Measurement<UnitSpeed> = .init(value: 90, unit: .kilometersPerHour)
     var type: VehicleType = .car
-    var unit: UnitSpeed = .kilometersPerHour
+    
+    var unit: UnitSpeed = .kilometersPerHour {
+        didSet {
+            speed = Measurement(value: Double(speedString) ?? 1.0, unit: self.unit)
+        }
+    }
     
     var speedString: String = "90" {
         didSet {
