@@ -21,17 +21,19 @@ import WeatherKit
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedWaypoint: WeatherWaypoint?
     
-    private var showInspector: Binding<Bool> {
-        Binding { selectedWaypoint != nil } set: { newValue in selectedWaypoint = nil }
-    }
-    
     @State private var selectedWeatherAttribute: WeatherParameter = .wind
     
     @State private var vehicle = Vehicle(name: "My Vehicle", averageSpeed: .init(value: 90, unit: .kilometersPerHour), type: .car)
     @State private var isVehicleInspectorOpen = false
     
+    @State private var isLoadingWeather = false
+    
     private let routeCalculationService = RouteCalculationService()
     
+    private var showInspector: Binding<Bool> {
+        Binding { selectedWaypoint != nil } set: { newValue in selectedWaypoint = nil }
+    }
+        
     private var centerCoordinate: Binding<CLLocationCoordinate2D> {
         Binding(get: { position.camera?.centerCoordinate ?? position.fallbackPosition?.camera?.centerCoordinate ?? position.region?.center ?? position.rect?.origin.coordinate ?? CLLocationCoordinate2D.random() }, set: { _ in } )
     }
@@ -83,8 +85,14 @@ import WeatherKit
         }
         .toolbar {
             ToolbarItemGroup(placement: .bottomBar) {
-                Button("Get Weather") {
+                Button {
                     updateWeather()
+                } label: {
+                    if isLoadingWeather {
+                        ProgressView()
+                    } else {
+                        Text("Get Weather")
+                    }
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -153,12 +161,17 @@ import WeatherKit
     }
     
     private func updateWeather() {
+        isLoadingWeather = true
         let weatherService = RouteWeatherService()
         for waypoint in predictedWaypoints {
             Task {
-                // TODO: Add error handling
-                let weatherData = try? await weatherService.fetchWeather(coordinate: waypoint.coordinate, existingData: waypoint.weather)
-                waypoint.weather = weatherData ?? []
+                do {
+                    let weatherData = try await weatherService.fetchWeather(coordinate: waypoint.coordinate, existingData: waypoint.weather)
+                    waypoint.weather = weatherData
+                } catch {
+                    print(error.localizedDescription)
+                }
+                isLoadingWeather = false
             }
         }
     }

@@ -10,7 +10,7 @@ import StormGlass
 
 let timeConverter = ISO8601DateFormatter()
 
-extension Paths.Point.GetResponse.Datum: WeatherModelConvertible {
+extension Paths.Point.GetResponse.Hour: WeatherModelConvertible {
     var convertedDate: Date {
         guard let time else { fatalError("Weather data without time") }
         guard let date = timeConverter.date(from: time) else { fatalError("Weather data unexpected time format") }

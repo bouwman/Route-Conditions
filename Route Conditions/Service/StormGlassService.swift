@@ -37,8 +37,19 @@ class StormGlassService {
         let request = Paths.point.get(parameters: parameters)
         let response = try await client.send(request)
         
-        guard let data = response.value.data else { throw RouteError.Network.missingData }
-        return data
+        if let data = response.value.hours {
+            return data
+        } else if let status = response.statusCode {
+            print(request.headers)
+            print(request.body)
+            print(request.method)
+            print(request.url)
+            
+            print(response.response)
+            throw RouteError.networkStatus(code: "Status code: \(status)")
+        } else {
+            throw RouteError.unknown
+        }
     }
 }
 

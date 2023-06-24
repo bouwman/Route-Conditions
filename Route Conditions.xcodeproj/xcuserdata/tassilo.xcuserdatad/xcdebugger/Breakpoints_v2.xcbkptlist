@@ -3,4 +3,54 @@
    uuid = "ED2AAA0D-4B2D-4BB3-83CB-5B223A122503"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "C63FD1EA-131E-4DD1-8E7D-CCCD83D85EA4"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "Route Conditions/Service/RouteWeatherService.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "94"
+            endingLineNumber = "94"
+            landmarkName = "merge(forecasts:)"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  uuid = "C63FD1EA-131E-4DD1-8E7D-CCCD83D85EA4 - fb8cd0b989bb7f99"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "Route_Conditions.RouteWeatherService.merge(forecasts: Swift.Array&lt;Route_Conditions.WeatherData&gt;...) throws -&gt; Swift.Array&lt;Route_Conditions.WeatherData&gt;"
+                  moduleName = "Route Conditions"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/tassilo/Documents/Github/Route%20Conditions/Route%20Conditions/Service/RouteWeatherService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "94"
+                  endingLineNumber = "94"
+                  offsetFromSymbolStart = "5900">
+               </Location>
+               <Location
+                  uuid = "C63FD1EA-131E-4DD1-8E7D-CCCD83D85EA4 - 7b3dbe350ed3b970"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #2 (Route_Conditions.WeatherData, Route_Conditions.WeatherData) -&gt; Swift.Bool in Route_Conditions.RouteWeatherService.merge(forecasts: Swift.Array&lt;Route_Conditions.WeatherData&gt;...) throws -&gt; Swift.Array&lt;Route_Conditions.WeatherData&gt;"
+                  moduleName = "Route Conditions"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/tassilo/Documents/Github/Route%20Conditions/Route%20Conditions/Service/RouteWeatherService.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "94"
+                  endingLineNumber = "94"
+                  offsetFromSymbolStart = "232">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

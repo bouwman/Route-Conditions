@@ -8,21 +8,23 @@
 import Foundation
 
 enum RouteError: Error {
-    case missingData
-    case creationError
-    case batchInsertError
-    case batchDeleteError
-    case persistentHistoryChangeError
-    case noFavouritesError
-    case noStationSelected
-    case stationNameEmpty
-    case wrongDataFormat(error: Error)
-    case customError(message: String)
-    case networkError(error: Error)
-    case unexpectedError(error: Error)
-    
-    enum Network: Error {
-        case missingData
-        case unexpected(error: Error)
+    case unexpected(error: Error)
+    case networkStatus(code: String)
+    case custom(description: String)
+    case unknown
+}
+
+extension RouteError: LocalizedError {
+    public var errorDescription: String? {
+        switch self {
+        case .unknown:
+            return NSLocalizedString("Unknown error", comment: "RouteError")
+        case .unexpected(error: let error):
+            return error.localizedDescription
+        case .networkStatus(code: let code):
+            return NSLocalizedString("Network error. Status: " + code, comment: "RouteError")
+        case .custom(description: let description):
+            return NSLocalizedString(description, comment: "RouteError")
+        }
     }
 }
