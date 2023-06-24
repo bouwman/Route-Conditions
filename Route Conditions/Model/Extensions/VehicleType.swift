@@ -1,5 +1,5 @@
 //
-//  Vehicle+Extension.swift
+//  VehicleType.swift
 //  Route Conditions
 //
 //  Created by Tassilo Bouwman on 22.06.23.
@@ -8,33 +8,6 @@
 import Foundation
 
 private let formatter = MeasurementFormatter()
-
-extension UnitSpeed {
-    static var all: [UnitSpeed] {
-        [.kilometersPerHour, .milesPerHour, .knots]
-    }
-    
-    var title: String {
-        formatter.string(from: self)
-    }
-}
-
-extension UnitSpeed: Identifiable {
-    public var id: UnitSpeed {
-        switch self {
-        case .kilometersPerHour:
-                .kilometersPerHour
-        case .knots:
-                .knots
-        case .milesPerHour:
-                .milesPerHour
-        case .metersPerSecond:
-                .metersPerSecond
-        default:
-            fatalError("Unsupported Unit")
-        }
-    }
-}
 
 extension VehicleType {
     static var all: [VehicleType] {

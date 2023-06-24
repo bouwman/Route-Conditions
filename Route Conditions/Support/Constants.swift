@@ -13,4 +13,8 @@ enum Constants {
     static let earthRadius = 6371000.0 // meters
     
     static let documentType = UTType(exportedAs: "com.tassilobouwman.Route-Conditions")
+    
+    enum Network {
+        static let timeout: TimeInterval = 5.0
+    }
 }

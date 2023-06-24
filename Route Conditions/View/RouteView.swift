@@ -25,7 +25,7 @@ import WeatherKit
         Binding { selectedWaypoint != nil } set: { newValue in selectedWaypoint = nil }
     }
     
-    @State private var selectedWeatherAttribute: WeatherAttribute = .wind
+    @State private var selectedWeatherAttribute: WeatherParameter = .wind
     
     @State private var vehicle = Vehicle(name: "My Vehicle", averageSpeed: .init(value: 90, unit: .kilometersPerHour), type: .car)
     @State private var isVehicleInspectorOpen = false
@@ -83,15 +83,15 @@ import WeatherKit
         }
         .toolbar {
             ToolbarItemGroup(placement: .bottomBar) {
-                Button("Clear") {
-                    deletePrediction()
+                Button("Get Weather") {
+                    updateWeather()
                 }
                 .buttonStyle(.borderedProminent)
             }
             ToolbarItem(id: "calculate", placement: .bottomBar) {
                 Button("Calculate") {
+                    deletePredictedWaypoints()
                     calculateWaypoints()
-                    updateWeather()
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -105,7 +105,7 @@ import WeatherKit
             }
             ToolbarItem(id: "weather_selection", placement: .primaryAction) {
                 Picker(selection: $selectedWeatherAttribute) {
-                    ForEach(WeatherAttribute.all) { attribute in
+                    ForEach(WeatherParameter.all) { attribute in
                         Label(attribute.string, systemImage: attribute.imageName)
                     }
                 } label: {
@@ -163,7 +163,7 @@ import WeatherKit
         }
     }
     
-    private func deletePrediction() {
+    private func deletePredictedWaypoints() {
         for waypoint in predictedWaypoints {
             context.delete(waypoint)
         }
@@ -177,7 +177,7 @@ import WeatherKit
     }
     
     private func createSampleRoute() {
-        for waypoint in CustomWaypoint.samples() {
+        for waypoint in CustomWaypoint.samplesChannel() {
             context.insert(waypoint)
         }
         save()

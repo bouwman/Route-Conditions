@@ -9,12 +9,20 @@ import Foundation
 import CoreLocation
 
 extension CustomWaypoint {
-    static func samples() -> [CustomWaypoint] {
+    static func samplesUK() -> [CustomWaypoint] {
         let london = CustomWaypoint(position: 1, latitude: 51.5074, longitude: -0.1278)
         let manchester = CustomWaypoint(position: 2, latitude: 53.4808, longitude: -2.2426)
         let edinburgh = CustomWaypoint(position: 3, latitude: 55.9533, longitude: -3.1883)
         
         return [london, manchester, edinburgh]
+    }
+    
+    static func samplesChannel() -> [CustomWaypoint] {
+        let cherbourg = CustomWaypoint(position: 1, latitude: 49.66373, longitude: -1.61641)
+        let race = CustomWaypoint(position: 2, latitude: 49.76040, longitude: -2.01965)
+        let peterport = CustomWaypoint(position: 3, latitude: 49.45640, longitude: -2.51279)
+        
+        return [cherbourg, race, peterport]
     }
 }
 
@@ -37,9 +45,9 @@ extension WeatherData {
     static func sample() -> WeatherData {
         let weather = WeatherData()
         
-        weather.current = CurrentData(speed: .init(value: 15, unit: .knots), direction: .init(value: 270, unit: .degrees))
-        weather.waves = WaveData(height: .init(value: 0.2, unit: .meters), direction: .init(value: 80, unit: .degrees))
-        weather.wind = WindData(speed: .init(value: 10, unit: .knots), direction: .init(value: 80, unit: .degrees))
+        weather.current = CurrentData(speedData: 5.0, directionData: 280)
+        weather.waves = WaveData(heightData: 0.2, directionData: 80.0)
+        weather.wind = WindData(speedData: 15, directionData: 80)
         weather.conditions = ConditionsData(title: "Partially sunny", symbolName: "could.sun")
         weather.timeInfo = TimeData(isDaylight: false)
         

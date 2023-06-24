@@ -7,8 +7,8 @@
 
 import Foundation
 
-extension WeatherAttribute {
-    static var all: [WeatherAttribute] {
+extension WeatherParameter {
+    static var all: [WeatherParameter] {
         [.wind, .current, .waves, .conditions, .time]
     }
     
@@ -43,7 +43,7 @@ extension WeatherAttribute {
     }
 }
 
-extension WeatherAttribute: Identifiable {
+extension WeatherParameter: Identifiable {
     var id: Self {
         return self
     }
