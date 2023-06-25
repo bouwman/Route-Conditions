@@ -8,6 +8,12 @@
 import Foundation
 
 class RouteCalculationService {
+    
+    static let shared = RouteCalculationService()
+    
+    private init() { }
+    
+    // TODO: Fix when vehicle is too fast
     func calculateRoute(vehicle: Vehicle, inputRoute: [CustomWaypoint], departureTime: Date, timeInterval: TimeInterval) -> [WeatherWaypoint] {
         var waypoints: [WeatherWaypoint] = []
         let waypointCount = inputRoute.count

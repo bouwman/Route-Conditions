@@ -10,6 +10,7 @@ import WeatherKit
 import CoreLocation
 import MapKit
 import OSLog
+import CoreLocationUI
 
 extension CLLocation {
     
@@ -72,6 +73,7 @@ extension OSLog {
     static let viewCycle = Logger(subsystem: subsystem, category: "viewcycle")
     static let network = Logger(subsystem: subsystem, category: "network")
     static let persistence = Logger(subsystem: subsystem, category: "persistence")
+    static let ui = Logger(subsystem: subsystem, category: "ui")
     static let widget = Logger(subsystem: subsystem, category: "widget")
 }
 
@@ -156,5 +158,75 @@ extension UnitSpeed: Identifiable {
         default:
             fatalError("Unsupported Unit")
         }
+    }
+}
+
+infix operator ~<=
+infix operator ~==
+infix operator ~>=
+
+extension Double {
+
+    static func ~<= (lhs: Double, rhs: Double) -> Bool {
+        (lhs < rhs) || (lhs ~== rhs)
+    }
+
+    static func ~>= (lhs: Double, rhs: Double) -> Bool {
+        (lhs > rhs) || (lhs ~== rhs)
+    }
+
+    static func ~== (lhs: Double, rhs: Double) -> Bool {
+        abs(lhs - rhs) < 0.0001
+    }
+}
+
+extension CLLocationCoordinate2D: Equatable {
+    public static func == (lhs: CLLocationCoordinate2D, rhs: CLLocationCoordinate2D) -> Bool {
+        let allowedDelta = 0.01
+        let isLongEqual = abs(lhs.longitude - rhs.longitude) < allowedDelta
+        let isLatiEqual = abs(lhs.latitude - rhs.latitude) < allowedDelta
+        
+        return isLongEqual && isLatiEqual
+    }
+}
+
+let decimalFormatter: NumberFormatter = {
+    let formatter = NumberFormatter()
+    formatter.maximumFractionDigits = 3
+    formatter.numberStyle = .decimal
+    return formatter
+}()
+
+extension CLLocationCoordinate2D: CustomStringConvertible {
+    public var description: String {
+        "(" + latitude.decimalString() + ", " + longitude.decimalString() + ")"
+    }
+}
+
+extension Double {
+    public func decimalString() -> String {
+        decimalFormatter.string(from: self as NSNumber) ?? "-.-"
+    }
+}
+
+extension CLLocationCoordinate2D: Codable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.unkeyedContainer()
+        try container.encode(longitude)
+        try container.encode(latitude)
+    }
+    
+    public init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        let longitude = try container.decode(CLLocationDegrees.self)
+        let latitude = try container.decode(CLLocationDegrees.self)
+        self.init(latitude: latitude, longitude: longitude)
+    }
+}
+
+extension Date {
+    func isWithinSameHour(as date: Date) -> Bool {
+        let diff = Calendar.current.dateComponents([.hour], from: self, to: date)
+        return diff.hour! == 0
     }
 }

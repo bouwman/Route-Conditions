@@ -7,6 +7,7 @@
 
 import Foundation
 import UniformTypeIdentifiers
+import SwiftData
 
 enum Constants {
     static let name = String(localized: "Route Conditions")

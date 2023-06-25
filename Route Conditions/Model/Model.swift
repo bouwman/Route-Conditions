@@ -14,7 +14,6 @@ import SwiftData
 import WeatherKit
 
 @Observable class Vehicle {
-    let id: UUID = UUID()
     var name: String = "Car"
     var speed: Measurement<UnitSpeed> = .init(value: 90, unit: .kilometersPerHour)
     var type: VehicleType = .car
@@ -48,9 +47,11 @@ import WeatherKit
     @Attribute(.unique) var latitude: Double
     @Attribute(.unique) var longitude: Double
     
+    // TODO: Make sure the data doesn't get deleted (at least for some time ...)
+    @Relationship(.cascade, inverse: \WeatherData.waypoint) var weather: [WeatherData] = []
+    
     var position: Int
     var time: Date
-    var weather: [WeatherData] = []
     
     init(position: Int, latitude: Double, longitude: Double, time: Date) {
         self.position = position
@@ -62,11 +63,12 @@ import WeatherKit
 
 @Model class WeatherData {
     var date: Date
-    var wind: WindData?
-    var current: CurrentData?
-    var waves: WaveData?
-    var conditions: ConditionsData?
-    var timeInfo: TimeData?
+    @Relationship(.cascade) var wind: WindData?
+    @Relationship(.cascade) var current: CurrentData?
+    @Relationship(.cascade) var waves: WaveData?
+    @Relationship(.cascade) var conditions: ConditionsData?
+    @Relationship(.cascade) var timeInfo: TimeData?
+    @Relationship(.cascade) var waypoint: WeatherWaypoint?
     
     init(convertible: WeatherModelConvertible) {
         self.date = convertible.convertedDate

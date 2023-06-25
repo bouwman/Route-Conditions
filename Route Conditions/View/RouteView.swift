@@ -10,6 +10,7 @@ import CoreLocation
 import MapKit
 import SwiftData
 import WeatherKit
+import OSLog
 
 @MainActor struct RouteView: View {
     
@@ -28,7 +29,10 @@ import WeatherKit
     
     @State private var isLoadingWeather = false
     
-    private let routeCalculationService = RouteCalculationService()
+    private let routeCalculationService = RouteCalculationService.shared
+    private let weatherService = RouteWeatherService.shared
+    
+    private let log = OSLog.ui
     
     private var showInspector: Binding<Bool> {
         Binding { selectedWaypoint != nil } set: { newValue in selectedWaypoint = nil }
@@ -157,20 +161,25 @@ import WeatherKit
         for waypoint in newWaypoints {
             context.insert(waypoint)
         }
-        save()
+        // save()
     }
     
     private func updateWeather() {
         isLoadingWeather = true
-        let weatherService = RouteWeatherService()
+        log.debug("Start updating weather for \(predictedWaypoints.count) waypoints ...")
+        
         for waypoint in predictedWaypoints {
             Task {
                 do {
-                    let weatherData = try await weatherService.fetchWeather(coordinate: waypoint.coordinate, existingData: waypoint.weather)
-                    waypoint.weather = weatherData
+                    let persistence = PersistenceService(container: context.container)
+                    let neededData = try await persistence.weatherParametersThatNeedsData(at: waypoint.coordinate)
+                    let weatherData = try await weatherService.fetchWeather(parameters: neededData, coordinate: waypoint.coordinate)
+                    
+                    try await persistence.storeRemoteWeather(data: weatherData, for: waypoint.id)
                 } catch {
                     print(error.localizedDescription)
                 }
+                log.debug("Finished updating \(predictedWaypoints.count) waypoints")
                 isLoadingWeather = false
             }
         }

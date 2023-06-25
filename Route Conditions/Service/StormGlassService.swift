@@ -14,7 +14,7 @@ import CoreLocation
 class StormGlassService {
     private var client: APIClient
     private let url = URL(string: "https://api.stormglass.io/v2")
-    private let logger = OSLog.network
+    private let log = OSLog.network
     
     static let shared = StormGlassService()
     
@@ -40,13 +40,16 @@ class StormGlassService {
         if let data = response.value.hours {
             return data
         } else if let status = response.statusCode {
-            print(request.headers)
-            print(request.body)
-            print(request.method)
-            print(request.url)
-            
-            print(response.response)
-            throw RouteError.networkStatus(code: "Status code: \(status)")
+            switch status {
+            case 402:
+                // TODO: Quota reached. Inform user about it
+                let requests = response.value.meta?.requestCount ?? -1
+                let quota = response.value.meta?.dailyQuota ?? -1
+                log.error("Daily quota exceeded: \(requests)/\(quota)")
+            default:
+                log.error("Unknow status code: \(status)")
+            }
+            return []
         } else {
             throw RouteError.unknown
         }
