@@ -32,7 +32,7 @@
 		47641DE22A46D9CE00318992 /* Vehicle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47641DE12A46D9CE00318992 /* Vehicle.swift */; };
 		47641DE42A46EA6600318992 /* WeatherKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47641DE32A46EA6600318992 /* WeatherKit.swift */; };
 		47641DE72A46F2C700318992 /* StormGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47641DE62A46F2C700318992 /* StormGlass.swift */; };
-		47641DED2A47594500318992 /* PersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47641DEC2A47594500318992 /* PersistenceService.swift */; };
+		47641DED2A47594500318992 /* BackgroundPersistenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 47641DEC2A47594500318992 /* BackgroundPersistenceService.swift */; };
 		476FEF022A44594E00B59573 /* VehicleForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 476FEF012A44594E00B59573 /* VehicleForm.swift */; };
 		476FEF042A446B0600B59573 /* VehicleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 476FEF032A446B0600B59573 /* VehicleType.swift */; };
 		4779B9FD2A40DF7C0049B9AF /* WeatherParameter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4779B9FC2A40DF7C0049B9AF /* WeatherParameter.swift */; };
@@ -80,7 +80,7 @@
 		47641DE12A46D9CE00318992 /* Vehicle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Vehicle.swift; sourceTree = "<group>"; };
 		47641DE32A46EA6600318992 /* WeatherKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherKit.swift; sourceTree = "<group>"; };
 		47641DE62A46F2C700318992 /* StormGlass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StormGlass.swift; sourceTree = "<group>"; };
-		47641DEC2A47594500318992 /* PersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistenceService.swift; sourceTree = "<group>"; };
+		47641DEC2A47594500318992 /* BackgroundPersistenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundPersistenceService.swift; sourceTree = "<group>"; };
 		476FEF012A44594E00B59573 /* VehicleForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleForm.swift; sourceTree = "<group>"; };
 		476FEF032A446B0600B59573 /* VehicleType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleType.swift; sourceTree = "<group>"; };
 		4779B9FC2A40DF7C0049B9AF /* WeatherParameter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherParameter.swift; sourceTree = "<group>"; };
@@ -145,7 +145,7 @@
 			children = (
 				47555E5C2A35BC400051568A /* RouteCalculationService.swift */,
 				47555E602A35C0A50051568A /* RouteWeatherService.swift */,
-				47641DEC2A47594500318992 /* PersistenceService.swift */,
+				47641DEC2A47594500318992 /* BackgroundPersistenceService.swift */,
 				47641DC72A45CA6B00318992 /* StormGlassService.swift */,
 				47641DC92A460A5900318992 /* RouteError.swift */,
 				47641DE52A46F2B900318992 /* Conversions */,
@@ -365,7 +365,7 @@
 				47555E612A35C0A50051568A /* RouteWeatherService.swift in Sources */,
 				473E9C3F2A3F191500247F74 /* WeatherDetailView.swift in Sources */,
 				4745334C2A1AC01100AA32D7 /* Extensions.swift in Sources */,
-				47641DED2A47594500318992 /* PersistenceService.swift in Sources */,
+				47641DED2A47594500318992 /* BackgroundPersistenceService.swift in Sources */,
 				473E9C3A2A3F0DF500247F74 /* ProtocolExtensions.swift in Sources */,
 				47641DCF2A46D48200318992 /* WeatherWaypoint.swift in Sources */,
 				476FEF042A446B0600B59573 /* VehicleType.swift in Sources */,

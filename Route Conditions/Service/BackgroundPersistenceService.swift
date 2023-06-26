@@ -1,5 +1,5 @@
 //
-//  PersistenceService.swift
+//  BackgroundPersistenceService.swift
 //  Route Conditions
 //
 //  Created by Tassilo Bouwman on 24.06.23.
@@ -85,8 +85,8 @@ actor BackgroundPersistenceService: ModelActor {
     func storeRemoteWeather(data: [WeatherModelConvertible], for waypointId: PersistentIdentifier) throws {
         guard data.count != 0 else { return }
         
-        let localData = mergeRemote(data: data)
         let waypoint = context.object(with: waypointId) as! WeatherWaypoint
+        let localData = mergeRemote(data: data, coordinate: waypoint.coordinate)
         
         for data in localData {
             data.waypoint = waypoint
@@ -96,45 +96,45 @@ actor BackgroundPersistenceService: ModelActor {
         try context.save()
     }
     
-    private func mergeRemote(data: [WeatherModelConvertible]) -> [WeatherData] {
+    private func mergeRemote(data: [WeatherModelConvertible], coordinate: CLLocationCoordinate2D) -> [WeatherData] {
         var localData: [WeatherData] = []
         
         log.debug("Start merging \(data.count) weather data points ...")
         for newData in data {
-            if let existing = localData.first(where: { newData.convertedDate.isWithinSameHour(as: $0.date) }) {
-                if existing.wind!.gustData == nil {
-                    existing.wind!.gustData = newData.convertedWindGust
-                }
-                if existing.wind!.speedData == nil {
-                    existing.wind!.speedData = newData.convertedWindSpeed
-                }
-                if existing.wind!.directionData == nil {
-                    existing.wind!.directionData = newData.convertedWindDirection
-                }
-                if existing.current!.speedData == nil {
-                    existing.current!.speedData = newData.convertedCurrentSpeed
-                }
-                if existing.current!.directionData == nil {
-                    existing.current!.directionData = newData.convertedCurrentDirection
-                }
-                if existing.waves!.heightData == nil {
-                    existing.waves!.heightData = newData.convertedWaveHeight
-                }
-                if existing.waves!.directionData == nil {
-                    existing.waves!.directionData = newData.convertedWaveDirection
-                }
-                if existing.conditions!.title == nil {
-                    existing.conditions!.title = newData.convertedConditionsTitle
-                }
-                if existing.conditions!.symbolName == nil {
-                    existing.conditions!.symbolName = newData.convertedConditionsSymbol
-                }
-                if existing.timeInfo!.isDaylight == nil {
-                    existing.timeInfo!.isDaylight = newData.convertedTimeIsDaylight
-                }
-            } else {
-                localData.append(WeatherData(convertible: newData))
-            }
+//            if let existing = localData.first(where: { newData.convertedDate.isWithinSameHour(as: $0.date) }) {
+//                if existing.wind!.gustData == nil {
+//                    existing.wind!.gustData = newData.convertedWindGust
+//                }
+//                if existing.wind!.speedData == nil {
+//                    existing.wind!.speedData = newData.convertedWindSpeed
+//                }
+//                if existing.wind!.directionData == nil {
+//                    existing.wind!.directionData = newData.convertedWindDirection
+//                }
+//                if existing.current!.speedData == nil {
+//                    existing.current!.speedData = newData.convertedCurrentSpeed
+//                }
+//                if existing.current!.directionData == nil {
+//                    existing.current!.directionData = newData.convertedCurrentDirection
+//                }
+//                if existing.waves!.heightData == nil {
+//                    existing.waves!.heightData = newData.convertedWaveHeight
+//                }
+//                if existing.waves!.directionData == nil {
+//                    existing.waves!.directionData = newData.convertedWaveDirection
+//                }
+//                if existing.conditions!.title == nil {
+//                    existing.conditions!.title = newData.convertedConditionsTitle
+//                }
+//                if existing.conditions!.symbolName == nil {
+//                    existing.conditions!.symbolName = newData.convertedConditionsSymbol
+//                }
+//                if existing.timeInfo!.isDaylight == nil {
+//                    existing.timeInfo!.isDaylight = newData.convertedTimeIsDaylight
+//                }
+//            } else {
+                localData.append(WeatherData(convertible: newData, coordinate: coordinate))
+//            }
         }
         log.debug("Created \(localData.count) weather data points")
         

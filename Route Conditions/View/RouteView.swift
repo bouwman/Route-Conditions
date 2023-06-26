@@ -104,12 +104,13 @@ import OSLog
                 DatePicker("Departure Time", selection: $departureTime, in: Date.threeDaysFromToday)
                     .labelsHidden()
                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                Slider(value: proxyDepartureTime, in: Date.threeDaysFromTodayTimeInterval, step: 60 * 60)
-                    .frame(maxWidth: 300)
-                    .padding()
-                    .onChange(of: departureTime) { oldValue, newValue in
+                Slider(value: proxyDepartureTime, in: Date.threeDaysFromTodayTimeInterval, step: 60 * 60) { isActive in
+                    if !isActive {
                         calculateWaypoints()
                     }
+                }
+                .frame(maxWidth: 300)
+                .padding()
             }
             .padding()
             
@@ -191,7 +192,24 @@ import OSLog
         
         for waypoint in newWaypoints {
             let newWaypoint = WeatherWaypoint(position: waypoint.position, latitude: waypoint.latitude, longitude: waypoint.longitude, time: waypoint.time)
+            newWaypoint.weather = fetchWeather(for: waypoint.coordinate) ?? []
             context.insert(newWaypoint)
+        }
+    }
+    
+    private func fetchWeather(for coordinate: CLLocationCoordinate2D) -> [WeatherData]? {
+        let predicate = #Predicate<WeatherData> { data in
+            data.latitude == coordinate.latitude && data.longitude == coordinate.longitude
+        }
+        let sort = SortDescriptor<WeatherData>(\.date)
+        let descriptor = FetchDescriptor(predicate: predicate, sortBy: [sort])
+        
+        log.debug("Start fetching weather data for coordinate \(coordinate.latitude) ...")
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            print(error.localizedDescription)
+            return nil
         }
     }
     

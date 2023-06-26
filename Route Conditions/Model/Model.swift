@@ -47,8 +47,7 @@ import WeatherKit
     @Attribute(.unique) var latitude: Double
     @Attribute(.unique) var longitude: Double
     
-    // TODO: Make sure the data doesn't get deleted (at least for some time ...)
-    @Relationship(.cascade, inverse: \WeatherData.waypoint) var weather: [WeatherData] = []
+    @Relationship(.nullify, inverse: \WeatherData.waypoint) var weather: [WeatherData] = []
     
     var position: Int
     var time: Date
@@ -61,8 +60,11 @@ import WeatherKit
     }
 }
 
-@Model class WeatherData {
+@Model class WeatherData: HasLocation {
     var date: Date
+    var latitude: Double
+    var longitude: Double
+    
     @Relationship(.cascade) var wind: WindData?
     @Relationship(.cascade) var current: CurrentData?
     @Relationship(.cascade) var waves: WaveData?
@@ -70,8 +72,10 @@ import WeatherKit
     @Relationship(.cascade) var timeInfo: TimeData?
     @Relationship(.cascade) var waypoint: WeatherWaypoint?
     
-    init(convertible: WeatherModelConvertible) {
+    init(convertible: WeatherModelConvertible, coordinate: CLLocationCoordinate2D) {
         self.date = convertible.convertedDate
+        self.latitude = coordinate.latitude
+        self.longitude = coordinate.longitude
         self.wind = WindData(speedData: convertible.convertedWindSpeed, directionData: convertible.convertedWindDirection, gustData: convertible.convertedWindGust)
         self.current = CurrentData(speedData: convertible.convertedCurrentSpeed, directionData: convertible.convertedCurrentDirection)
         self.waves = WaveData(heightData: convertible.convertedWaveHeight, directionData: convertible.convertedWaveDirection)

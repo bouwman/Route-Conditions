@@ -7,10 +7,13 @@
 
 import Foundation
 
-protocol Waypoint {
-    var position: Int { get set }
+protocol HasLocation {
     var latitude: Double { get set }
     var longitude: Double { get set }
+}
+
+protocol Waypoint: HasLocation {
+    var position: Int { get set }
 }
 
 protocol DirectionalData {

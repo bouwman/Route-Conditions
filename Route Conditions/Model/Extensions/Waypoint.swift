@@ -8,7 +8,7 @@
 import Foundation
 import MapKit
 
-extension Waypoint {
+extension HasLocation {
     var coordinate: CLLocationCoordinate2D {
         return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
     }
