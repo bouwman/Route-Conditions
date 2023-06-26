@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension WeatherWaypoint {
+extension WeatherWaypointData {
     
     var currentWeather: WeatherData? {
         let sort = weather.sorted { $0.date < $1.date }

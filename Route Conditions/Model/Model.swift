@@ -30,7 +30,7 @@ import WeatherKit
     }
 }
 
-@Model final class CustomWaypoint: Waypoint {
+@Model final class CustomWaypointData: Waypoint {
     @Attribute(.unique) var latitude: Double
     @Attribute(.unique) var longitude: Double
     
@@ -43,7 +43,7 @@ import WeatherKit
     }
 }
 
-@Model final class WeatherWaypoint: Waypoint, Equatable {
+@Model final class WeatherWaypointData: Waypoint, Equatable {
     @Attribute(.unique) var latitude: Double
     @Attribute(.unique) var longitude: Double
     
@@ -70,7 +70,7 @@ import WeatherKit
     @Relationship(.cascade) var waves: WaveData?
     @Relationship(.cascade) var conditions: ConditionsData?
     @Relationship(.cascade) var timeInfo: TimeData?
-    @Relationship(.cascade) var waypoint: WeatherWaypoint?
+    @Relationship(.cascade) var waypoint: WeatherWaypointData?
     
     init(convertible: WeatherModelConvertible, coordinate: CLLocationCoordinate2D) {
         self.date = convertible.convertedDate

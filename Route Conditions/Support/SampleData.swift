@@ -8,29 +8,29 @@
 import Foundation
 import CoreLocation
 
-extension CustomWaypoint {
-    static func samplesUK() -> [CustomWaypoint] {
-        let london = CustomWaypoint(position: 1, latitude: 51.5074, longitude: -0.1278)
-        let manchester = CustomWaypoint(position: 2, latitude: 53.4808, longitude: -2.2426)
-        let edinburgh = CustomWaypoint(position: 3, latitude: 55.9533, longitude: -3.1883)
+extension CustomWaypointData {
+    static func samplesUK() -> [CustomWaypointData] {
+        let london = CustomWaypointData(position: 1, latitude: 51.5074, longitude: -0.1278)
+        let manchester = CustomWaypointData(position: 2, latitude: 53.4808, longitude: -2.2426)
+        let edinburgh = CustomWaypointData(position: 3, latitude: 55.9533, longitude: -3.1883)
         
         return [london, manchester, edinburgh]
     }
     
-    static func samplesChannel() -> [CustomWaypoint] {
-        let cherbourg = CustomWaypoint(position: 1, latitude: 49.66373, longitude: -1.61641)
-        let race = CustomWaypoint(position: 2, latitude: 49.76040, longitude: -2.01965)
-        let peterport = CustomWaypoint(position: 3, latitude: 49.45640, longitude: -2.51279)
+    static func samplesChannel() -> [CustomWaypointData] {
+        let cherbourg = CustomWaypointData(position: 1, latitude: 49.66373, longitude: -1.61641)
+        let race = CustomWaypointData(position: 2, latitude: 49.76040, longitude: -2.01965)
+        let peterport = CustomWaypointData(position: 3, latitude: 49.45640, longitude: -2.51279)
         
         return [cherbourg, race, peterport]
     }
 }
 
-extension WeatherWaypoint {
-    static func samples() -> [WeatherWaypoint] {
-        let london = WeatherWaypoint(position: 1, latitude: 51.5074, longitude: -0.1278, time: Date())
-        let manchester = WeatherWaypoint(position: 2, latitude: 53.4808, longitude: -2.2426, time: Date())
-        let edinburgh = WeatherWaypoint(position: 3, latitude: 55.9533, longitude: -3.1883, time: Date())
+extension WeatherWaypointData {
+    static func samples() -> [WeatherWaypointData] {
+        let london = WeatherWaypointData(position: 1, latitude: 51.5074, longitude: -0.1278, time: Date())
+        let manchester = WeatherWaypointData(position: 2, latitude: 53.4808, longitude: -2.2426, time: Date())
+        let edinburgh = WeatherWaypointData(position: 3, latitude: 55.9533, longitude: -3.1883, time: Date())
         
         london.weather = [WeatherData.sample()]
         manchester.weather = [WeatherData.sample()]

@@ -14,13 +14,13 @@ import OSLog
 
 @MainActor struct RouteView: View {
     
-    @Query(sort: \.position, order: .forward) private var waypoints: [CustomWaypoint]
-    @Query(sort: \.position, order: .forward) private var predictedWaypoints: [WeatherWaypoint]
+    @Query(sort: \.position, order: .forward) private var waypoints: [CustomWaypointData]
+    @Query(sort: \.position, order: .forward) private var predictedWaypoints: [WeatherWaypointData]
     
     @Environment(\.modelContext) var context
     
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
-    @State private var selectedWaypoint: WeatherWaypoint?
+    @State private var selectedWaypoint: WeatherWaypointData?
     
     @State private var selectedWeatherParameter: WeatherParameter = .wind
     
@@ -191,7 +191,7 @@ import OSLog
         deletePredictedWaypoints()
         
         for waypoint in newWaypoints {
-            let newWaypoint = WeatherWaypoint(position: waypoint.position, latitude: waypoint.latitude, longitude: waypoint.longitude, time: waypoint.time)
+            let newWaypoint = WeatherWaypointData(position: waypoint.position, latitude: waypoint.latitude, longitude: waypoint.longitude, time: waypoint.time)
             newWaypoint.weather = fetchWeather(for: waypoint.coordinate) ?? []
             context.insert(newWaypoint)
         }
@@ -242,13 +242,13 @@ import OSLog
     }
     
     private func addWaypoint() {
-        let waypoint = CustomWaypoint(position: waypoints.count + 1, latitude: centerCoordinate.latitude.wrappedValue, longitude: centerCoordinate.longitude.wrappedValue)
+        let waypoint = CustomWaypointData(position: waypoints.count + 1, latitude: centerCoordinate.latitude.wrappedValue, longitude: centerCoordinate.longitude.wrappedValue)
         context.insert(waypoint)
         save()
     }
     
     private func createSampleRoute() {
-        for waypoint in CustomWaypoint.samplesChannel() {
+        for waypoint in CustomWaypointData.samplesChannel() {
             context.insert(waypoint)
         }
         save()
@@ -267,7 +267,7 @@ import OSLog
 @MainActor
 let previewContainer: ModelContainer = {
     do {
-        let container = try ModelContainer(for: [CustomWaypoint.self, WeatherWaypoint.self], ModelConfiguration(inMemory: true))
+        let container = try ModelContainer(for: [CustomWaypointData.self, WeatherWaypointData.self], ModelConfiguration(inMemory: true))
         return container
     } catch {
         fatalError("Failed to create container")

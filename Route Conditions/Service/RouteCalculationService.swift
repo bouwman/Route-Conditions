@@ -22,7 +22,7 @@ class RouteCalculationService {
     private init() { }
     
     // TODO: Fix when vehicle is too fast
-    func calculateRoute(vehicle: Vehicle, inputRoute: [CustomWaypoint], departureTime: Date, timeInterval: TimeInterval) -> [CalculationWaypoint] {
+    func calculateRoute(vehicle: Vehicle, inputRoute: [CustomWaypointData], departureTime: Date, timeInterval: TimeInterval) -> [CalculationWaypoint] {
         var waypoints: [CalculationWaypoint] = []
         let waypointCount = inputRoute.count
         var currentTime = departureTime

@@ -85,7 +85,7 @@ actor BackgroundPersistenceService: ModelActor {
     func storeRemoteWeather(data: [WeatherModelConvertible], for waypointId: PersistentIdentifier) throws {
         guard data.count != 0 else { return }
         
-        let waypoint = context.object(with: waypointId) as! WeatherWaypoint
+        let waypoint = context.object(with: waypointId) as! WeatherWaypointData
         let localData = mergeRemote(data: data, coordinate: waypoint.coordinate)
         
         for data in localData {

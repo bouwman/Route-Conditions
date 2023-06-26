@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct WeatherDetailView: View {
-    var waypoint: WeatherWaypoint
+    var waypoint: WeatherWaypointData
     
     var body: some View {
         NavigationStack {
