@@ -9,7 +9,7 @@ import SwiftData
 import CoreLocation
 import OSLog
 
-actor PersistenceService: ModelActor {
+actor BackgroundPersistenceService: ModelActor {
     
     nonisolated let executor: any ModelExecutor
     

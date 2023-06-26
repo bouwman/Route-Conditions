@@ -11,11 +11,13 @@ import MapKit
 struct WeatherMarker: MapContent {
     @Binding var weatherAttribute: WeatherParameter
     var coordinate: CLLocationCoordinate2D
+    var time: Date
     var weather: WeatherData?
     
-    init(weatherAttribute: Binding<WeatherParameter>, coordinate: CLLocationCoordinate2D, weather: WeatherData? = nil) {
+    init(weatherAttribute: Binding<WeatherParameter>, coordinate: CLLocationCoordinate2D, time: Date, weather: WeatherData? = nil) {
         self._weatherAttribute = weatherAttribute
         self.coordinate = coordinate
+        self.time = time
         self.weather = weather
     }
     
@@ -54,7 +56,7 @@ struct WeatherMarker: MapContent {
                 }
             }
         } else {
-            Marker("No data", systemImage: "questionmark", coordinate: coordinate)
+            Marker(time.formatted(date: .omitted, time: .shortened), systemImage: "questionmark", coordinate: coordinate)
         }
     }
 }

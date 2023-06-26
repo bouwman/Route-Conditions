@@ -22,7 +22,7 @@ import OSLog
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedWaypoint: WeatherWaypoint?
     
-    @State private var selectedWeatherAttribute: WeatherParameter = .wind
+    @State private var selectedWeatherParameter: WeatherParameter = .wind
     
     @State private var vehicle = Vehicle(name: "My Vehicle", averageSpeed: .init(value: 90, unit: .kilometersPerHour), type: .car)
     @State private var isVehicleInspectorOpen = false
@@ -56,7 +56,7 @@ import OSLog
             Map(position: $position, selection: $selectedWaypoint) {
                 UserAnnotation()
                 ForEach(predictedWaypoints) { waypoint in
-                    WeatherMarker(weatherAttribute: $selectedWeatherAttribute, coordinate: waypoint.coordinate, weather: waypoint.currentWeather)
+                    WeatherMarker(weatherAttribute: $selectedWeatherParameter, coordinate: waypoint.coordinate, time: waypoint.time, weather: waypoint.currentWeather(for: selectedWeatherParameter))
                 }
                 ForEach(waypoints) { waypoint in
                     Annotation("", coordinate: waypoint.coordinate) {
@@ -107,6 +107,9 @@ import OSLog
                 Slider(value: proxyDepartureTime, in: Date.threeDaysFromTodayTimeInterval, step: 60 * 60)
                     .frame(maxWidth: 300)
                     .padding()
+                    .onChange(of: departureTime) { oldValue, newValue in
+                        calculateWaypoints()
+                    }
             }
             .padding()
             
@@ -125,8 +128,6 @@ import OSLog
             }
             ToolbarItem(id: "calculate", placement: .secondaryAction) {
                 Button {
-                    // TODO: Don't delete, just update
-                    deletePredictedWaypoints()
                     calculateWaypoints()
                 } label: {
                     Label("Calculate", systemImage: "equal.square")
@@ -141,12 +142,12 @@ import OSLog
                 })
             }
             ToolbarItem(id: "weather_selection", placement: .primaryAction) {
-                Picker(selection: $selectedWeatherAttribute) {
+                Picker(selection: $selectedWeatherParameter) {
                     ForEach(WeatherParameter.all) { attribute in
                         Label(attribute.string, systemImage: attribute.imageName)
                     }
                 } label: {
-                    Label(selectedWeatherAttribute.string, systemImage: selectedWeatherAttribute.imageName)
+                    Label(selectedWeatherParameter.string, systemImage: selectedWeatherParameter.imageName)
                 }
             }
             ToolbarItem(id: "vehicle_selection", placement: .secondaryAction) {
@@ -184,12 +185,14 @@ import OSLog
     }
     
     private func calculateWaypoints() {
-        let newWaypoints = routeCalculationService.calculateRoute(vehicle: vehicle, inputRoute: waypoints, departureTime: Date(), timeInterval: 60 * 60 * 3)
+        let newWaypoints = routeCalculationService.calculateRoute(vehicle: vehicle, inputRoute: waypoints, departureTime: departureTime, timeInterval: 60 * 60 * 1)
+        
+        deletePredictedWaypoints()
         
         for waypoint in newWaypoints {
-            context.insert(waypoint)
+            let newWaypoint = WeatherWaypoint(position: waypoint.position, latitude: waypoint.latitude, longitude: waypoint.longitude, time: waypoint.time)
+            context.insert(newWaypoint)
         }
-        // save()
     }
     
     private func updateWeather() {
@@ -199,7 +202,7 @@ import OSLog
         for waypoint in predictedWaypoints {
             Task {
                 do {
-                    let persistence = PersistenceService(container: context.container)
+                    let persistence = BackgroundPersistenceService(container: context.container)
                     let neededData = try await persistence.weatherParametersThatNeedsData(at: waypoint.coordinate)
                     let weatherData = try await weatherService.fetchWeather(parameters: neededData, coordinate: waypoint.coordinate)
                     

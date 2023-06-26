@@ -7,6 +7,14 @@
 
 import Foundation
 
+/// Only used to temporarily calculate the waypoints
+struct CalculationWaypoint: Waypoint {
+    var position: Int
+    var latitude: Double
+    var longitude: Double
+    var time: Date
+}
+
 class RouteCalculationService {
     
     static let shared = RouteCalculationService()
@@ -14,8 +22,8 @@ class RouteCalculationService {
     private init() { }
     
     // TODO: Fix when vehicle is too fast
-    func calculateRoute(vehicle: Vehicle, inputRoute: [CustomWaypoint], departureTime: Date, timeInterval: TimeInterval) -> [WeatherWaypoint] {
-        var waypoints: [WeatherWaypoint] = []
+    func calculateRoute(vehicle: Vehicle, inputRoute: [CustomWaypoint], departureTime: Date, timeInterval: TimeInterval) -> [CalculationWaypoint] {
+        var waypoints: [CalculationWaypoint] = []
         let waypointCount = inputRoute.count
         var currentTime = departureTime
         
@@ -33,14 +41,14 @@ class RouteCalculationService {
                 let latitude = startWaypoint.latitude + (endWaypoint.latitude - startWaypoint.latitude) * ratio
                 let longitude = startWaypoint.longitude + (endWaypoint.longitude - startWaypoint.longitude) * ratio
                 let time = currentTime.addingTimeInterval(TimeInterval(j) * timeInterval)
-                let waypoint = WeatherWaypoint(position: i+j, latitude: latitude, longitude: longitude, time: time)
+                let waypoint = CalculationWaypoint(position: i+j, latitude: latitude, longitude: longitude, time: time)
                 waypoints.append(waypoint)
             }
             
             currentTime = currentTime.addingTimeInterval((travelTime * 3600) + timeInterval) // Convert hours to seconds and add timeInterval
         }
         
-        let finalWaypoint = WeatherWaypoint(position: waypoints.count + 1, latitude: inputRoute.last!.latitude, longitude: inputRoute.last!.longitude, time: currentTime)
+        let finalWaypoint = CalculationWaypoint(position: waypoints.count + 1, latitude: inputRoute.last!.latitude, longitude: inputRoute.last!.longitude, time: currentTime)
         waypoints.append(finalWaypoint)
         
         return waypoints
