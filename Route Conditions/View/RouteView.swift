@@ -26,8 +26,8 @@ import OSLog
     
     @State private var vehicle = Vehicle(name: "My Vehicle", averageSpeed: .init(value: 90, unit: .kilometersPerHour), type: .car)
     @State private var isVehicleInspectorOpen = false
-    
     @State private var isLoadingWeather = false
+    @State private var departureTime: Date = Date()
     
     private let routeCalculationService = RouteCalculationService.shared
     private let weatherService = RouteWeatherService.shared
@@ -42,8 +42,17 @@ import OSLog
         Binding(get: { position.camera?.centerCoordinate ?? position.fallbackPosition?.camera?.centerCoordinate ?? position.region?.center ?? position.rect?.origin.coordinate ?? CLLocationCoordinate2D.random() }, set: { _ in } )
     }
     
+    private var proxyDepartureTime: Binding<Double> {
+        Binding<Double> {
+            return departureTime.timeIntervalSince1970
+        } set: { newValue, transaction in
+            departureTime = Date(timeIntervalSince1970: newValue)
+        }
+
+    }
+    
     var body: some View {
-        ZStack {
+        ZStack(alignment: .bottom) {
             Map(position: $position, selection: $selectedWaypoint) {
                 UserAnnotation()
                 ForEach(predictedWaypoints) { waypoint in
@@ -80,40 +89,56 @@ import OSLog
                     Text("Inspector opened without waypoint selected")
                 }
             }
-            .inspector(isPresented: $isVehicleInspectorOpen, content: {
-                VehicleForm(vehicle: $vehicle)
-                    .presentationDetents([.medium, .large])
-                    .presentationBackgroundInteraction(.enabled(upThrough: .medium))
-            })
-            Text("\(centerCoordinate.latitude.wrappedValue)")
+//            .inspector(isPresented: $isVehicleInspectorOpen, content: {
+//                VehicleForm(vehicle: $vehicle)
+//                    .presentationDetents([.medium, .large])
+//                    .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+            //            })
+            VStack(alignment: .center) {
+                Text("\(centerCoordinate.latitude.wrappedValue)")
+                    .foregroundStyle(.primary)
+                    .padding()
+                    .background(.regularMaterial, in: Capsule())
+                Spacer()
+                Text("Departure Time")
+                DatePicker("Departure Time", selection: $departureTime, in: Date.threeDaysFromToday)
+                    .labelsHidden()
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                Slider(value: proxyDepartureTime, in: Date.threeDaysFromTodayTimeInterval, step: 60 * 60)
+                    .frame(maxWidth: 300)
+                    .padding()
+            }
+            .padding()
+            
         }
         .toolbar {
-            ToolbarItemGroup(placement: .bottomBar) {
+            ToolbarItemGroup(placement: .secondaryAction) {
                 Button {
                     updateWeather()
                 } label: {
                     if isLoadingWeather {
                         ProgressView()
                     } else {
-                        Text("Get Weather")
+                        Label("Update Weather", systemImage: "arrow.counterclockwise")
                     }
                 }
-                .buttonStyle(.borderedProminent)
             }
-            ToolbarItem(id: "calculate", placement: .bottomBar) {
-                Button("Calculate") {
+            ToolbarItem(id: "calculate", placement: .secondaryAction) {
+                Button {
+                    // TODO: Don't delete, just update
                     deletePredictedWaypoints()
                     calculateWaypoints()
+                } label: {
+                    Label("Calculate", systemImage: "equal.square")
                 }
-                .buttonStyle(.borderedProminent)
+
             }
-            ToolbarItem(id: "add", placement: .bottomBar) {
+            ToolbarItem(id: "add", placement: .secondaryAction) {
                 Button(action: {
                     addWaypoint()
                 }, label: {
-                    Label("", systemImage: "plus")
+                    Label("Add Waypoint", systemImage: "plus")
                 })
-                .buttonStyle(.borderedProminent)
             }
             ToolbarItem(id: "weather_selection", placement: .primaryAction) {
                 Picker(selection: $selectedWeatherAttribute) {
@@ -124,13 +149,16 @@ import OSLog
                     Label(selectedWeatherAttribute.string, systemImage: selectedWeatherAttribute.imageName)
                 }
             }
-            ToolbarItem(id: "vehicle_selection", placement: .primaryAction) {
+            ToolbarItem(id: "vehicle_selection", placement: .secondaryAction) {
                 Button {
                     isVehicleInspectorOpen.toggle()
                 } label: {
                     Label("Edit Vehicle", systemImage: vehicle.type.imageName)
                 }
-
+                .popover(isPresented: $isVehicleInspectorOpen) {
+                    VehicleForm(vehicle: $vehicle)
+                        .frame(minWidth: 300, idealWidth: 400, maxWidth: .infinity, minHeight: 300, idealHeight: 400, maxHeight: .infinity, alignment: .center)
+                }
             }
         }
         .toolbarBackground(.visible, for: .bottomBar)
