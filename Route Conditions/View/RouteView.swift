@@ -24,13 +24,12 @@ import OSLog
     
     @State private var selectedWeatherParameter: WeatherParameter = .wind
     
-    @State private var vehicle = Vehicle(name: "My Vehicle", averageSpeed: .init(value: 90, unit: .kilometersPerHour), type: .car)
-    @State private var isVehicleInspectorOpen = false
+    @State private var vehicle = Vehicle.sample()
     @State private var isLoadingWeather = false
     @State private var departureTime: Date = Date()
     
     private let routeCalculationService = RouteCalculationService.shared
-    private let weatherService = RouteWeatherService.shared
+    private let weatherService = WeatherService.shared
     
     private let log = OSLog.ui
     
@@ -52,7 +51,7 @@ import OSLog
     }
         
     var body: some View {
-        ZStack(alignment: .bottom) {
+        ZStack(alignment: .top) {
             Map(position: $position, selection: $selectedWaypoint) {
                 ForEach(customWaypoints) { waypoint in
                     Annotation("", coordinate: waypoint.coordinate) {
@@ -92,32 +91,41 @@ import OSLog
                     Text("Inspector opened without waypoint selected")
                 }
             }
-//            .inspector(isPresented: $isVehicleInspectorOpen, content: {
-//                VehicleForm(vehicle: $vehicle)
-//                    .presentationDetents([.medium, .large])
-//                    .presentationBackgroundInteraction(.enabled(upThrough: .medium))
-            //            })
             VStack(alignment: .center) {
                 Text("\(centerCoordinate.latitude.wrappedValue)")
                     .foregroundStyle(.primary)
                     .padding()
                     .background(.regularMaterial, in: Capsule())
-                Spacer()
-                Text("Departure Time")
-                DatePicker("Departure Time", selection: $departureTime, in: Date.threeDaysFromToday)
-                    .labelsHidden()
-                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                Slider(value: proxyDepartureTime, in: Date.threeDaysFromTodayTimeInterval, step: 60 * 60) { isActive in
-                    updateWeatherWaypoints()
-                }
-                .frame(maxWidth: 300)
-                .padding()
+                Slider(value: $vehicle.speed.value, in: vehicle.speedRange, step: vehicle.step)
+                    .onChange(of: vehicle.speed.value) {
+                        updateWeatherWaypoints(departureTime: departureTime)
+                    }
             }
             .padding()
             
         }
         .toolbar {
-            ToolbarItemGroup(placement: .secondaryAction) {
+            ToolbarItem(id: "picker", placement: .bottomBar) {
+                DatePicker("Departure Time", selection: $departureTime, in: Date.threeDaysFromToday)
+                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                    .labelsHidden()
+            }
+            ToolbarItem(id: "slider", placement: .bottomBar, showsByDefault: false) {
+                Slider(value: proxyDepartureTime, in: Date.threeDaysFromTodayTimeInterval, step: 60 * 60)
+                    .frame(minWidth: 100, maxWidth: 400)
+                    .padding()
+                    .onChange(of: departureTime) { oldValue, newValue in
+                        updateWeatherWaypoints(departureTime: newValue)
+                    }
+            }
+            ToolbarItem(id: "add", placement: .bottomBar) {
+                Button(action: {
+                    addWaypoint()
+                }, label: {
+                    Label("Add Waypoint", systemImage: "plus")
+                })
+            }
+            ToolbarItem(id: "update_weather", placement: .secondaryAction) {
                 Button {
                     updateWeather()
                 } label: {
@@ -128,45 +136,9 @@ import OSLog
                     }
                 }
             }
-            ToolbarItem(id: "calculate", placement: .secondaryAction) {
-                Button {
-                    updateWeatherWaypoints()
-                } label: {
-                    Label("Calculate", systemImage: "equal.square")
-                }
-
-            }
-            ToolbarItem(id: "add", placement: .secondaryAction) {
-                Button(action: {
-                    addWaypoint()
-                }, label: {
-                    Label("Add Waypoint", systemImage: "plus")
-                })
-            }
-            ToolbarItem(id: "weather_selection", placement: .primaryAction) {
-                Picker(selection: $selectedWeatherParameter) {
-                    ForEach(WeatherParameter.all) { attribute in
-                        Label(attribute.string, systemImage: attribute.imageName)
-                    }
-                } label: {
-                    Label(selectedWeatherParameter.string, systemImage: selectedWeatherParameter.imageName)
-                }
-            }
-            ToolbarItem(id: "vehicle_selection", placement: .secondaryAction) {
-                Button {
-                    isVehicleInspectorOpen.toggle()
-                    // TODO: Find better case to save (not on disappear)
-                    save()
-                } label: {
-                    Label("Edit Vehicle", systemImage: vehicle.type.imageName)
-                }
-                .popover(isPresented: $isVehicleInspectorOpen) {
-                    VehicleForm(vehicle: $vehicle)
-                        .frame(minWidth: 300, idealWidth: 400, maxWidth: .infinity, minHeight: 300, idealHeight: 400, maxHeight: .infinity, alignment: .center)
-                }
-            }
+            WeatherBarItem(weatherParameter: $selectedWeatherParameter)
+            VehicleBarItem(vehicle: $vehicle)
         }
-        .toolbarBackground(.visible, for: .bottomBar)
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarRole(.editor)
         .onAppear {
@@ -185,25 +157,24 @@ import OSLog
     
     private func loadStoredData() {
         Task(priority: .userInitiated) {
-            let persistence = BackgroundPersistenceActor(container: context.container)
+            let persistence = BackgroundPersistence(container: context.container)
             do {
                 customWaypoints = try await persistence.loadAllCustomWaypoints()
                 weatherWaypoints = try await persistence.loadAllWeatherWaypoints()
                 
                 if customWaypoints.count == 0 {
-                    position = .userLocation(fallback: .automatic)
                     createSampleRoute()
-                } else {
-                    position = MapCameraPosition.region(customWaypoints.region)
                 }
+                position = MapCameraPosition.region(customWaypoints.region)
             } catch {
                 print(error.localizedDescription)
             }
         }
     }
     
-    private func updateWeatherWaypoints() {
-        weatherWaypoints = routeCalculationService.calculateRoute(vehicle: vehicle, inputRoute: customWaypoints, departureTime: departureTime, timeInterval: 60 * 60 * 1)
+    private func updateWeatherWaypoints(departureTime: Date) {
+        weatherWaypoints = []
+        weatherWaypoints = routeCalculationService.calculateRoute(existingWaypoints: customWaypoints, speed: vehicle.speed.value, unit: vehicle.unit, departureTime: departureTime, timeInterval: Constants.RouteCalculation.interval)
     }
     
     private func updateWeather() {
@@ -232,13 +203,13 @@ import OSLog
     }
     
     private func createSampleRoute() {
-        customWaypoints = CustomWaypoint.samplesChannel()
+        customWaypoints = CustomWaypoint.samplesUK()
     }
     
     private func save() {
         Task(priority: .utility) {
             do {
-                let persistence = BackgroundPersistenceActor(container: context.container)
+                let persistence = BackgroundPersistence(container: context.container)
                 try await persistence.store(customWaypoints: weatherWaypoints)
                 try await persistence.store(weatherWaypoints: weatherWaypoints)
             } catch {

@@ -11,11 +11,13 @@ private let formatter = MeasurementFormatter()
 
 extension VehicleType {
     static var all: [VehicleType] {
-        [.car, .truck, .speedboat, .sailboat, .bicycle]
+        [.plane, .car, .truck, .speedboat, .sailboat, .bicycle]
     }
     
     var imageName: String {
         switch self {
+        case .plane:
+            "airplane"
         case .car:
             "car"
         case .truck:
@@ -29,8 +31,27 @@ extension VehicleType {
         }
     }
     
+    var defaultSpeed: Measurement<UnitSpeed> {
+        switch self {
+        case .plane:
+                .init(value: 900, unit: .kilometersPerHour)
+        case .car:
+                .init(value: 110, unit: .kilometersPerHour)
+        case .truck:
+                .init(value: 90, unit: .kilometersPerHour)
+        case .speedboat:
+                .init(value: 20, unit: .knots)
+        case .sailboat:
+                .init(value: 6, unit: .knots)
+        case .bicycle:
+                .init(value: 20, unit: .kilometersPerHour)
+        }
+    }
+    
     var defaultUnit: UnitSpeed {
         switch self {
+        case .plane:
+                .kilometersPerHour
         case .car:
                 .kilometersPerHour
         case .truck:
@@ -57,60 +78,71 @@ extension VehicleType {
         }
     }
     
-    func speedRange(unit: UnitSpeed) -> ClosedRange<Measurement<UnitSpeed>> {
+    func speedRange(unit: UnitSpeed) -> ClosedRange<Double> {
         switch self {
+        case .plane:
+            switch unit {
+            case .kilometersPerHour:
+                100...1000
+            case .knots:
+                100...600
+            case .milesPerHour:
+                100...600
+            default:
+                fatalError("Unsupported Unit")
+            }
         case .car:
             switch unit {
             case .kilometersPerHour:
-                    .init(value: 1, unit: .kilometersPerHour)...(.init(value: 300, unit: .kilometersPerHour))
+                10...300
             case .knots:
-                    .init(value: 1, unit: .knots)...(.init(value: 200, unit: .kilometersPerHour))
+                10...200
             case .milesPerHour:
-                    .init(value: 1, unit: .kilometersPerHour)...(.init(value: 200, unit: .kilometersPerHour))
+                10...200
             default:
                 fatalError("Unsupported Unit")
             }
         case .truck:
             switch unit {
             case .kilometersPerHour:
-                    .init(value: 1, unit: .kilometersPerHour)...(.init(value: 200, unit: .kilometersPerHour))
+                10...200
             case .knots:
-                    .init(value: 1, unit: .knots)...(.init(value: 150, unit: .kilometersPerHour))
+                10...120
             case .milesPerHour:
-                    .init(value: 1, unit: .kilometersPerHour)...(.init(value: 150, unit: .kilometersPerHour))
+                10...150
             default:
                 fatalError("Unsupported Unit")
             }
         case .speedboat:
             switch unit {
             case .kilometersPerHour:
-                    .init(value: 1, unit: .kilometersPerHour)...(.init(value: 200, unit: .kilometersPerHour))
+                2...200
             case .knots:
-                    .init(value: 1, unit: .knots)...(.init(value: 150, unit: .kilometersPerHour))
+                2...100
             case .milesPerHour:
-                    .init(value: 1, unit: .kilometersPerHour)...(.init(value: 150, unit: .kilometersPerHour))
+                2...100
             default:
                 fatalError("Unsupported Unit")
             }
         case .sailboat:
             switch unit {
             case .kilometersPerHour:
-                    .init(value: 1, unit: .kilometersPerHour)...(.init(value: 100, unit: .kilometersPerHour))
+                1...60
             case .knots:
-                    .init(value: 1, unit: .knots)...(.init(value: 60, unit: .kilometersPerHour))
+                1...40
             case .milesPerHour:
-                    .init(value: 1, unit: .kilometersPerHour)...(.init(value: 70, unit: .kilometersPerHour))
+                1...40
             default:
                 fatalError("Unsupported Unit")
             }
         case .bicycle:
             switch unit {
             case .kilometersPerHour:
-                    .init(value: 1, unit: .kilometersPerHour)...(.init(value: 70, unit: .kilometersPerHour))
+                5...70
             case .knots:
-                    .init(value: 1, unit: .knots)...(.init(value: 40, unit: .kilometersPerHour))
+                5...40
             case .milesPerHour:
-                    .init(value: 1, unit: .kilometersPerHour)...(.init(value: 50, unit: .kilometersPerHour))
+                5...40
             default:
                 fatalError("Unsupported Unit")
             }
@@ -119,6 +151,8 @@ extension VehicleType {
     
     var title: String {
         switch self {
+        case .plane:
+            NSLocalizedString("Airplane", comment: "")
         case .car:
             NSLocalizedString("Car", comment: "")
         case .truck:

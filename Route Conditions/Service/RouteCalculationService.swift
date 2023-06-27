@@ -14,22 +14,32 @@ class RouteCalculationService {
     
     private init() { }
     
-    // TODO: Fix when vehicle is too fast
-    func calculateRoute(vehicle: Vehicle, inputRoute: [CustomWaypoint], departureTime: Date, timeInterval: TimeInterval) -> [WeatherWaypoint] {
+    /// Speed in meters per second
+    func calculateRoute(existingWaypoints: [CustomWaypoint], speed: Double, unit: UnitSpeed, departureTime: Date, timeInterval: TimeInterval) -> [WeatherWaypoint] {
+        guard existingWaypoints.count != 0 else { return [] }
+        
         var waypoints: [WeatherWaypoint] = []
-        let waypointCount = inputRoute.count
+        let waypointCount = existingWaypoints.count
         var currentTime = departureTime
+        let averageSpeed = Measurement(value: speed, unit: unit).converted(to: .metersPerSecond).value
+        
+        // Add start point
+        let first = existingWaypoints.first!
+        let startPoint = WeatherWaypoint(coordinate: first.coordinate, position: 0, date: departureTime)
+        waypoints.append(startPoint)
         
         for i in 0..<(waypointCount - 1) {
-            let startWaypoint = inputRoute[i]
-            let endWaypoint = inputRoute[i + 1]
+            let startWaypoint = existingWaypoints[i]
+            let endWaypoint = existingWaypoints[i + 1]
             let distance = calculateDistance(start: startWaypoint, end: endWaypoint)
-            let travelTime = distance / vehicle.speed.converted(to: .metersPerSecond).value
+            let travelTime = distance / averageSpeed
             
             let waypointTimeInterval = timeInterval / 3600 // Convert seconds to hours
             let numberOfIntermediateWaypoints = Int(travelTime / waypointTimeInterval)
             
-            for j in 0...numberOfIntermediateWaypoints {
+            guard numberOfIntermediateWaypoints > 0 else { continue }
+            
+            for j in 1...numberOfIntermediateWaypoints {
                 let ratio = Double(j) / Double(numberOfIntermediateWaypoints)
                 let latitude = startWaypoint.latitude + (endWaypoint.latitude - startWaypoint.latitude) * ratio
                 let longitude = startWaypoint.longitude + (endWaypoint.longitude - startWaypoint.longitude) * ratio
@@ -41,15 +51,16 @@ class RouteCalculationService {
             
             currentTime = currentTime.addingTimeInterval((travelTime * 3600) + timeInterval) // Convert hours to seconds and add timeInterval
         }
-        let coordinate = CLLocationCoordinate2D(latitude: inputRoute.last!.latitude, longitude: inputRoute.last!.longitude)
-        let finalWaypoint = WeatherWaypoint(coordinate: coordinate, position: waypoints.count + 1, date: currentTime)
-        waypoints.append(finalWaypoint)
+        
+        for waypoint in waypoints {
+            print(waypoint.date)
+        }
         
         return waypoints
     }
     
     private func calculateDistance(start: HasCoordinate, end: HasCoordinate) -> Double {
-        let earthRadius = 6371.0 // Earth's radius in kilometers
+        let earthRadius = Constants.RouteCalculation.earthRadius // Earth's radius in kilometers
         
         let startLatitudeRadians = start.coordinate.latitude * .pi / 180
         let startLongitudeRadians = start.coordinate.longitude * .pi / 180
@@ -60,6 +71,7 @@ class RouteCalculationService {
         let deltaLongitude = endLongitudeRadians - startLongitudeRadians
         
         let a = sin(deltaLatitude / 2) * sin(deltaLatitude / 2) + cos(startLatitudeRadians) * cos(endLatitudeRadians) * sin(deltaLongitude / 2) * sin(deltaLongitude / 2)
+        
         let c = 2 * atan2(sqrt(a), sqrt(1 - a))
         let distance = earthRadius * c
         

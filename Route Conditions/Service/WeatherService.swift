@@ -12,13 +12,13 @@ import SwiftData
 import SwiftUI
 import OSLog
 
-class RouteWeatherService {
+class WeatherService {
     
-    static let shared = RouteWeatherService()
+    static let shared = WeatherService()
     
     private init() { }
     
-    private let weatherKitService = WeatherService.shared
+    private let weatherKitService = WeatherKit.WeatherService.shared
     private let stormGlassService = StormGlassService.shared
     
     private let log = OSLog.network

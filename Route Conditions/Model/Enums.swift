@@ -8,6 +8,7 @@
 import Foundation
 
 enum VehicleType: String, Codable {
+    case plane
     case car
     case truck
     case speedboat
@@ -15,7 +16,7 @@ enum VehicleType: String, Codable {
     case bicycle
 }
 
-enum WeatherParameter {
+enum WeatherParameter: Equatable {
     case wind
     case current
     case waves

@@ -12,7 +12,7 @@ extension CustomWaypoint {
     static func samplesUK() -> [CustomWaypoint] {
         let london = CustomWaypoint(coordinate: CLLocationCoordinate2D(latitude: 51.5074, longitude: -0.1278), position: 1)
         let manchester = CustomWaypoint(coordinate: CLLocationCoordinate2D(latitude: 53.4808, longitude: -2.2426), position: 2)
-        let edinburgh = CustomWaypoint(coordinate: CLLocationCoordinate2D(latitude: 51.5074, longitude: -0.1278), position: 3)
+        let edinburgh = CustomWaypoint(coordinate: CLLocationCoordinate2D(latitude: 55.9533, longitude: -3.1883), position: 3)
         
         return [london, manchester, edinburgh]
     }
@@ -49,6 +49,10 @@ extension Weather {
 extension Vehicle {
     static func sample() -> Vehicle {
         return Vehicle(name: "Car", averageSpeed: .init(value: 90, unit: .kilometersPerHour), type: .car)
+    }
+    
+    static func allSamples() -> [Vehicle] {
+        return VehicleType.all.map { Vehicle(name: $0.title, averageSpeed: $0.defaultSpeed, type: $0, unit: $0.defaultUnit) }
     }
 }
 

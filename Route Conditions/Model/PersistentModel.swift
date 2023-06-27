@@ -13,23 +13,6 @@ import MapKit
 import SwiftData
 import WeatherKit
 
-@Observable class Vehicle {
-    var name: String = "Car"
-    var speed: Measurement<UnitSpeed> = .init(value: 90, unit: .kilometersPerHour)
-    var type: VehicleType = .car
-    var unit: UnitSpeed = .kilometersPerHour { didSet { updateSpeedUsingUnit() } }
-    var speedString: String = "90" { didSet { updateSpeedUsingUnit() } }
-    
-    init(name: String, averageSpeed: Measurement<UnitSpeed>, type: VehicleType = .car, unit: UnitSpeed = .kilometersPerHour) {
-        self.name = name
-        self.speed = averageSpeed
-        self.type = type
-        self.unit = unit
-        
-        self.speedString = numberFormatter.string(from: speed.converted(to: unit).value as NSNumber) ?? ""
-    }
-}
-
 @Model final class CustomWaypointData: Waypointable {
     @Attribute(.unique) var latitude: Double
     @Attribute(.unique) var longitude: Double

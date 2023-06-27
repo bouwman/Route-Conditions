@@ -9,6 +9,24 @@ import Foundation
 import CoreLocation
 import SwiftUI
 
+@Observable class Vehicle: Identifiable {
+    var id = UUID()
+    var name: String = "Car"
+    var speed: Measurement<UnitSpeed> = .init(value: 90, unit: .kilometersPerHour)
+    var type: VehicleType = .car
+    var unit: UnitSpeed = .kilometersPerHour { didSet { updateSpeedUsingString() } }
+    var speedString: String = "90" { didSet { updateSpeedUsingString() } }
+    
+    init(name: String, averageSpeed: Measurement<UnitSpeed>, type: VehicleType = .car, unit: UnitSpeed = .kilometersPerHour) {
+        self.name = name
+        self.speed = averageSpeed
+        self.type = type
+        self.unit = unit
+        
+        self.speedString = numberFormatter.string(from: speed.converted(to: unit).value as NSNumber) ?? ""
+    }
+}
+
 @Observable struct CustomWaypoint: HasCoordinate, Identifiable {
     var id = UUID()
     var coordinate = CLLocationCoordinate2DMake(0, 0)

@@ -1,5 +1,5 @@
 //
-//  BackgroundPersistenceService.swift
+//  BackgroundPersistenceActor.swift
 //  Route Conditions
 //
 //  Created by Tassilo Bouwman on 24.06.23.
@@ -35,7 +35,7 @@ final class PersistenceService {
 }
  */
 
-actor BackgroundPersistenceActor: ModelActor {
+actor BackgroundPersistence: ModelActor {
     
     nonisolated public let executor: any ModelExecutor
     

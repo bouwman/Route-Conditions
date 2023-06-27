@@ -11,9 +11,13 @@ import SwiftData
 
 enum Constants {
     static let name = String(localized: "Route Conditions")
-    static let earthRadius = 6371000.0 // meters
     
     static let documentType = UTType(exportedAs: "com.tassilobouwman.Route-Conditions")
+    
+    enum RouteCalculation {
+        static let interval: TimeInterval = 60 * 60 * 1
+        static let earthRadius = 6371.0 // km
+    }
     
     enum Network {
         static let timeout: TimeInterval = 5.0
