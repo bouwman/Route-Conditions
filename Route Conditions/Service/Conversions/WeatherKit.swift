@@ -8,7 +8,7 @@
 import Foundation
 import WeatherKit
 
-extension HourWeather: WeatherModelConvertible {
+extension WeatherKit.HourWeather: WeatherModelConvertible {
     var convertedDate: Date {
         date
     }
@@ -49,12 +49,12 @@ extension HourWeather: WeatherModelConvertible {
         symbolName
     }
     
-    var convertedTimeIsDaylight: Bool? {
+    var convertedSolarIsDaylight: Bool? {
         isDaylight
     }
 }
 
-extension DayWeather: WeatherModelConvertible {
+extension WeatherKit.DayWeather: WeatherModelConvertible {
     var convertedDate: Date {
         date
     }
@@ -95,7 +95,7 @@ extension DayWeather: WeatherModelConvertible {
         symbolName
     }
     
-    var convertedTimeIsDaylight: Bool? {
+    var convertedSolarIsDaylight: Bool? {
         nil
     }
 }

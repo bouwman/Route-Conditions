@@ -8,10 +8,36 @@
 import SwiftData
 import CoreLocation
 import OSLog
+/*
+@globalActor struct PersistenceActor {
+    actor MyPersistenceActor { }
 
-actor BackgroundPersistenceService: ModelActor {
+    static let shared: MyPersistenceActor = MyPersistenceActor()
+}
+
+final class PersistenceService {
+
+    static let shared = BackgroundPersistenceActor(container: container)
+    static var container: ModelContainer!
     
-    nonisolated let executor: any ModelExecutor
+    var background: BackgroundPersistenceActor!
+    
+    static func setup(container: ModelContainer) {
+        self.container = container
+    }
+    
+    private init() {
+        guard let container = PersistenceService.container else {
+            fatalError("Error - you must call setup before accessing PersistenceService.shared")
+        }
+        background = BackgroundPersistenceActor(container: container)
+    }
+}
+ */
+
+actor BackgroundPersistenceActor: ModelActor {
+    
+    nonisolated public let executor: any ModelExecutor
     
     private let log = OSLog.persistence
         
@@ -20,66 +46,28 @@ actor BackgroundPersistenceService: ModelActor {
         executor = DefaultModelExecutor(context: context)
     }
     
-    func weatherParametersThatNeedsData(at coordinate: CLLocationCoordinate2D) throws -> [WeatherParameter] {
-        // TODO: Filter by current date and waypoint once it works
-        let predicate = #Predicate<WeatherData> { data in 1==1 }
-        let sort = SortDescriptor<WeatherData>(\.date)
+    func loadCustomWaypoints() throws -> [CustomWaypoint] {
+        let predicate = #Predicate<CustomWaypointData> { data in 1==1 }
+        let sort = SortDescriptor<CustomWaypointData>(\.position)
         let descriptor = FetchDescriptor(predicate: predicate, sortBy: [sort])
         
-        log.debug("Start fetching weather data for coordinate \(coordinate.latitude) ...")
+        log.debug("Start fetching custom waypoints ...")
         let result = try context.fetch(descriptor)
+        log.debug("Total custom waypoint count \(result.count)")
         
-        log.debug("Total weather data count \(result.count) for coordinate \(coordinate.latitude)")
-
-        let hasTide = result.filter { data in
-            guard let waypoint = data.waypoint else {
-                context.delete(data)
-                return false
-            }
-            let isSameCoordinate = waypoint.coordinate == coordinate
-            let isUpcoming = data.date >= Date()
-            let hasTideData = data.current?.directionData != nil
-            let isValid = isSameCoordinate && isUpcoming && hasTideData
-            
-            if !isUpcoming {
-                context.delete(data)
-            }
-            
-            return isValid
-        }
+        return result.map { CustomWaypoint(coordinate: $0.coordinate, position: $0.position) }
+    }
+    
+    func loadWeatherWaypoints() throws -> [WeatherWaypoint] {
+        let predicate = #Predicate<WeatherWaypointData> { data in 1==1 }
+        let sort = SortDescriptor<WeatherWaypointData>(\.date)
+        let descriptor = FetchDescriptor(predicate: predicate, sortBy: [sort])
         
-        let hasWind = result.filter { data in
-            guard let waypoint = data.waypoint else {
-                context.delete(data)
-                return false
-            }
-            let isSameCoordinate = waypoint.coordinate == coordinate
-            let isUpcoming = data.date >= Date()
-            let hasWindData = data.wind?.directionData != nil
-            let isValid = isSameCoordinate && isUpcoming && hasWindData
-            
-            if !isUpcoming {
-                context.delete(data)
-            }
-            
-            return isValid
-        }
+        log.debug("Start fetching weather data ...")
+        let result = try context.fetch(descriptor)
+        log.debug("Total weather data count \(result.count)")
         
-        let tideCount = hasTide.count
-        let windCount = hasWind.count
-        
-        log.debug("Filtered tide data count \(tideCount) / 60 for coordinate \(coordinate.latitude)")
-        log.debug("Filtered wind data count \(windCount) / 200 for coordinate \(coordinate.latitude)")
-        
-        if tideCount >= 60 && windCount >= 200 {
-            return []
-        } else if tideCount >= 60 && windCount < 200 {
-            return [.conditions]
-        } else if tideCount < 60 && windCount >= 200 {
-            return [.current]
-        } else {
-            return WeatherParameter.all
-        }
+        return result.map { WeatherWaypoint(coordinate: $0.coordinate, position: $0.position, date: $0.date, weather: $0.weather.map { Weather(coordinate: $0.coordinate, convertible: $0) }) }
     }
     
     func storeRemoteWeather(data: [WeatherModelConvertible], for waypointId: PersistentIdentifier) throws {

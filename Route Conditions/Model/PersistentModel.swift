@@ -30,7 +30,7 @@ import WeatherKit
     }
 }
 
-@Model final class CustomWaypointData: Waypoint {
+@Model final class CustomWaypointData: Waypointable {
     @Attribute(.unique) var latitude: Double
     @Attribute(.unique) var longitude: Double
     
@@ -43,20 +43,20 @@ import WeatherKit
     }
 }
 
-@Model final class WeatherWaypointData: Waypoint, Equatable {
+@Model final class WeatherWaypointData: Waypointable, Equatable {
     @Attribute(.unique) var latitude: Double
     @Attribute(.unique) var longitude: Double
     
-    @Relationship(.nullify, inverse: \WeatherData.waypoint) var weather: [WeatherData] = []
+    @Relationship(.cascade, inverse: \WeatherData.waypoint) var weather: [WeatherData] = []
     
     var position: Int
-    var time: Date
+    var date: Date
     
-    init(position: Int, latitude: Double, longitude: Double, time: Date) {
+    init(position: Int, latitude: Double, longitude: Double, date: Date) {
         self.position = position
         self.latitude = latitude
         self.longitude = longitude
-        self.time = time
+        self.date = date
     }
 }
 
@@ -65,12 +65,12 @@ import WeatherKit
     var latitude: Double
     var longitude: Double
     
-    @Relationship(.cascade) var wind: WindData?
-    @Relationship(.cascade) var current: CurrentData?
-    @Relationship(.cascade) var waves: WaveData?
-    @Relationship(.cascade) var conditions: ConditionsData?
-    @Relationship(.cascade) var timeInfo: TimeData?
-    @Relationship(.cascade) var waypoint: WeatherWaypointData?
+    @Relationship(.cascade) var wind: WindData
+    @Relationship(.cascade) var current: CurrentData
+    @Relationship(.cascade) var waves: WaveData
+    @Relationship(.cascade) var conditions: ConditionsData
+    @Relationship(.cascade) var solar: SolarData
+    @Relationship(.cascade) var waypoint: WeatherWaypointData
     
     init(convertible: WeatherModelConvertible, coordinate: CLLocationCoordinate2D) {
         self.date = convertible.convertedDate
@@ -80,7 +80,7 @@ import WeatherKit
         self.current = CurrentData(speedData: convertible.convertedCurrentSpeed, directionData: convertible.convertedCurrentDirection)
         self.waves = WaveData(heightData: convertible.convertedWaveHeight, directionData: convertible.convertedWaveDirection)
         self.conditions = ConditionsData(title: convertible.convertedConditionsTitle, symbolName: convertible.convertedConditionsSymbol)
-        self.timeInfo = TimeData(isDaylight: convertible.convertedTimeIsDaylight)
+        self.solar = SolarData(isDaylight: convertible.convertedSolarIsDaylight)
     }
     
     init() { }
@@ -128,7 +128,7 @@ import WeatherKit
     }
 }
 
-@Model class TimeData {
+@Model class SolarData {
     var isDaylight: Bool?
     
     init(isDaylight: Bool?) {

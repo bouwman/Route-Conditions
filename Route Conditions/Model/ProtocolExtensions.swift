@@ -10,14 +10,28 @@ import CoreLocation
 import MapKit
 import WeatherKit
 
+extension HasLocation {
+    var coordinate: CLLocationCoordinate2D {
+        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+    }
+}
+
+extension HasCoordinate {
+    var latitude: Double { coordinate.latitude }
+    var longitude: Double { coordinate.longitude }
+}
+
 extension DirectionalData {
     var direction: Measurement<UnitAngle>? {
         guard let directionData else { return nil }
         return Measurement(value: directionData, unit: .degrees)
     }
-    var compassDirection: Wind.CompassDirection? {
-        guard let directionData else { return nil }
-        return Wind.CompassDirection.from(degrees: directionData)
+}
+
+extension Directional {
+    var compassDirection: WeatherKit.Wind.CompassDirection? {
+        guard let direction else { return nil }
+        return WeatherKit.Wind.CompassDirection.from(degrees: direction.converted(to: .degrees).value)
     }
 }
 

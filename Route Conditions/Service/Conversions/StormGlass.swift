@@ -63,7 +63,7 @@ extension Paths.Point.GetResponse.Hour: WeatherModelConvertible {
         nil
     }
     
-    var convertedTimeIsDaylight: Bool? {
+    var convertedSolarIsDaylight: Bool? {
         nil
     }
 }

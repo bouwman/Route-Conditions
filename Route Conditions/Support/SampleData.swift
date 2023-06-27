@@ -8,48 +8,39 @@
 import Foundation
 import CoreLocation
 
-extension CustomWaypointData {
-    static func samplesUK() -> [CustomWaypointData] {
-        let london = CustomWaypointData(position: 1, latitude: 51.5074, longitude: -0.1278)
-        let manchester = CustomWaypointData(position: 2, latitude: 53.4808, longitude: -2.2426)
-        let edinburgh = CustomWaypointData(position: 3, latitude: 55.9533, longitude: -3.1883)
+extension CustomWaypoint {
+    static func samplesUK() -> [CustomWaypoint] {
+        let london = CustomWaypoint(coordinate: CLLocationCoordinate2D(latitude: 51.5074, longitude: -0.1278), position: 1)
+        let manchester = CustomWaypoint(coordinate: CLLocationCoordinate2D(latitude: 53.4808, longitude: -2.2426), position: 2)
+        let edinburgh = CustomWaypoint(coordinate: CLLocationCoordinate2D(latitude: 51.5074, longitude: -0.1278), position: 3)
         
         return [london, manchester, edinburgh]
     }
     
-    static func samplesChannel() -> [CustomWaypointData] {
-        let cherbourg = CustomWaypointData(position: 1, latitude: 49.66373, longitude: -1.61641)
-        let race = CustomWaypointData(position: 2, latitude: 49.76040, longitude: -2.01965)
-        let peterport = CustomWaypointData(position: 3, latitude: 49.45640, longitude: -2.51279)
+    static func samplesChannel() -> [CustomWaypoint] {
+        let cherbourg = CustomWaypoint(coordinate: CLLocationCoordinate2D(latitude: 49.66373, longitude: -1.61641), position: 1)
+        let race = CustomWaypoint(coordinate: CLLocationCoordinate2D(latitude: 49.76040, longitude: -2.01965), position: 2)
+        let peterport = CustomWaypoint(coordinate: CLLocationCoordinate2D(latitude: 49.45640, longitude: -2.51279), position: 3)
         
         return [cherbourg, race, peterport]
     }
 }
 
-extension WeatherWaypointData {
-    static func samples() -> [WeatherWaypointData] {
-        let london = WeatherWaypointData(position: 1, latitude: 51.5074, longitude: -0.1278, time: Date())
-        let manchester = WeatherWaypointData(position: 2, latitude: 53.4808, longitude: -2.2426, time: Date())
-        let edinburgh = WeatherWaypointData(position: 3, latitude: 55.9533, longitude: -3.1883, time: Date())
-        
-        london.weather = [WeatherData.sample()]
-        manchester.weather = [WeatherData.sample()]
-        edinburgh.weather = [WeatherData.sample()]
-        
-        return [london, manchester, edinburgh]
+extension WeatherWaypoint {
+    static func samples() -> [WeatherWaypoint] {
+        return CustomWaypoint.samplesChannel().map { WeatherWaypoint(coordinate: $0.coordinate, position: $0.position, weather: [Weather.sample()])}
     }
 }
 
-extension WeatherData {
+extension Weather {
     
-    static func sample() -> WeatherData {
-        let weather = WeatherData()
+    static func sample() -> Weather {
+        var weather = Weather()
         
-        weather.current = CurrentData(speedData: 5.0, directionData: 280)
-        weather.waves = WaveData(heightData: 0.2, directionData: 80.0)
-        weather.wind = WindData(speedData: 15, directionData: 80)
-        weather.conditions = ConditionsData(title: "Partially sunny", symbolName: "could.sun")
-        weather.timeInfo = TimeData(isDaylight: false)
+        weather.current = Current(direction: .init(value: 80.0, unit: .degrees), speed: .init(value: 0.8, unit: .knots))
+        weather.wind = Wind(direction: .init(value: 80, unit: .degrees), speed: .init(value: 15, unit: .knots), gust: nil)
+        weather.conditions = Conditions(title: "Partially sunny", symbolName: "could.sun")
+        weather.solar = Solar(isDaylight: false)
         
         return weather
     }

@@ -86,8 +86,8 @@ extension Measurement {
     }
 }
 
-extension Wind.CompassDirection {
-    static func from(degrees: Double) -> Wind.CompassDirection {
+extension WeatherKit.Wind.CompassDirection {
+    static func from(degrees: Double) -> WeatherKit.Wind.CompassDirection {
         switch degrees {
         case 0..<22.5, 337.5...360:
             return .north
@@ -112,7 +112,7 @@ extension Wind.CompassDirection {
     }
 }
 
-extension Wind.CompassDirection {
+extension WeatherKit.Wind.CompassDirection {
     var imageName: String {
         switch self {
         case .north, .northNortheast, .northNorthwest:
@@ -225,6 +225,13 @@ extension CLLocationCoordinate2D: Codable {
     }
 }
 
+extension CLLocationCoordinate2D: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(latitude)
+        hasher.combine(longitude)
+    }
+}
+
 extension Date {
     func isWithinSameHour(as date: Date) -> Bool {
         let diff = Calendar.current.dateComponents([.hour], from: self, to: date)
@@ -269,3 +276,13 @@ extension BinaryFloatingPoint {
         return formatter.string(from: TimeInterval(self)) ?? "" //formatter.string(from: self) ?? ""
     }
 }
+
+extension Measurement {
+    static func optional(value: Double?, unit: UnitType) -> Measurement<UnitType>? {
+        guard let value else {
+            return nil
+        }
+        return Measurement(value: value, unit: unit)
+    }
+}
+

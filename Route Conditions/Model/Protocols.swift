@@ -6,14 +6,23 @@
 //
 
 import Foundation
+import CoreLocation
 
 protocol HasLocation {
-    var latitude: Double { get set }
-    var longitude: Double { get set }
+    var latitude: Double { get }
+    var longitude: Double { get }
 }
 
-protocol Waypoint: HasLocation {
+protocol HasCoordinate {
+    var coordinate: CLLocationCoordinate2D { get }
+}
+
+protocol Waypointable: HasLocation {
     var position: Int { get set }
+}
+
+protocol Directional {
+    var direction: Measurement<UnitAngle>? { get }
 }
 
 protocol DirectionalData {
@@ -63,13 +72,13 @@ protocol ConditionsModelConvertible {
     var convertedConditionsSymbol: String? { get }
 }
 
-protocol TimeModelConvertible {
+protocol SolarModelConvertible {
     /// True if it's during daylight
-    var convertedTimeIsDaylight: Bool? { get }
+    var convertedSolarIsDaylight: Bool? { get }
 }
 
 
-protocol WeatherModelConvertible: WindModelConvertible, WaveModelConvertible, CurrentModelConvertible, ConditionsModelConvertible, TimeModelConvertible {
+protocol WeatherModelConvertible: WindModelConvertible, WaveModelConvertible, CurrentModelConvertible, ConditionsModelConvertible, SolarModelConvertible {
     /// Time of the forecast
     var convertedDate: Date { get }
 }

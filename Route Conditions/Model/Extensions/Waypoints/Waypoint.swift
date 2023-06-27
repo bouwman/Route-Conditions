@@ -8,13 +8,7 @@
 import Foundation
 import MapKit
 
-extension HasLocation {
-    var coordinate: CLLocationCoordinate2D {
-        return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
-    }
-}
-
-extension Collection where Element: Waypoint {
+extension Collection where Element: HasCoordinate {
     var mapRect: MKMapRect {
         // let mapEdgePadding = UIEdgeInsets(top: 70, left: 70, bottom: 70, right: 70)
         var zoomRect = MKMapRect.null

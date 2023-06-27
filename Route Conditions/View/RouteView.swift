@@ -14,13 +14,13 @@ import OSLog
 
 @MainActor struct RouteView: View {
     
-    @Query(sort: \.position, order: .forward) private var waypoints: [CustomWaypointData]
-    @Query(sort: \.position, order: .forward) private var predictedWaypoints: [WeatherWaypointData]
+    @Environment(\.modelContext) private var context: ModelContext
     
-    @Environment(\.modelContext) var context
-    
+    @State private var customWaypoints: [CustomWaypoint] = []
+    @State private var weatherWaypoints: [WeatherWaypoint] = []
+        
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
-    @State private var selectedWaypoint: WeatherWaypointData?
+    @State private var selectedWaypoint: WeatherWaypoint?
     
     @State private var selectedWeatherParameter: WeatherParameter = .wind
     
@@ -50,19 +50,19 @@ import OSLog
         }
 
     }
-    
+        
     var body: some View {
         ZStack(alignment: .bottom) {
             Map(position: $position, selection: $selectedWaypoint) {
-                UserAnnotation()
-                ForEach(predictedWaypoints) { waypoint in
-                    WeatherMarker(weatherAttribute: $selectedWeatherParameter, coordinate: waypoint.coordinate, time: waypoint.time, weather: waypoint.currentWeather(for: selectedWeatherParameter))
-                }
-                ForEach(waypoints) { waypoint in
+                ForEach(customWaypoints) { waypoint in
                     Annotation("", coordinate: waypoint.coordinate) {
                         Circle().fill(.accent).frame(width: 10, height: 10, alignment: .center)
                     }
                 }
+                ForEach(weatherWaypoints) { waypoint in
+                    WeatherMarker(weatherAttribute: $selectedWeatherParameter, coordinate: waypoint.coordinate, time: waypoint.date, weather: waypoint.currentWeather(for: selectedWeatherParameter))
+                }
+                UserAnnotation()
             }
             .mapStyle(.standard(elevation: .automatic, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
             .mapControls {
@@ -105,9 +105,7 @@ import OSLog
                     .labelsHidden()
                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                 Slider(value: proxyDepartureTime, in: Date.threeDaysFromTodayTimeInterval, step: 60 * 60) { isActive in
-                    if !isActive {
-                        calculateWaypoints()
-                    }
+                    updateWeatherWaypoints()
                 }
                 .frame(maxWidth: 300)
                 .padding()
@@ -129,7 +127,7 @@ import OSLog
             }
             ToolbarItem(id: "calculate", placement: .secondaryAction) {
                 Button {
-                    calculateWaypoints()
+                    updateWeatherWaypoints()
                 } label: {
                     Label("Calculate", systemImage: "equal.square")
                 }
@@ -172,29 +170,31 @@ import OSLog
     }
     
     private func prepareView() {
-        if waypoints.count == 0 {
-            createSampleRoute()
-        }
-        
         LocationManager.shared.requestPermission()
-        
-        if waypoints.count == 0 {
-            position = .userLocation(fallback: .automatic)
-        } else {
-            position = MapCameraPosition.region(waypoints.region)
+        loadStoredData()
+    }
+    
+    private func loadStoredData() {
+        Task {
+            let persistence = BackgroundPersistenceActor(container: context.container)
+            do {
+                customWaypoints = try await persistence.loadCustomWaypoints()
+                weatherWaypoints = try await persistence.loadWeatherWaypoints()
+                
+                if customWaypoints.count == 0 {
+                    position = .userLocation(fallback: .automatic)
+                    createSampleRoute()
+                } else {
+                    position = MapCameraPosition.region(customWaypoints.region)
+                }
+            } catch {
+                print(error.localizedDescription)
+            }
         }
     }
     
-    private func calculateWaypoints() {
-        let newWaypoints = routeCalculationService.calculateRoute(vehicle: vehicle, inputRoute: waypoints, departureTime: departureTime, timeInterval: 60 * 60 * 1)
-        
-        deletePredictedWaypoints()
-        
-        for waypoint in newWaypoints {
-            let newWaypoint = WeatherWaypointData(position: waypoint.position, latitude: waypoint.latitude, longitude: waypoint.longitude, time: waypoint.time)
-            newWaypoint.weather = fetchWeather(for: waypoint.coordinate) ?? []
-            context.insert(newWaypoint)
-        }
+    private func updateWeatherWaypoints() {
+        weatherWaypoints = routeCalculationService.calculateRoute(vehicle: vehicle, inputRoute: customWaypoints, departureTime: departureTime, timeInterval: 60 * 60 * 1)
     }
     
     private func fetchWeather(for coordinate: CLLocationCoordinate2D) -> [WeatherData]? {
@@ -215,47 +215,31 @@ import OSLog
     
     private func updateWeather() {
         isLoadingWeather = true
-        log.debug("Start updating weather for \(predictedWaypoints.count) waypoints ...")
+        log.debug("Start updating weather for \(weatherWaypoints.count) customWaypoints ...")
         
-        for waypoint in predictedWaypoints {
+        $weatherWaypoints.forEach { waypoint in
             Task {
                 do {
-                    let persistence = BackgroundPersistenceService(container: context.container)
-                    let neededData = try await persistence.weatherParametersThatNeedsData(at: waypoint.coordinate)
-                    let weatherData = try await weatherService.fetchWeather(parameters: neededData, coordinate: waypoint.coordinate)
+                    let neededData = try await weatherService.weatherParametersThatNeedsData(at: waypoint.coordinate.wrappedValue, existingData: waypoint.weather.wrappedValue)
+                    let weather = try await weatherService.fetchWeather(parameters: neededData, coordinate: waypoint.coordinate.wrappedValue)
                     
-                    try await persistence.storeRemoteWeather(data: weatherData, for: waypoint.id)
+                    waypoint.weather.wrappedValue = weather
                 } catch {
                     print(error.localizedDescription)
                 }
-                log.debug("Finished updating \(predictedWaypoints.count) waypoints")
+                log.debug("Finished updating \(weatherWaypoints.count) customWaypoints")
                 isLoadingWeather = false
             }
         }
     }
     
-    private func deletePredictedWaypoints() {
-        for waypoint in predictedWaypoints {
-            context.delete(waypoint)
-        }
-        save()
-    }
-    
     private func addWaypoint() {
-        let waypoint = CustomWaypointData(position: waypoints.count + 1, latitude: centerCoordinate.latitude.wrappedValue, longitude: centerCoordinate.longitude.wrappedValue)
-        context.insert(waypoint)
-        save()
+        let waypoint = CustomWaypoint(coordinate: centerCoordinate.wrappedValue, position: customWaypoints.count + 1)
+        customWaypoints.append(waypoint)
     }
     
     private func createSampleRoute() {
-        for waypoint in CustomWaypointData.samplesChannel() {
-            context.insert(waypoint)
-        }
-        save()
-    }
-    
-    private func save() {
-        do { try context.save() } catch { print(error) }
+        customWaypoints = CustomWaypoint.samplesChannel()
     }
 }
 
