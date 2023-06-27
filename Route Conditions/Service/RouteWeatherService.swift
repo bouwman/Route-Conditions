@@ -12,7 +12,7 @@ import SwiftData
 import SwiftUI
 import OSLog
 
-actor RouteWeatherService {
+class RouteWeatherService {
     
     static let shared = RouteWeatherService()
     
@@ -39,7 +39,7 @@ actor RouteWeatherService {
         
         log.debug("Finished downloading \(combined.count) forecast items.")
         
-        return combined
+        return merge(data: combined)
     }
     
     private func fetchWavesAndCurrents(coordinate: CLLocationCoordinate2D) async throws -> [Weather] {
@@ -96,5 +96,55 @@ actor RouteWeatherService {
         } else {
             return WeatherParameter.all
         }
+    }
+    
+    func merge(data: [Weather]) -> [Weather] {
+        
+        var mergedData: [Weather] = []
+        
+        log.debug("Start merging \(data.count) weather data points ...")
+        
+        for newData in data {
+            var existing = mergedData.first(where: { newData.date == $0.date })
+            
+            if existing != nil  {
+                if existing?.wind.gust == nil {
+                    existing?.wind.gust = newData.wind.gust
+                }
+                if existing?.wind.speed == nil {
+                    existing?.wind.speed = newData.wind.speed
+                }
+                if existing?.wind.direction == nil {
+                    existing?.wind.direction = newData.wind.direction
+                }
+                if existing?.current.speed == nil {
+                    existing?.current.speed = newData.current.speed
+                }
+                if existing?.current.direction == nil {
+                    existing?.current.direction = newData.current.direction
+                }
+                if existing?.waves.height == nil {
+                    existing?.waves.height = newData.waves.height
+                }
+                if existing?.waves.direction == nil {
+                    existing?.waves.direction = newData.waves.direction
+                }
+                if existing?.conditions.title == nil {
+                    existing?.conditions.title = newData.conditions.title
+                }
+                if existing?.conditions.symbolName == nil {
+                    existing?.conditions.symbolName = newData.conditions.symbolName
+                }
+                if existing?.solar.isDaylight == nil {
+                    existing?.solar.isDaylight = newData.solar.isDaylight
+                }
+            } else {
+                existing = newData
+            }
+            mergedData.append(existing!)
+        }
+        log.debug("Created \(mergedData.count) weather data points")
+        
+        return mergedData
     }
 }

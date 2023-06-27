@@ -46,7 +46,82 @@ actor BackgroundPersistenceActor: ModelActor {
         executor = DefaultModelExecutor(context: context)
     }
     
-    func loadCustomWaypoints() throws -> [CustomWaypoint] {
+    func loadAllCustomWaypoints() throws -> [CustomWaypoint] {
+        try loadAllCustomDataWaypoints().map { CustomWaypoint(coordinate: $0.coordinate, position: $0.position) }
+    }
+    
+    func loadAllWeatherWaypoints() throws -> [WeatherWaypoint] {
+        try loadAllWeatherDataPoints().map { WeatherWaypoint(coordinate: $0.coordinate, position: $0.position, date: $0.date, weather: $0.weather.map { Weather(coordinate: $0.coordinate, convertible: $0) }) }
+    }
+    
+    func store(customWaypoints: [WeatherWaypoint]) throws {
+        try deleteAllCustomWaypoints()
+        
+        for waypoint in customWaypoints {
+            let newWaypoint = CustomWaypointData(position: waypoint.position, latitude: waypoint.latitude, longitude: waypoint.longitude)
+            context.insert(newWaypoint)
+        }
+        
+        try context.save()
+    }
+    
+    func store(weatherWaypoints: [WeatherWaypoint]) throws {
+        try deleteAllWeatherWaypoints()
+        
+        log.debug("Start creating \(weatherWaypoints.count) weather waypoints ...")
+        
+        for waypoint in weatherWaypoints {
+            let newWaypoint = WeatherWaypointData(position: waypoint.position, latitude: waypoint.latitude, longitude: waypoint.longitude, date: waypoint.date)
+            let newWeather = waypoint.weather.map { WeatherData(convertible: $0, coordinate: $0.coordinate) }
+            
+            for weather in newWeather {
+                weather.waypoint = newWaypoint
+                context.insert(weather)
+            }
+            
+            context.insert(newWaypoint)
+        }
+        log.debug("Finished inserting \(weatherWaypoints.count) weather waypoints")
+        
+        try context.save()
+    }
+    
+    func deleteAllWeatherWaypoints() throws {
+        let allExistingWaypoints = try loadAllWeatherDataPoints()
+        
+        log.debug("Start deleting \(allExistingWaypoints.count) weather waypoints ...")
+        
+        for waypoint in allExistingWaypoints {
+            context.delete(waypoint)
+        }
+        log.debug("Finished deleting \(allExistingWaypoints.count) weather waypoints")
+    }
+    
+    func deleteAllCustomWaypoints() throws {
+        let allExistingWaypoints = try loadAllCustomDataWaypoints()
+        
+        log.debug("Start deleting \(allExistingWaypoints.count) custom waypoints ...")
+
+        for waypoint in allExistingWaypoints {
+            context.delete(waypoint)
+        }
+        
+        log.debug("Finished deleting  \(allExistingWaypoints.count) custom waypoints")
+    }
+    
+    private func loadAllWeatherDataPoints() throws -> [WeatherWaypointData] {
+        let predicate = #Predicate<WeatherWaypointData> { data in 1==1 }
+        let sort = SortDescriptor<WeatherWaypointData>(\.date)
+        let descriptor = FetchDescriptor(predicate: predicate, sortBy: [sort])
+        
+        log.debug("Start fetching weather waypoints ...")
+        let result = try context.fetch(descriptor)
+        log.debug("Total weather waypoint count \(result.count)")
+        
+        return result
+    }
+    
+    private func loadAllCustomDataWaypoints() throws -> [CustomWaypointData] {
         let predicate = #Predicate<CustomWaypointData> { data in 1==1 }
         let sort = SortDescriptor<CustomWaypointData>(\.position)
         let descriptor = FetchDescriptor(predicate: predicate, sortBy: [sort])
@@ -55,26 +130,14 @@ actor BackgroundPersistenceActor: ModelActor {
         let result = try context.fetch(descriptor)
         log.debug("Total custom waypoint count \(result.count)")
         
-        return result.map { CustomWaypoint(coordinate: $0.coordinate, position: $0.position) }
-    }
-    
-    func loadWeatherWaypoints() throws -> [WeatherWaypoint] {
-        let predicate = #Predicate<WeatherWaypointData> { data in 1==1 }
-        let sort = SortDescriptor<WeatherWaypointData>(\.date)
-        let descriptor = FetchDescriptor(predicate: predicate, sortBy: [sort])
-        
-        log.debug("Start fetching weather data ...")
-        let result = try context.fetch(descriptor)
-        log.debug("Total weather data count \(result.count)")
-        
-        return result.map { WeatherWaypoint(coordinate: $0.coordinate, position: $0.position, date: $0.date, weather: $0.weather.map { Weather(coordinate: $0.coordinate, convertible: $0) }) }
+        return result
     }
     
     func storeRemoteWeather(data: [WeatherModelConvertible], for waypointId: PersistentIdentifier) throws {
         guard data.count != 0 else { return }
         
         let waypoint = context.object(with: waypointId) as! WeatherWaypointData
-        let localData = mergeRemote(data: data, coordinate: waypoint.coordinate)
+        let localData = data.map { WeatherData(convertible: $0, coordinate: waypoint.coordinate) }
         
         for data in localData {
             data.waypoint = waypoint
@@ -84,48 +147,19 @@ actor BackgroundPersistenceActor: ModelActor {
         try context.save()
     }
     
-    private func mergeRemote(data: [WeatherModelConvertible], coordinate: CLLocationCoordinate2D) -> [WeatherData] {
-        var localData: [WeatherData] = []
-        
-        log.debug("Start merging \(data.count) weather data points ...")
-        for newData in data {
-//            if let existing = localData.first(where: { newData.convertedDate.isWithinSameHour(as: $0.date) }) {
-//                if existing.wind!.gustData == nil {
-//                    existing.wind!.gustData = newData.convertedWindGust
-//                }
-//                if existing.wind!.speedData == nil {
-//                    existing.wind!.speedData = newData.convertedWindSpeed
-//                }
-//                if existing.wind!.directionData == nil {
-//                    existing.wind!.directionData = newData.convertedWindDirection
-//                }
-//                if existing.current!.speedData == nil {
-//                    existing.current!.speedData = newData.convertedCurrentSpeed
-//                }
-//                if existing.current!.directionData == nil {
-//                    existing.current!.directionData = newData.convertedCurrentDirection
-//                }
-//                if existing.waves!.heightData == nil {
-//                    existing.waves!.heightData = newData.convertedWaveHeight
-//                }
-//                if existing.waves!.directionData == nil {
-//                    existing.waves!.directionData = newData.convertedWaveDirection
-//                }
-//                if existing.conditions!.title == nil {
-//                    existing.conditions!.title = newData.convertedConditionsTitle
-//                }
-//                if existing.conditions!.symbolName == nil {
-//                    existing.conditions!.symbolName = newData.convertedConditionsSymbol
-//                }
-//                if existing.timeInfo!.isDaylight == nil {
-//                    existing.timeInfo!.isDaylight = newData.convertedTimeIsDaylight
-//                }
-//            } else {
-                localData.append(WeatherData(convertible: newData, coordinate: coordinate))
-//            }
+    private func fetchWeather(for coordinate: CLLocationCoordinate2D) -> [WeatherData]? {
+        let predicate = #Predicate<WeatherData> { data in
+            data.latitude == coordinate.latitude && data.longitude == coordinate.longitude
         }
-        log.debug("Created \(localData.count) weather data points")
+        let sort = SortDescriptor<WeatherData>(\.date)
+        let descriptor = FetchDescriptor(predicate: predicate, sortBy: [sort])
         
-        return localData
+        log.debug("Start fetching weather data for coordinate \(coordinate.latitude) ...")
+        do {
+            return try context.fetch(descriptor)
+        } catch {
+            print(error.localizedDescription)
+            return nil
+        }
     }
 }

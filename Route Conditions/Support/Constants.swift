@@ -18,4 +18,8 @@ enum Constants {
     enum Network {
         static let timeout: TimeInterval = 5.0
     }
+    
+    enum Background {
+        static let saveIdentifier = "com.tassilobouwman.Route-Conditions.savedata"
+    }
 }

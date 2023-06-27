@@ -64,6 +64,9 @@ import OSLog
                 }
                 UserAnnotation()
             }
+            .onMapCameraChange {
+                print("camera changed")
+            }
             .mapStyle(.standard(elevation: .automatic, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
             .mapControls {
                 MapCompass()
@@ -152,6 +155,8 @@ import OSLog
             ToolbarItem(id: "vehicle_selection", placement: .secondaryAction) {
                 Button {
                     isVehicleInspectorOpen.toggle()
+                    // TODO: Find better case to save (not on disappear)
+                    save()
                 } label: {
                     Label("Edit Vehicle", systemImage: vehicle.type.imageName)
                 }
@@ -167,6 +172,10 @@ import OSLog
         .onAppear {
             prepareView()
         }
+        .onDisappear {
+            // TODO: Crashes
+            // save()
+        }
     }
     
     private func prepareView() {
@@ -175,11 +184,11 @@ import OSLog
     }
     
     private func loadStoredData() {
-        Task {
+        Task(priority: .userInitiated) {
             let persistence = BackgroundPersistenceActor(container: context.container)
             do {
-                customWaypoints = try await persistence.loadCustomWaypoints()
-                weatherWaypoints = try await persistence.loadWeatherWaypoints()
+                customWaypoints = try await persistence.loadAllCustomWaypoints()
+                weatherWaypoints = try await persistence.loadAllWeatherWaypoints()
                 
                 if customWaypoints.count == 0 {
                     position = .userLocation(fallback: .automatic)
@@ -197,30 +206,14 @@ import OSLog
         weatherWaypoints = routeCalculationService.calculateRoute(vehicle: vehicle, inputRoute: customWaypoints, departureTime: departureTime, timeInterval: 60 * 60 * 1)
     }
     
-    private func fetchWeather(for coordinate: CLLocationCoordinate2D) -> [WeatherData]? {
-        let predicate = #Predicate<WeatherData> { data in
-            data.latitude == coordinate.latitude && data.longitude == coordinate.longitude
-        }
-        let sort = SortDescriptor<WeatherData>(\.date)
-        let descriptor = FetchDescriptor(predicate: predicate, sortBy: [sort])
-        
-        log.debug("Start fetching weather data for coordinate \(coordinate.latitude) ...")
-        do {
-            return try context.fetch(descriptor)
-        } catch {
-            print(error.localizedDescription)
-            return nil
-        }
-    }
-    
     private func updateWeather() {
         isLoadingWeather = true
         log.debug("Start updating weather for \(weatherWaypoints.count) customWaypoints ...")
         
         $weatherWaypoints.forEach { waypoint in
-            Task {
+            Task(priority: .userInitiated) {
                 do {
-                    let neededData = try await weatherService.weatherParametersThatNeedsData(at: waypoint.coordinate.wrappedValue, existingData: waypoint.weather.wrappedValue)
+                    let neededData = try weatherService.weatherParametersThatNeedsData(at: waypoint.coordinate.wrappedValue, existingData: waypoint.weather.wrappedValue)
                     let weather = try await weatherService.fetchWeather(parameters: neededData, coordinate: waypoint.coordinate.wrappedValue)
                     
                     waypoint.weather.wrappedValue = weather
@@ -240,6 +233,18 @@ import OSLog
     
     private func createSampleRoute() {
         customWaypoints = CustomWaypoint.samplesChannel()
+    }
+    
+    private func save() {
+        Task(priority: .utility) {
+            do {
+                let persistence = BackgroundPersistenceActor(container: context.container)
+                try await persistence.store(customWaypoints: weatherWaypoints)
+                try await persistence.store(weatherWaypoints: weatherWaypoints)
+            } catch {
+                print(error.localizedDescription)
+            }
+        }
     }
 }
 
