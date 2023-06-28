@@ -67,9 +67,9 @@ import SwiftUI
     init(coordinate: CLLocationCoordinate2D, convertible: WeatherModelConvertible) {
         self.coordinate = coordinate
         self.date = convertible.convertedDate
-        self._wind = Wind(direction: .optional(value: convertible.convertedWindDirection, unit: .radians), speed: .optional(value: convertible.convertedWindSpeed, unit: .kilometersPerHour), gust: .optional(value: convertible.convertedWindGust, unit: .kilometersPerHour))
-        self._current = Current(direction: .optional(value: convertible.convertedCurrentDirection, unit: .radians), speed: .optional(value: convertible.convertedCurrentSpeed, unit: .kilometersPerHour))
-        self._waves = Wave(direction: .optional(value: convertible.convertedWaveDirection, unit: .radians), height: .optional(value: convertible.convertedWaveHeight, unit: .meters))
+        self._wind = Wind(direction: .optional(value: convertible.convertedWindDirection, unit: .degrees), speed: .optional(value: convertible.convertedWindSpeed, unit: .kilometersPerHour), gust: .optional(value: convertible.convertedWindGust, unit: .kilometersPerHour))
+        self._current = Current(direction: .optional(value: convertible.convertedCurrentDirection, unit: .degrees), speed: .optional(value: convertible.convertedCurrentSpeed, unit: .kilometersPerHour))
+        self._waves = Wave(direction: .optional(value: convertible.convertedWaveDirection, unit: .degrees), height: .optional(value: convertible.convertedWaveHeight, unit: .meters))
         self._conditions = Conditions(title: convertible.convertedConditionsTitle, symbolName: convertible.convertedConditionsSymbol)
         self._solar = Solar(isDaylight: convertible.convertedSolarIsDaylight)
     }

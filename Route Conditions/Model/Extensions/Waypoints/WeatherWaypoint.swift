@@ -19,6 +19,8 @@ extension WeatherWaypoint {
     func currentWeather(for parameter: WeatherParameter) -> Weather? {
         let first = weather.first { item in
             let isNearTime = item.date.timeIntervalSince(date) > 0
+            let isSameCoordinate = item.coordinate == coordinate
+            
             var hasParameter = false
             
             switch parameter {
@@ -34,7 +36,7 @@ extension WeatherWaypoint {
                 hasParameter = item.solar.isDaylight != nil
             }
             
-            return isNearTime && hasParameter
+            return isNearTime && isSameCoordinate && hasParameter
         }
         
         return first
