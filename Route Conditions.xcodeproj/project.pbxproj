@@ -577,6 +577,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Route;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "See your current location on the map.";
 				INFOPLIST_KEY_NSLocationUsageDescription = "See your current location on the map.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Current Location";
@@ -625,6 +627,8 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Route;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.weather";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "See your current location on the map.";
 				INFOPLIST_KEY_NSLocationUsageDescription = "See your current location on the map.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Current Location";
