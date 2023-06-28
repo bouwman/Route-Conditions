@@ -22,11 +22,12 @@ import OSLog
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedWaypoint: WeatherWaypoint?
     
-    @State private var selectedWeatherParameter: WeatherParameter = .wind
+    @State private var weatherParameter: WeatherParameter = .wind
     
     @State private var vehicle = Vehicle.sample()
     @State private var isLoadingWeather = false
     @State private var departureTime: Date = Date()
+    @State private var departureTimeStep: Int = 1
     
     private let routeCalculationService = RouteCalculationService.shared
     private let weatherService = WeatherService.shared
@@ -45,6 +46,10 @@ import OSLog
         }
     }
     
+    private lazy var departureTimeStepMax: Int = {
+        Calendar.current.dateComponents([.hour], from: Date.threeDaysFromToday.lowerBound, to: Date.threeDaysFromToday.upperBound).hour!
+    }()
+    
     @State private var centerCoordinate = CLLocationCoordinate2DMake(0, 0)
     
     var body: some View {
@@ -55,13 +60,11 @@ import OSLog
                 //                        Circle().fill(.accent).frame(width: 10, height: 10, alignment: .center)
                 //                    }
                 //                }
+                MapPolyline(coordinates: customWaypoints.map { $0.coordinate })
                 ForEach(weatherWaypoints) { waypoint in
-                    WeatherMarker(weatherAttribute: $selectedWeatherParameter, coordinate: waypoint.coordinate, time: waypoint.date, weather: waypoint.currentWeather(for: selectedWeatherParameter))
+                    WeatherParameterMarker(weatherParameter: $weatherParameter, coordinate: waypoint.coordinate, time: waypoint.date, weather: waypoint.currentWeather(for: weatherParameter))
                 }
                 UserAnnotation()
-            }
-            .onMapCameraChange {
-                print("camera changed")
             }
             .onMapCameraChange { updateContext in
                 centerCoordinate = updateContext.camera.centerCoordinate
@@ -71,11 +74,6 @@ import OSLog
                 MapCompass()
                 MapUserLocationButton()
                 MapScaleView()
-                Button {
-                    addWaypoint()
-                } label: {
-                    Label("", systemImage: "plus")
-                }
             }
             .sheet(item: $selectedWaypoint) {
                 selectedWaypoint = nil
@@ -117,17 +115,27 @@ import OSLog
         }
         .toolbar {
             ToolbarItem(id: "departure_time", placement: .bottomBar) {
-                DatePicker("Departure Time", selection: $departureTime, in: Date.threeDaysFromToday)
+                DatePicker("Departure Time", selection: $departureTime)
+                #if os(macOS)
+                    .datePickerStyle(.stepperField)
+                #else
+                    .datePickerStyle(.compact)
+                #endif
                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                     .labelsHidden()
-            }
-            ToolbarItem(id: "slider", placement: .bottomBar, showsByDefault: false) {
-                Slider(value: proxyDepartureTime, in: Date.threeDaysFromTodayTimeInterval, step: 60 * 60)
-                    .frame(minWidth: 100, maxWidth: 400)
-                    .padding()
-                    .onChange(of: departureTime) { oldValue, newValue in
+                    .onChange(of: departureTime) {
                         updateWeatherWaypoints()
                     }
+            }
+            ToolbarItem(id: "step", placement: .bottomBar) {
+                Stepper {
+                    Text("")
+                } onIncrement: {
+                    departureTime = departureTime.addingTimeInterval(3600)
+                } onDecrement: {
+                    departureTime = departureTime.addingTimeInterval(-3600)
+                }
+                .accessibilityLabel("Departure Time Stepper")
             }
             ToolbarItem(id: "add", placement: .bottomBar) {
                 Button(action: {
@@ -136,6 +144,7 @@ import OSLog
                 }, label: {
                     Label("Add Waypoint", systemImage: "plus")
                 })
+                .buttonStyle(.bordered)
             }
             ToolbarItem(id: "update_weather", placement: .secondaryAction) {
                 Button {
@@ -148,11 +157,14 @@ import OSLog
                     }
                 }
             }
-            WeatherBarItem(weatherParameter: $selectedWeatherParameter)
+            WeatherBarItem(weatherParameter: $weatherParameter)
             VehicleBarItem(vehicle: $vehicle)
         }
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarRole(.editor)
+        .onChange(of: weatherParameter) {
+            save()
+        }
         .onAppear {
             prepareView()
         }
@@ -187,7 +199,6 @@ import OSLog
     
     private func updateWeatherWaypoints() {
         let newWaypoints = routeCalculationService.calculateRoute(existingWaypoints: customWaypoints, speed: vehicle.speed.value, unit: vehicle.unit, departureTime: departureTime, timeInterval: Constants.RouteCalculation.interval)
-        
         let newCount = newWaypoints.count
         let existingCount = weatherWaypoints.count
         

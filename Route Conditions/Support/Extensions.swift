@@ -105,8 +105,7 @@ extension WeatherKit.Wind.CompassDirection {
         case 292.5..<337.5:
             return .southSoutheast
         default:
-            print("Value is not a degree: \(degrees)")
-            return .north
+            fatalError("Value is not a degree: \(degrees)")
         }
     }
 }

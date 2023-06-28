@@ -87,10 +87,6 @@ class RouteCalculationService {
             currentTime = currentTime.addingTimeInterval((travelTime * 3600) + timeInterval) // Convert hours to seconds and add timeInterval
         }
         
-        for waypoint in waypoints {
-            print(waypoint.date)
-        }
-        
         return waypoints
     }
     

@@ -147,7 +147,7 @@ actor BackgroundPersistence: ModelActor {
         try context.save()
     }
     
-    private func fetchWeather(for coordinate: CLLocationCoordinate2D) -> [WeatherData]? {
+    private func fetchWeather(for coordinate: CLLocationCoordinate2D) throws -> [WeatherData]? {
         let predicate = #Predicate<WeatherData> { data in
             data.latitude == coordinate.latitude && data.longitude == coordinate.longitude
         }
@@ -155,11 +155,6 @@ actor BackgroundPersistence: ModelActor {
         let descriptor = FetchDescriptor(predicate: predicate, sortBy: [sort])
         
         log.debug("Start fetching weather data for coordinate \(coordinate.latitude) ...")
-        do {
-            return try context.fetch(descriptor)
-        } catch {
-            print(error.localizedDescription)
-            return nil
-        }
+        return try context.fetch(descriptor)
     }
 }
