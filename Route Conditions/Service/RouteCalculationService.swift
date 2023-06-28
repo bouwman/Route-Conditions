@@ -14,6 +14,41 @@ class RouteCalculationService {
     
     private init() { }
     
+    func sync(existingWaypoints: inout [WeatherWaypoint], with newWaypoints: [WeatherWaypoint]) {
+        let newCount = newWaypoints.count
+        let existingCount = existingWaypoints.count
+        
+        guard newCount != 0 else {
+            existingWaypoints = []
+            return
+        }
+        
+        if newCount == existingCount {
+            for (i, existing) in existingWaypoints.enumerated() {
+                existing.date = newWaypoints[i].date
+                existing.coordinate = newWaypoints[i].coordinate
+            }
+        } else if newCount > existingCount  {
+            for (i, new) in newWaypoints.enumerated() {
+                if i < existingCount {
+                    existingWaypoints[i].date = new.date
+                    existingWaypoints[i].coordinate = new.coordinate
+                } else {
+                    existingWaypoints.append(new)
+                }
+            }
+        } else if newCount < existingCount {
+            for (i, existing) in existingWaypoints.enumerated() {
+                if i < newCount {
+                    existing.date = newWaypoints[i].date
+                    existing.coordinate = newWaypoints[i].coordinate
+                } else {
+                    existingWaypoints.removeLast()
+                }
+            }
+        }
+    }
+    
     /// Speed in meters per second
     func calculateRoute(existingWaypoints: [CustomWaypoint], speed: Double, unit: UnitSpeed, departureTime: Date, timeInterval: TimeInterval) -> [WeatherWaypoint] {
         guard existingWaypoints.count != 0 else { return [] }

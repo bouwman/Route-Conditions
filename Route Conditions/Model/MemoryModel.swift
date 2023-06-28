@@ -27,7 +27,7 @@ import SwiftUI
     }
 }
 
-@Observable struct CustomWaypoint: HasCoordinate, Identifiable {
+@Observable class CustomWaypoint: HasCoordinate, Identifiable {
     var id = UUID()
     var coordinate = CLLocationCoordinate2DMake(0, 0)
     var position: Int = 0
@@ -38,7 +38,7 @@ import SwiftUI
     }
 }
 
-@Observable struct WeatherWaypoint: HasCoordinate, Identifiable {
+@Observable class WeatherWaypoint: HasCoordinate, Identifiable {
     var id = UUID()
     var coordinate = CLLocationCoordinate2DMake(0, 0)
     var position: Int = 0
@@ -55,7 +55,7 @@ import SwiftUI
     }
 }
 
-@Observable struct Weather {
+@Observable class Weather {
     var coordinate = CLLocationCoordinate2DMake(0, 0)
     var date: Date = Date()
     var wind = Wind()
@@ -77,7 +77,7 @@ import SwiftUI
     init() { }
 }
 
-@Observable struct Conditions {
+@Observable class Conditions {
     var title: String? = nil
     var symbolName: String? = nil
     
@@ -87,7 +87,7 @@ import SwiftUI
     }
 }
 
-@Observable struct Wind: Directional {
+@Observable class Wind: Directional {
     var direction: Measurement<UnitAngle>? = nil
     var speed: Measurement<UnitSpeed>? = nil
     var gust: Measurement<UnitSpeed>? = nil
@@ -99,7 +99,7 @@ import SwiftUI
     }
 }
 
-@Observable struct Current: Directional {
+@Observable class Current: Directional {
     var direction: Measurement<UnitAngle>? = nil
     var speed: Measurement<UnitSpeed>? = nil
     
@@ -109,7 +109,7 @@ import SwiftUI
     }
 }
 
-@Observable struct Wave: Directional {
+@Observable class Wave: Directional {
     var direction: Measurement<UnitAngle>? = nil
     var height: Measurement<UnitLength>? = nil
     
@@ -119,7 +119,7 @@ import SwiftUI
     }
 }
 
-@Observable struct Solar {
+@Observable class Solar {
     var isDaylight: Bool? = nil
     
     init(isDaylight: Bool? = nil) {

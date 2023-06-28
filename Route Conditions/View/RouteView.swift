@@ -171,10 +171,42 @@ import OSLog
             }
         }
     }
-    
+        
     private func updateWeatherWaypoints(departureTime: Date) {
-        weatherWaypoints = []
-        weatherWaypoints = routeCalculationService.calculateRoute(existingWaypoints: customWaypoints, speed: vehicle.speed.value, unit: vehicle.unit, departureTime: departureTime, timeInterval: Constants.RouteCalculation.interval)
+        let newWaypoints = routeCalculationService.calculateRoute(existingWaypoints: customWaypoints, speed: vehicle.speed.value, unit: vehicle.unit, departureTime: departureTime, timeInterval: Constants.RouteCalculation.interval)
+                
+        let newCount = newWaypoints.count
+        let existingCount = weatherWaypoints.count
+        
+        guard newCount != 0 else {
+            weatherWaypoints = []
+            return
+        }
+        
+        if newCount == existingCount {
+            for (i, existing) in weatherWaypoints.enumerated() {
+                existing.date = newWaypoints[i].date
+                existing.coordinate = newWaypoints[i].coordinate
+            }
+        } else if newCount > existingCount  {
+            for (i, new) in newWaypoints.enumerated() {
+                if i < existingCount {
+                    weatherWaypoints[i].date = new.date
+                    weatherWaypoints[i].coordinate = new.coordinate
+                } else {
+                    weatherWaypoints.append(new)
+                }
+            }
+        } else if newCount < existingCount {
+            for (i, existing) in weatherWaypoints.enumerated() {
+                if i < newCount {
+                    existing.date = newWaypoints[i].date
+                    existing.coordinate = newWaypoints[i].coordinate
+                } else {
+                    weatherWaypoints.removeLast()
+                }
+            }
+        }
     }
     
     private func updateWeather() {
