@@ -10,7 +10,6 @@ import WeatherKit
 import CoreLocation
 import MapKit
 import OSLog
-import CoreLocationUI
 import SwiftUI
 
 extension CLLocation {

@@ -18,7 +18,7 @@ import OSLog
     
     @State private var customWaypoints: [CustomWaypoint] = []
     @State private var weatherWaypoints: [WeatherWaypoint] = []
-        
+    
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedWaypoint: WeatherWaypoint?
     
@@ -36,10 +36,6 @@ import OSLog
     private var showInspector: Binding<Bool> {
         Binding { selectedWaypoint != nil } set: { newValue in selectedWaypoint = nil }
     }
-        
-    private var centerCoordinate: Binding<CLLocationCoordinate2D> {
-        Binding(get: { position.camera?.centerCoordinate ?? position.fallbackPosition?.camera?.centerCoordinate ?? position.region?.center ?? position.rect?.origin.coordinate ?? CLLocationCoordinate2D.random() }, set: { _ in } )
-    }
     
     private var proxyDepartureTime: Binding<Double> {
         Binding<Double> {
@@ -47,17 +43,18 @@ import OSLog
         } set: { newValue, transaction in
             departureTime = Date(timeIntervalSince1970: newValue)
         }
-
     }
-        
+    
+    @State private var centerCoordinate = CLLocationCoordinate2DMake(0, 0)
+    
     var body: some View {
-        ZStack(alignment: .top) {
+        ZStack(alignment: .center) {
             Map(position: $position, selection: $selectedWaypoint) {
-                ForEach(customWaypoints) { waypoint in
-                    Annotation("", coordinate: waypoint.coordinate) {
-                        Circle().fill(.accent).frame(width: 10, height: 10, alignment: .center)
-                    }
-                }
+                //                ForEach(customWaypoints) { waypoint in
+                //                    Annotation("", coordinate: waypoint.coordinate) {
+                //                        Circle().fill(.accent).frame(width: 10, height: 10, alignment: .center)
+                //                    }
+                //                }
                 ForEach(weatherWaypoints) { waypoint in
                     WeatherMarker(weatherAttribute: $selectedWeatherParameter, coordinate: waypoint.coordinate, time: waypoint.date, weather: waypoint.currentWeather(for: selectedWeatherParameter))
                 }
@@ -65,6 +62,9 @@ import OSLog
             }
             .onMapCameraChange {
                 print("camera changed")
+            }
+            .onMapCameraChange { updateContext in
+                centerCoordinate = updateContext.camera.centerCoordinate
             }
             .mapStyle(.standard(elevation: .automatic, emphasis: .muted, pointsOfInterest: .excludingAll, showsTraffic: false))
             .mapControls {
@@ -91,21 +91,32 @@ import OSLog
                     Text("Inspector opened without waypoint selected")
                 }
             }
-            VStack(alignment: .center) {
-                Text("\(centerCoordinate.latitude.wrappedValue)")
-                    .foregroundStyle(.primary)
-                    .padding()
-                    .background(.regularMaterial, in: Capsule())
-                Slider(value: $vehicle.speed.value, in: vehicle.speedRange, step: vehicle.step)
-                    .onChange(of: vehicle.speed.value) {
-                        updateWeatherWaypoints(departureTime: departureTime)
-                    }
-            }
-            .padding()
+            Rectangle()
+                .fill(.primary)
+                .frame(width: 2, height: 12, alignment: .center)
+            Rectangle()
+                .fill(.primary)
+                .frame(width: 12, height: 2, alignment: .center)
             
+            HStack {
+                VStack(alignment: .center) {
+                    Text(vehicle.speed.formatted())
+                        .multilineTextAlignment(.center)
+                    Spacer()
+                        .frame(maxHeight: 100)
+                    Slider(value: $vehicle.speed.value, in: vehicle.speedRange, step: vehicle.step)
+                        .frame(minWidth: 200, maxWidth: 300)
+                        .rotationEffect(.degrees(-90))
+                        .onChange(of: vehicle.speed.value) {
+                            updateWeatherWaypoints()
+                        }
+                }
+                .frame(maxWidth: 50, minHeight: 400)
+                Spacer()
+            }
         }
         .toolbar {
-            ToolbarItem(id: "picker", placement: .bottomBar) {
+            ToolbarItem(id: "departure_time", placement: .bottomBar) {
                 DatePicker("Departure Time", selection: $departureTime, in: Date.threeDaysFromToday)
                     .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
                     .labelsHidden()
@@ -115,12 +126,13 @@ import OSLog
                     .frame(minWidth: 100, maxWidth: 400)
                     .padding()
                     .onChange(of: departureTime) { oldValue, newValue in
-                        updateWeatherWaypoints(departureTime: newValue)
+                        updateWeatherWaypoints()
                     }
             }
             ToolbarItem(id: "add", placement: .bottomBar) {
                 Button(action: {
                     addWaypoint()
+                    updateWeatherWaypoints()
                 }, label: {
                     Label("Add Waypoint", systemImage: "plus")
                 })
@@ -162,19 +174,20 @@ import OSLog
                 customWaypoints = try await persistence.loadAllCustomWaypoints()
                 weatherWaypoints = try await persistence.loadAllWeatherWaypoints()
                 
-                if customWaypoints.count == 0 {
-                    createSampleRoute()
+                if customWaypoints.count > 0 {
+                    position = MapCameraPosition.region(customWaypoints.region)
+                } else {
+                    position = .userLocation(fallback: .automatic)
                 }
-                position = MapCameraPosition.region(customWaypoints.region)
             } catch {
                 print(error.localizedDescription)
             }
         }
     }
-        
-    private func updateWeatherWaypoints(departureTime: Date) {
+    
+    private func updateWeatherWaypoints() {
         let newWaypoints = routeCalculationService.calculateRoute(existingWaypoints: customWaypoints, speed: vehicle.speed.value, unit: vehicle.unit, departureTime: departureTime, timeInterval: Constants.RouteCalculation.interval)
-                
+        
         let newCount = newWaypoints.count
         let existingCount = weatherWaypoints.count
         
@@ -230,12 +243,8 @@ import OSLog
     }
     
     private func addWaypoint() {
-        let waypoint = CustomWaypoint(coordinate: centerCoordinate.wrappedValue, position: customWaypoints.count + 1)
+        let waypoint = CustomWaypoint(coordinate: centerCoordinate, position: customWaypoints.count + 1)
         customWaypoints.append(waypoint)
-    }
-    
-    private func createSampleRoute() {
-        customWaypoints = CustomWaypoint.samplesUK()
     }
     
     private func save() {

@@ -28,35 +28,35 @@ struct WeatherMarker: MapContent {
                 if let speed = weather.wind.speed, let compassDirection = weather.wind.compassDirection {
                     Marker(speed.formatted(), systemImage: compassDirection.imageName, coordinate: coordinate)
                 } else {
-                    Marker(weather.timeString, systemImage: "questionmark", coordinate: coordinate)
+                    Marker(weather.timeString, systemImage: "viewfinder", coordinate: coordinate)
                 }
             case .current:
                 if let speed = weather.current.speed, let compassDirection = weather.current.compassDirection {
                     Marker(speed.formatted(), systemImage: compassDirection.imageName, coordinate: coordinate)
                 } else {
-                    Marker(weather.timeString, systemImage: "questionmark", coordinate: coordinate)
+                    Marker(weather.timeString, systemImage: "viewfinder", coordinate: coordinate)
                 }
             case .waves:
                 if let height = weather.waves.height, let compassDirection = weather.waves.compassDirection {
                     Marker(height.formatted(), systemImage: compassDirection.imageName, coordinate: coordinate)
                 } else {
-                    Marker(weather.timeString, systemImage: "questionmark", coordinate: coordinate)
+                    Marker(weather.timeString, systemImage: "viewfinder", coordinate: coordinate)
                 }
             case .conditions:
                 if let title = weather.conditions.title, let symbolName = weather.conditions.symbolName {
                     Marker(title, systemImage: symbolName, coordinate: coordinate)
                 } else {
-                    Marker(weather.timeString, systemImage: "questionmark", coordinate: coordinate)
+                    Marker(weather.timeString, systemImage: "viewfinder", coordinate: coordinate)
                 }
             case .time:
                 if let daylightSymbolName = weather.solar.daylightSymbolName {
                     Marker(weather.timeString, systemImage: daylightSymbolName, coordinate: coordinate)
                 } else {
-                    Marker(weather.timeString, systemImage: "questionmark", coordinate: coordinate)
+                    Marker(weather.timeString, systemImage: "viewfinder", coordinate: coordinate)
                 }
             }
         } else {
-            Marker(time.formatted(date: .omitted, time: .shortened), systemImage: "questionmark", coordinate: coordinate)
+            Marker(time.formatted(date: .omitted, time: .shortened), systemImage: "viewfinder", coordinate: coordinate)
         }
     }
 }
