@@ -32,10 +32,10 @@ class WeatherService {
             combined += generalForecast
         }
         
-//        if parameters.contains(where: { $0 == .waves || $0 == .current }) {
-//            let wavesAndCurrents = try await fetchWavesAndCurrents(coordinate: coordinate)
-//            combined += wavesAndCurrents
-//        }
+        if parameters.contains(where: { $0 == .waves || $0 == .current }) {
+            let wavesAndCurrents = try await fetchWavesAndCurrents(coordinate: coordinate)
+            combined += wavesAndCurrents
+        }
         
         log.debug("Finished downloading \(combined.count) forecast items.")
         
