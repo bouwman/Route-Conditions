@@ -28,6 +28,7 @@ import OSLog
     @State private var isLoadingWeather = false
     @State private var departureTime: Date = Date()
     @State private var departureTimeStep: Int = 1
+    @State private var isEditing: Bool = true
     
     private let routeCalculationService = RouteCalculationService.shared
     private let weatherService = WeatherService.shared
@@ -89,62 +90,89 @@ import OSLog
                     Text("Inspector opened without waypoint selected")
                 }
             }
-            Rectangle()
-                .fill(.primary)
-                .frame(width: 2, height: 12, alignment: .center)
-            Rectangle()
-                .fill(.primary)
-                .frame(width: 12, height: 2, alignment: .center)
-            
-            HStack {
-                VStack(alignment: .center) {
-                    Text(vehicle.speed.formatted())
-                        .multilineTextAlignment(.center)
+            if isEditing {
+                Rectangle()
+                    .fill(.primary)
+                    .frame(width: 2, height: 12, alignment: .center)
+                Rectangle()
+                    .fill(.primary)
+                    .frame(width: 12, height: 2, alignment: .center)
+                
+                HStack {
+                    VStack(alignment: .center) {
+                        Text(vehicle.speed.formatted())
+                            .multilineTextAlignment(.center)
+                        Spacer()
+                            .frame(maxHeight: 100)
+                        Slider(value: $vehicle.speed.value, in: vehicle.speedRange, step: vehicle.step)
+                            .frame(minWidth: 200, maxWidth: 300)
+                            .rotationEffect(.degrees(-90))
+                            .onChange(of: vehicle.speed.value) {
+                                updateWeatherWaypoints()
+                            }
+                    }
+                    .frame(maxWidth: 50, minHeight: 400)
                     Spacer()
-                        .frame(maxHeight: 100)
-                    Slider(value: $vehicle.speed.value, in: vehicle.speedRange, step: vehicle.step)
-                        .frame(minWidth: 200, maxWidth: 300)
-                        .rotationEffect(.degrees(-90))
-                        .onChange(of: vehicle.speed.value) {
+                }
+            }
+            VStack {
+                Picker("Edit or View", selection: $isEditing) {
+                    Text("Edit").tag(true)
+                    Text("View").tag(false)
+                }
+                .pickerStyle(.segmented)
+                .frame(maxWidth: 200)
+                .padding()
+                Spacer()
+            }
+                
+        }
+        .toolbar {
+            if isEditing {
+                ToolbarItem(id: "add", placement: .bottomBar) {
+                    Button(action: {
+                        addWaypoint()
+                        updateWeatherWaypoints()
+                    }, label: {
+                        Label("Add Waypoint", systemImage: "plus")
+                            .frame(width: 24, height: 16, alignment: .center)
+                    })
+                    .buttonStyle(.bordered)
+                }
+                ToolbarItem(id: "remove", placement: .bottomBar) {
+                    Button(action: {
+                        removeLastWaypoint()
+                        updateWeatherWaypoints()
+                    }, label: {
+                        Label("Add Waypoint", systemImage: "minus")
+                            .frame(width: 24, height: 16, alignment: .center)
+                    })
+                    .buttonStyle(.bordered)
+                }
+            } else {
+                ToolbarItem(id: "departure_time", placement: .bottomBar) {
+                    DatePicker("Departure Time", selection: $departureTime)
+                    #if os(macOS)
+                        .datePickerStyle(.stepperField)
+                    #else
+                        .datePickerStyle(.compact)
+                    #endif
+                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
+                        .labelsHidden()
+                        .onChange(of: departureTime) {
                             updateWeatherWaypoints()
                         }
                 }
-                .frame(maxWidth: 50, minHeight: 400)
-                Spacer()
-            }
-        }
-        .toolbar {
-            ToolbarItem(id: "departure_time", placement: .bottomBar) {
-                DatePicker("Departure Time", selection: $departureTime)
-                #if os(macOS)
-                    .datePickerStyle(.stepperField)
-                #else
-                    .datePickerStyle(.compact)
-                #endif
-                    .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                    .labelsHidden()
-                    .onChange(of: departureTime) {
-                        updateWeatherWaypoints()
+                ToolbarItem(id: "step", placement: .bottomBar) {
+                    Stepper {
+                        Text("")
+                    } onIncrement: {
+                        departureTime = departureTime.addingTimeInterval(3600)
+                    } onDecrement: {
+                        departureTime = departureTime.addingTimeInterval(-3600)
                     }
-            }
-            ToolbarItem(id: "step", placement: .bottomBar) {
-                Stepper {
-                    Text("")
-                } onIncrement: {
-                    departureTime = departureTime.addingTimeInterval(3600)
-                } onDecrement: {
-                    departureTime = departureTime.addingTimeInterval(-3600)
+                    .accessibilityLabel("Departure Time Stepper")
                 }
-                .accessibilityLabel("Departure Time Stepper")
-            }
-            ToolbarItem(id: "add", placement: .bottomBar) {
-                Button(action: {
-                    addWaypoint()
-                    updateWeatherWaypoints()
-                }, label: {
-                    Label("Add Waypoint", systemImage: "plus")
-                })
-                .buttonStyle(.bordered)
             }
             ToolbarItem(id: "update_weather", placement: .secondaryAction) {
                 Button {
@@ -153,7 +181,7 @@ import OSLog
                     if isLoadingWeather {
                         ProgressView()
                     } else {
-                        Label("Update Weather", systemImage: "arrow.counterclockwise")
+                        Label("Update Weather", systemImage: "arrow.down.circle")
                     }
                 }
             }
@@ -256,6 +284,10 @@ import OSLog
     private func addWaypoint() {
         let waypoint = CustomWaypoint(coordinate: centerCoordinate, position: customWaypoints.count + 1)
         customWaypoints.append(waypoint)
+    }
+    
+    private func removeLastWaypoint() {
+        customWaypoints.removeLast()
     }
     
     private func save() {

@@ -29,7 +29,7 @@ struct WeatherMarker: MapContent {
             Marker(value, systemImage: systemImage, coordinate: coordinate)
                 .tint(tint ?? .gray)
         } else {
-            Marker(time.formatted(date: .omitted, time: .shortened), systemImage: "viewfinder", coordinate: coordinate)
+            Marker(time.formatted(date: .omitted, time: .shortened), systemImage: "circle", coordinate: coordinate)
                 .tint(.gray)
         }
     }

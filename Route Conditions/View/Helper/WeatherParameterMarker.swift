@@ -32,7 +32,7 @@ struct WeatherParameterMarker: MapContent {
         case .conditions:
             WeatherMarker(coordinate: coordinate, time: time, value: weather?.conditions.title, systemImage: weather?.conditions.symbolName, tint: weather?.conditions.scaleColor)
         case .time:
-            WeatherMarker(coordinate: coordinate, time: time, value: weather?.solar.title, systemImage: weather?.solar.daylightSymbolName, tint: weather?.solar.scaleColor)
+            WeatherMarker(coordinate: coordinate, time: time, value: weather?.timeString, systemImage: weather?.solar.daylightSymbolName, tint: weather?.solar.scaleColor)
         }
     }
 }
