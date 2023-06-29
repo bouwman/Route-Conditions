@@ -114,7 +114,7 @@ import OSLog
             if isEditing {
                 ToolbarItem(id: "vehicle_speed_slider", placement: .bottomBar) {
                     Slider(value: $vehicle.speed.value, in: vehicle.speedRange, step: vehicle.step)
-                        .frame(minWidth: 150, maxWidth: 300)
+                        .frame(minWidth: 100, maxWidth: 300)
                         .padding(.horizontal)
                         .onChange(of: vehicle.speed.value) {
                             updateWeatherWaypoints()
@@ -127,26 +127,25 @@ import OSLog
                 ToolbarItem(placement: .bottomBar) {
                     Spacer()
                 }
-                ToolbarItem(id: "add", placement: .bottomBar) {
-                    Button(action: {
-                        addWaypoint()
-                        updateWeatherWaypoints()
-                    }, label: {
-                        Text("Add Waypoint")
-                    })
-                    .buttonStyle(.borderedProminent)
-                    .padding(.horizontal)
-                }
-                ToolbarItem(id: "remove", placement: .bottomBar) {
-                    Button(action: {
-                        removeLastWaypoint()
-                        updateWeatherWaypoints()
-                    }, label: {
-                        Label("Remove Waypoint", systemImage: "arrow.uturn.backward")
-                            .controlSize(.large)
-                    })
-                    .disabled(weatherWaypoints.count == 0)
-                    .buttonStyle(.bordered)
+                ToolbarItem(id: "edit_waypoints", placement: .bottomBar) {
+                    HStack(spacing: 8) {
+                        Button(action: {
+                            addWaypoint()
+                            updateWeatherWaypoints()
+                        }, label: {
+                            Text("Add Waypoint")
+                        })
+                        .buttonStyle(.borderedProminent)
+                        Button(action: {
+                            removeLastWaypoint()
+                            updateWeatherWaypoints()
+                        }, label: {
+                            Label("Remove Waypoint", systemImage: "arrow.uturn.backward")
+                                .frame(maxHeight: .infinity) // Match other button
+                        })
+                        .disabled(weatherWaypoints.count == 0)
+                        .buttonStyle(.bordered)
+                    }
                 }
                 VehicleBarItem(vehicle: $vehicle)
             } else {
