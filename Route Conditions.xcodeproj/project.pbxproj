@@ -12,7 +12,8 @@
 		4729FBB52A4AD6340057118D /* CustomWaypoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4729FBB42A4AD6340057118D /* CustomWaypoint.swift */; };
 		4729FBB82A4B307F0057118D /* VehicleBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4729FBB72A4B307F0057118D /* VehicleBarItem.swift */; };
 		4729FBBA2A4B32D30057118D /* WeatherBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4729FBB92A4B32D30057118D /* WeatherBarItem.swift */; };
-		472DA9522A3EDD3F008E16F2 /* WeatherWeatherParameterMarkerMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472DA9512A3EDD3F008E16F2 /* WeatherWeatherParameterMarkerMarker.swift */; };
+		4729FBDA2A4C6E4A0057118D /* WeatherMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4729FBD92A4C6E4A0057118D /* WeatherMarker.swift */; };
+		472DA9522A3EDD3F008E16F2 /* WeatherParameterMarker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 472DA9512A3EDD3F008E16F2 /* WeatherParameterMarker.swift */; };
 		473E9C352A3EEB7A00247F74 /* Design.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473E9C342A3EEB7A00247F74 /* Design.swift */; };
 		473E9C3A2A3F0DF500247F74 /* ProtocolExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473E9C392A3F0DF500247F74 /* ProtocolExtensions.swift */; };
 		473E9C3C2A3F0E0100247F74 /* SampleData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473E9C3B2A3F0E0100247F74 /* SampleData.swift */; };
@@ -66,7 +67,8 @@
 		4729FBB42A4AD6340057118D /* CustomWaypoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomWaypoint.swift; sourceTree = "<group>"; };
 		4729FBB72A4B307F0057118D /* VehicleBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleBarItem.swift; sourceTree = "<group>"; };
 		4729FBB92A4B32D30057118D /* WeatherBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherBarItem.swift; sourceTree = "<group>"; };
-		472DA9512A3EDD3F008E16F2 /* WeatherWeatherParameterMarkerMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWeatherParameterMarkerMarker.swift; sourceTree = "<group>"; };
+		4729FBD92A4C6E4A0057118D /* WeatherMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherMarker.swift; sourceTree = "<group>"; };
+		472DA9512A3EDD3F008E16F2 /* WeatherParameterMarker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherParameterMarker.swift; sourceTree = "<group>"; };
 		473E9C342A3EEB7A00247F74 /* Design.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Design.swift; sourceTree = "<group>"; };
 		473E9C392A3F0DF500247F74 /* ProtocolExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolExtensions.swift; sourceTree = "<group>"; };
 		473E9C3B2A3F0E0100247F74 /* SampleData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleData.swift; sourceTree = "<group>"; };
@@ -142,7 +144,8 @@
 				4729FBB72A4B307F0057118D /* VehicleBarItem.swift */,
 				4729FBB92A4B32D30057118D /* WeatherBarItem.swift */,
 				473E9C3E2A3F191500247F74 /* WeatherDetailView.swift */,
-				472DA9512A3EDD3F008E16F2 /* WeatherWeatherParameterMarkerMarker.swift */,
+				472DA9512A3EDD3F008E16F2 /* WeatherParameterMarker.swift */,
+				4729FBD92A4C6E4A0057118D /* WeatherMarker.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -397,6 +400,7 @@
 				47555E612A35C0A50051568A /* WeatherService.swift in Sources */,
 				473E9C3F2A3F191500247F74 /* WeatherDetailView.swift in Sources */,
 				4745334C2A1AC01100AA32D7 /* Extensions.swift in Sources */,
+				4729FBDA2A4C6E4A0057118D /* WeatherMarker.swift in Sources */,
 				47641DED2A47594500318992 /* BackgroundPersistence.swift in Sources */,
 				473E9C3A2A3F0DF500247F74 /* ProtocolExtensions.swift in Sources */,
 				4729FBBA2A4B32D30057118D /* WeatherBarItem.swift in Sources */,
@@ -416,7 +420,7 @@
 				4799D6932A17C20A0090EBF1 /* ContentView.swift in Sources */,
 				47555E5F2A35BC610051568A /* PersistentModel.swift in Sources */,
 				47641DCC2A46D3CE00318992 /* Protocols.swift in Sources */,
-				472DA9522A3EDD3F008E16F2 /* WeatherWeatherParameterMarkerMarker.swift in Sources */,
+				472DA9522A3EDD3F008E16F2 /* WeatherParameterMarker.swift in Sources */,
 				47641DE42A46EA6600318992 /* WeatherKit.swift in Sources */,
 				4799D6912A17C20A0090EBF1 /* App.swift in Sources */,
 				4729FBB12A4AAB470057118D /* MemoryModel.swift in Sources */,

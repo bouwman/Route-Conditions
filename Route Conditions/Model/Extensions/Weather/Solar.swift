@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 extension Solar {
     var daylightSymbolName: String? {
@@ -28,5 +29,12 @@ extension Solar: Equatable {
 extension Solar: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(isDaylight)
+    }
+}
+
+extension Solar: ColorScalable {
+    var scaleColor: Color {
+        guard let isDaylight else { return .gray }
+        return isDaylight ? .yellow : .black
     }
 }

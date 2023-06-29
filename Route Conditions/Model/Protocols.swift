@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import SwiftUI
 
 protocol HasLocation {
     var latitude: Double { get }
@@ -81,4 +82,8 @@ protocol SolarModelConvertible {
 protocol WeatherModelConvertible: WindModelConvertible, WaveModelConvertible, CurrentModelConvertible, ConditionsModelConvertible, SolarModelConvertible {
     /// Time of the forecast
     var convertedDate: Date { get }
+}
+
+protocol ColorScalable {
+    var scaleColor: Color { get }
 }

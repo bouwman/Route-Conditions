@@ -22,52 +22,17 @@ struct WeatherParameterMarker: MapContent {
     }
     
     var body: some MapContent {
-        if let weather {
-            switch weatherParameter {
-            case .wind:
-                if let speed = weather.wind.speed, let compassDirection = weather.wind.compassDirection {
-                    Marker(speed.formatted(), systemImage: compassDirection.imageName, coordinate: coordinate)
-                        .tint(.blue)
-                } else {
-                    Marker(weather.timeString, systemImage: "viewfinder", coordinate: coordinate)
-                        .tint(.blue)
-                }
-            case .current:
-                if let speed = weather.current.speed, let compassDirection = weather.current.compassDirection {
-                    Marker(speed.formatted(), systemImage: compassDirection.imageName, coordinate: coordinate)
-                        .tint(.blue)
-                } else {
-                    Marker(weather.timeString, systemImage: "viewfinder", coordinate: coordinate)
-                        .tint(.blue)
-                }
-            case .waves:
-                if let height = weather.waves.height, let compassDirection = weather.waves.compassDirection {
-                    Marker(height.formatted(), systemImage: compassDirection.imageName, coordinate: coordinate)
-                        .tint(.blue)
-                } else {
-                    Marker(weather.timeString, systemImage: "viewfinder", coordinate: coordinate)
-                        .tint(.blue)
-                }
-            case .conditions:
-                if let title = weather.conditions.title, let symbolName = weather.conditions.symbolName {
-                    Marker(title, systemImage: symbolName, coordinate: coordinate)
-                        .tint(.blue)
-                } else {
-                    Marker(weather.timeString, systemImage: "viewfinder", coordinate: coordinate)
-                        .tint(.blue)
-                }
-            case .time:
-                if let daylightSymbolName = weather.solar.daylightSymbolName {
-                    Marker(weather.timeString, systemImage: daylightSymbolName, coordinate: coordinate)
-                        .tint(.blue)
-                } else {
-                    Marker(weather.timeString, systemImage: "viewfinder", coordinate: coordinate)
-                        .tint(.blue)
-                }
-            }
-        } else {
-            Marker(time.formatted(date: .omitted, time: .shortened), systemImage: "viewfinder", coordinate: coordinate)
-                .tint(.blue)
+        switch weatherParameter {
+        case .wind:
+            WeatherMarker(coordinate: coordinate, time: time, value: weather?.wind.speed?.formatted(), systemImage: weather?.wind.compassDirection?.imageName, tint: weather?.wind.scaleColor)
+        case .current:
+            WeatherMarker(coordinate: coordinate, time: time, value: weather?.current.speed?.formatted(), systemImage: weather?.current.compassDirection?.imageName, tint: weather?.current.scaleColor)
+        case .waves:
+            WeatherMarker(coordinate: coordinate, time: time, value: weather?.waves.height?.formatted(), systemImage: weather?.waves.compassDirection?.imageName, tint: weather?.waves.scaleColor)
+        case .conditions:
+            WeatherMarker(coordinate: coordinate, time: time, value: weather?.conditions.title, systemImage: weather?.conditions.symbolName, tint: weather?.conditions.scaleColor)
+        case .time:
+            WeatherMarker(coordinate: coordinate, time: time, value: weather?.solar.title, systemImage: weather?.solar.daylightSymbolName, tint: weather?.solar.scaleColor)
         }
     }
 }

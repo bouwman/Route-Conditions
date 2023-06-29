@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 extension Conditions: Equatable {
     static func == (lhs: Conditions, rhs: Conditions) -> Bool {
@@ -16,5 +17,11 @@ extension Conditions: Equatable {
 extension Conditions: Hashable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(title)
+    }
+}
+
+extension Conditions: ColorScalable {
+    var scaleColor: Color {
+        return .gray
     }
 }

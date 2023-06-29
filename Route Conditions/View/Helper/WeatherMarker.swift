@@ -6,13 +6,31 @@
 //
 
 import SwiftUI
+import MapKit
+import CoreLocation
 
-struct WeatherMarker: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+struct WeatherMarker: MapContent {
+    var coordinate: CLLocationCoordinate2D
+    var time: Date
+    var value: String?
+    var systemImage: String?
+    var tint: Color?
+    
+    init(coordinate: CLLocationCoordinate2D, time: Date, value: String?, systemImage: String?, tint: Color?) {
+        self.coordinate = coordinate
+        self.time = time
+        self.value = value
+        self.systemImage = systemImage
+        self.tint = tint
     }
-}
-
-#Preview {
-    WeatherMarker()
+    
+    var body: some MapContent {
+        if let value, let systemImage{
+            Marker(value, systemImage: systemImage, coordinate: coordinate)
+                .tint(tint ?? .gray)
+        } else {
+            Marker(time.formatted(date: .omitted, time: .shortened), systemImage: "viewfinder", coordinate: coordinate)
+                .tint(.gray)
+        }
+    }
 }
