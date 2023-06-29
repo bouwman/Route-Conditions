@@ -48,11 +48,11 @@ extension Weather {
 
 extension Vehicle {
     static func sample() -> Vehicle {
-        return allSamples().first!
+        return allSamples()[4]
     }
     
     static func allSamples() -> [Vehicle] {
-        return VehicleType.all.map { Vehicle(name: $0.title, averageSpeed: $0.defaultSpeed, type: $0, unit: $0.defaultUnit) }
+        return VehicleType.all.map { Vehicle(averageSpeed: $0.defaultSpeed, type: $0, unit: $0.defaultUnit) }
     }
 }
 

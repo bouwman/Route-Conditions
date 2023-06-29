@@ -7,17 +7,22 @@
 
 import Foundation
 
-private let formatter = MeasurementFormatter()
+
+let formatter: MeasurementFormatter = {
+    let form = MeasurementFormatter()
+    form.unitOptions = .providedUnit
+    return form
+}()
 
 extension VehicleType {
     static var all: [VehicleType] {
-        [.car, .truck, .bicycle, .speedboat, .sailboat, .plane]
+        [.sailboat, .bicycle, .speedboat, .truck,  .car, .plane]
     }
     
     var imageName: String {
         switch self {
         case .plane:
-            "airplane"
+            "airplane.departure"
         case .car:
             "car"
         case .truck:
@@ -78,7 +83,15 @@ extension VehicleType {
         }
     }
     
-    func speedRange(unit: UnitSpeed) -> ClosedRange<Double> {
+    func speedRangeArray(unit: UnitSpeed) -> [Int] {
+        var speedRangeArray: [Int] = []
+        for i in speedRange(unit: unit) {
+            speedRangeArray.append(i)
+        }
+        return speedRangeArray
+    }
+    
+    func speedRange(unit: UnitSpeed) -> ClosedRange<Int> {
         switch self {
         case .plane:
             switch unit {

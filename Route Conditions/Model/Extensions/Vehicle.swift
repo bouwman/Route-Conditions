@@ -7,13 +7,19 @@
 
 import Foundation
 
+extension Measurement<Dimension> {
+    func formatted(unit: Dimension) -> String {
+        formatter.string(from: self.converted(to: unit))
+    }
+}
+
 extension Vehicle {
-    func updateSpeedUsingString() {
-        speed = Measurement(value: Double(speedString) ?? 1.0, unit: self.unit)
+    var speedRange: ClosedRange<Int> {
+        return type.speedRange(unit: unit)
     }
     
-    var speedRange: ClosedRange<Double> {
-        return type.speedRange(unit: unit)
+    var speedFormatted: String {
+        return formatter.string(from: speed.converted(to: unit))
     }
     
     var step: Double {
@@ -21,15 +27,14 @@ extension Vehicle {
     }
 }
 
-
 extension Vehicle: Equatable {
     static func == (lhs: Vehicle, rhs: Vehicle) -> Bool {
-        lhs.id == rhs.id && lhs.id == rhs.id
+        lhs.type == rhs.type
     }
 }
 
 extension Vehicle: Hashable {
     func hash(into hasher: inout Hasher) {
-        hasher.combine(id)
+        hasher.combine(type)
     }
 }

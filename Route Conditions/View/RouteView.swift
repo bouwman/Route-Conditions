@@ -18,38 +18,23 @@ import OSLog
     
     @State private var customWaypoints: [CustomWaypoint] = []
     @State private var weatherWaypoints: [WeatherWaypoint] = []
-    
     @State private var position: MapCameraPosition = .userLocation(fallback: .automatic)
     @State private var selectedWaypoint: WeatherWaypoint?
-    
-    @State private var weatherParameter: WeatherParameter = .wind
-    
+    @State private var weatherParameter: WeatherParameter = .conditions
     @State private var vehicle = Vehicle.sample()
     @State private var isLoadingWeather = false
     @State private var departureTime: Date = Date()
     @State private var departureTimeStep: Int = 1
     @State private var isEditing: Bool = true
+    @State private var showVehicleEditor: Bool = false
     
     private let routeCalculationService = RouteCalculationService.shared
     private let weatherService = WeatherService.shared
-    
     private let log = OSLog.ui
     
     private var showInspector: Binding<Bool> {
         Binding { selectedWaypoint != nil } set: { newValue in selectedWaypoint = nil }
     }
-    
-    private var proxyDepartureTime: Binding<Double> {
-        Binding<Double> {
-            return departureTime.timeIntervalSince1970
-        } set: { newValue, transaction in
-            departureTime = Date(timeIntervalSince1970: newValue)
-        }
-    }
-    
-    private lazy var departureTimeStepMax: Int = {
-        Calendar.current.dateComponents([.hour], from: Date.threeDaysFromToday.lowerBound, to: Date.threeDaysFromToday.upperBound).hour!
-    }()
     
     @State private var centerCoordinate = CLLocationCoordinate2DMake(0, 0)
     
@@ -112,20 +97,23 @@ import OSLog
         }
         .toolbar {
             if isEditing {
-                ToolbarItem(id: "vehicle_speed_slider", placement: .bottomBar) {
-                    Slider(value: $vehicle.speed.value, in: vehicle.speedRange, step: vehicle.step)
-                        .frame(minWidth: 100, maxWidth: 300)
-                        .padding(.horizontal)
-                        .onChange(of: vehicle.speed.value) {
-                            updateWeatherWaypoints()
+                ToolbarItem(id: "vehicle", placement: .primaryAction) {
+                    Menu {
+                        Picker(selection: $vehicle) {
+                            ForEach(Vehicle.allSamples()) { vehicle in
+                                Label(vehicle.type.title, systemImage: vehicle.type.imageName).tag(vehicle)
+                            }
+                        } label: {
+                            Label(vehicle.type.title, systemImage: vehicle.type.imageName)
                         }
-                }
-                ToolbarItem(id: "vehicle_speed", placement: .bottomBar) {
-                    Text(vehicle.speed.formatted())
-                        .padding(.trailing)
-                }
-                ToolbarItem(placement: .bottomBar) {
-                    Spacer()
+                        Button {
+                            showVehicleEditor = true
+                        } label: {
+                            Label("Edit", systemImage: "pencil")
+                        }
+                    } label: {
+                        Label(vehicle.type.title, systemImage: vehicle.type.imageName)
+                    }
                 }
                 ToolbarItem(id: "edit_waypoints", placement: .bottomBar) {
                     HStack(spacing: 8) {
@@ -147,7 +135,6 @@ import OSLog
                         .buttonStyle(.bordered)
                     }
                 }
-                VehicleBarItem(vehicle: $vehicle)
             } else {
                 ToolbarItem(id: "departure_time", placement: .bottomBar) {
                     DatePicker("Departure Time", selection: $departureTime)
@@ -172,7 +159,7 @@ import OSLog
                     }
                     .accessibilityLabel("Departure Time Stepper")
                 }
-                ToolbarItem(id: "update_weather", placement: .secondaryAction) {
+                ToolbarItem(id: "update_weather", placement: .primaryAction) {
                     Button {
                         updateWeather()
                     } label: {
@@ -189,8 +176,16 @@ import OSLog
         }
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarRole(.editor)
-        .onChange(of: weatherParameter) {
+        .popover(isPresented: $showVehicleEditor) {
+            VehicleForm(vehicle: $vehicle)
+                .presentationDetents([.medium])
+        }
+        .onChange(of: vehicle) {
+            updateWeatherWaypoints()
             save()
+        }
+        .onChange(of: vehicle.speed) {
+            updateWeatherWaypoints()
         }
         .onAppear {
             prepareView()

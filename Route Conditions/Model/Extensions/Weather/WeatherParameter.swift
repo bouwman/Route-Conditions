@@ -9,7 +9,7 @@ import Foundation
 
 extension WeatherParameter {
     static var all: [WeatherParameter] {
-        [.wind, .current, .waves, .conditions, .time]
+        [.conditions, .wind, .time, .current, .waves]
     }
     
     var string: String {

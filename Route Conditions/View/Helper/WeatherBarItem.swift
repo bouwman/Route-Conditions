@@ -14,7 +14,7 @@ struct WeatherBarItem: ToolbarContent {
         ToolbarItem(id: "weather_selection", placement: .primaryAction) {
             Picker(selection: $weatherParameter) {
                 ForEach(WeatherParameter.all) { attribute in
-                    Label(attribute.string, systemImage: attribute.imageName)
+                    Label(attribute.string, systemImage: attribute.imageName).tag(attribute)
                 }
             } label: {
                 Label(weatherParameter.string, systemImage: weatherParameter.imageName)

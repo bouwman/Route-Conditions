@@ -96,6 +96,7 @@ extension WeatherKit.DayWeather: WeatherModelConvertible {
     }
     
     var convertedSolarIsDaylight: Bool? {
-        nil
+        guard let sunrise = sun.sunrise, let sunset = sun.sunset else { return nil }
+        return date > sunrise && date < sunset
     }
 }

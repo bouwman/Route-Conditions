@@ -14,7 +14,7 @@ struct VehicleBarItem: ToolbarContent {
         ToolbarItem(id: "vehicle_selection", placement: .secondaryAction) {
             Picker(selection: $vehicle) {
                 ForEach(Vehicle.allSamples()) { vehicle in
-                    Label(vehicle.type.title, systemImage: vehicle.type.imageName)
+                    Label(vehicle.type.title, systemImage: vehicle.type.imageName).tag(vehicle)
                 }
             } label: {
                 Label(vehicle.type.title, systemImage: vehicle.type.imageName)

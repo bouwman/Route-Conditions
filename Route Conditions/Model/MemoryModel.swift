@@ -10,20 +10,15 @@ import CoreLocation
 import SwiftUI
 
 @Observable class Vehicle: Identifiable {
-    var id = UUID()
-    var name: String = "Car"
+    let type: VehicleType
     var speed: Measurement<UnitSpeed> = .init(value: 90, unit: .kilometersPerHour)
-    var type: VehicleType = .car
-    var unit: UnitSpeed = .kilometersPerHour { didSet { updateSpeedUsingString() } }
-    var speedString: String = "90" { didSet { updateSpeedUsingString() } }
+    var unit: UnitSpeed = .kilometersPerHour
+    var id: VehicleType { return type }
     
-    init(name: String, averageSpeed: Measurement<UnitSpeed>, type: VehicleType = .car, unit: UnitSpeed = .kilometersPerHour) {
-        self.name = name
-        self.speed = averageSpeed
+    init(averageSpeed: Measurement<UnitSpeed>, type: VehicleType = .car, unit: UnitSpeed = .kilometersPerHour) {
         self.type = type
-        self.unit = unit
-        
-        self.speedString = numberFormatter.string(from: speed.converted(to: unit).value as NSNumber) ?? ""
+        self.speed = averageSpeed
+        self.unit = unit        
     }
 }
 
