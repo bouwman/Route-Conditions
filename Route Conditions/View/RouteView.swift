@@ -97,23 +97,6 @@ import OSLog
                 Rectangle()
                     .fill(.primary)
                     .frame(width: 12, height: 2, alignment: .center)
-                
-                HStack {
-                    VStack(alignment: .center) {
-                        Text(vehicle.speed.formatted())
-                            .multilineTextAlignment(.center)
-                        Spacer()
-                            .frame(maxHeight: 100)
-                        Slider(value: $vehicle.speed.value, in: vehicle.speedRange, step: vehicle.step)
-                            .frame(minWidth: 200, maxWidth: 300)
-                            .rotationEffect(.degrees(-90))
-                            .onChange(of: vehicle.speed.value) {
-                                updateWeatherWaypoints()
-                            }
-                    }
-                    .frame(maxWidth: 50, minHeight: 400)
-                    Spacer()
-                }
             }
             VStack {
                 Picker("Edit or View", selection: $isEditing) {
@@ -129,26 +112,43 @@ import OSLog
         }
         .toolbar {
             if isEditing {
+                ToolbarItem(id: "vehicle_speed_slider", placement: .bottomBar) {
+                    Slider(value: $vehicle.speed.value, in: vehicle.speedRange, step: vehicle.step)
+                        .frame(minWidth: 150, maxWidth: 300)
+                        .padding(.horizontal)
+                        .onChange(of: vehicle.speed.value) {
+                            updateWeatherWaypoints()
+                        }
+                }
+                ToolbarItem(id: "vehicle_speed", placement: .bottomBar) {
+                    Text(vehicle.speed.formatted())
+                        .padding(.trailing)
+                }
+                ToolbarItem(placement: .bottomBar) {
+                    Spacer()
+                }
                 ToolbarItem(id: "add", placement: .bottomBar) {
                     Button(action: {
                         addWaypoint()
                         updateWeatherWaypoints()
                     }, label: {
-                        Label("Add Waypoint", systemImage: "plus")
-                            .frame(width: 24, height: 16, alignment: .center)
+                        Text("Add Waypoint")
                     })
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.borderedProminent)
+                    .padding(.horizontal)
                 }
                 ToolbarItem(id: "remove", placement: .bottomBar) {
                     Button(action: {
                         removeLastWaypoint()
                         updateWeatherWaypoints()
                     }, label: {
-                        Label("Add Waypoint", systemImage: "minus")
-                            .frame(width: 24, height: 16, alignment: .center)
+                        Label("Remove Waypoint", systemImage: "arrow.uturn.backward")
+                            .controlSize(.large)
                     })
+                    .disabled(weatherWaypoints.count == 0)
                     .buttonStyle(.bordered)
                 }
+                VehicleBarItem(vehicle: $vehicle)
             } else {
                 ToolbarItem(id: "departure_time", placement: .bottomBar) {
                     DatePicker("Departure Time", selection: $departureTime)
@@ -173,20 +173,20 @@ import OSLog
                     }
                     .accessibilityLabel("Departure Time Stepper")
                 }
-            }
-            ToolbarItem(id: "update_weather", placement: .secondaryAction) {
-                Button {
-                    updateWeather()
-                } label: {
-                    if isLoadingWeather {
-                        ProgressView()
-                    } else {
-                        Label("Update Weather", systemImage: "arrow.down.circle")
+                ToolbarItem(id: "update_weather", placement: .secondaryAction) {
+                    Button {
+                        updateWeather()
+                    } label: {
+                        if isLoadingWeather {
+                            ProgressView()
+                        } else {
+                            Label("Update Weather", systemImage: "arrow.down.circle")
+                        }
                     }
+                    .disabled(weatherWaypoints.count == 0)
                 }
+                WeatherBarItem(weatherParameter: $weatherParameter)
             }
-            WeatherBarItem(weatherParameter: $weatherParameter)
-            VehicleBarItem(vehicle: $vehicle)
         }
         .toolbarBackground(.visible, for: .navigationBar)
         .toolbarRole(.editor)
