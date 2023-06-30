@@ -94,16 +94,6 @@ enum WeatherServiceType: Identifiable {
                 Rectangle()
                     .fill(.primary)
                     .frame(width: 12, height: 2, alignment: .center)
-            } else {
-                VStack() {
-                    Spacer()
-                    DateSlider(date: $departureTime, range: Date.threeDaysFromToday, height: 40) { isActive in }
-                    .frame(maxWidth: 300)
-                    .padding()
-                    .onChange(of: departureTime) {
-                        updateWeatherWaypoints()
-                    }
-                }
             }
             VStack {
                 Picker("Edit or View", selection: $isEditing) {
@@ -158,6 +148,14 @@ enum WeatherServiceType: Identifiable {
                     }
                 }
             } else {
+                ToolbarItem(id: "departure_date", placement: .bottomBar) {
+                    DateSlider(date: $departureTime, range: Date.threeDaysFromToday, height: 40) { isActive in }
+                        .frame(maxWidth: 400)
+                        .padding()
+                        .onChange(of: departureTime) {
+                            updateWeatherWaypoints()
+                        }
+                }
                 ToolbarItem(id: "update_weather", placement: .primaryAction) {
                     Menu {
                         Button {

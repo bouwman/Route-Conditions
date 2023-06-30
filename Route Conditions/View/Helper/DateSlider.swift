@@ -57,6 +57,7 @@ struct DateSlider: View {
                             }
                             .foregroundStyle(.white)
                             .font(.caption2)
+                            .bold()
                             Circle()
                                 .fill(.white)
                                 .padding(knobPadding)
