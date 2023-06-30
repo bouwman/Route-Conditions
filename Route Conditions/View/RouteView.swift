@@ -94,6 +94,16 @@ enum WeatherServiceType: Identifiable {
                 Rectangle()
                     .fill(.primary)
                     .frame(width: 12, height: 2, alignment: .center)
+            } else {
+                VStack() {
+                    Spacer()
+                    DateSlider(date: $departureTime, range: Date.threeDaysFromToday, height: 40) { isActive in }
+                    .frame(maxWidth: 300)
+                    .padding()
+                    .onChange(of: departureTime) {
+                        updateWeatherWaypoints()
+                    }
+                }
             }
             VStack {
                 Picker("Edit or View", selection: $isEditing) {
@@ -148,29 +158,6 @@ enum WeatherServiceType: Identifiable {
                     }
                 }
             } else {
-                ToolbarItem(id: "departure_time", placement: .bottomBar) {
-                    DatePicker("Departure Time", selection: $departureTime)
-                    #if os(macOS)
-                        .datePickerStyle(.stepperField)
-                    #else
-                        .datePickerStyle(.compact)
-                    #endif
-                        .frame(minWidth: 0, maxWidth: .infinity, alignment: .center)
-                        .labelsHidden()
-                        .onChange(of: departureTime) {
-                            updateWeatherWaypoints()
-                        }
-                }
-                ToolbarItem(id: "step", placement: .bottomBar) {
-                    Stepper {
-                        Text("")
-                    } onIncrement: {
-                        departureTime = departureTime.addingTimeInterval(3600)
-                    } onDecrement: {
-                        departureTime = departureTime.addingTimeInterval(-3600)
-                    }
-                    .accessibilityLabel("Departure Time Stepper")
-                }
                 ToolbarItem(id: "update_weather", placement: .primaryAction) {
                     Menu {
                         Button {
