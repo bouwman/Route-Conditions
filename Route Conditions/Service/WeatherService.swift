@@ -23,23 +23,20 @@ class WeatherService {
     
     private let log = OSLog.network
     
-    func fetchWeather(parameters: [WeatherParameter], coordinate: CLLocationCoordinate2D) async throws -> [Weather] {
-        
-        var combined: [Weather] = []
-        
+    func fetchAppleWeather(parameters: [WeatherParameter], coordinate: CLLocationCoordinate2D) async throws -> [Weather] {
         if parameters.contains(where: { $0 == .conditions || $0 == .time || $0 == .wind }) {
-            let generalForecast = try await fetchGeneralWeather(coordinate: coordinate)
-            combined += generalForecast
+            return try await fetchGeneralWeather(coordinate: coordinate)
+        } else {
+            return []
         }
-        
+    }
+    
+    func fetchStormGlassWeather(parameters: [WeatherParameter], coordinate: CLLocationCoordinate2D) async throws -> [Weather] {
         if parameters.contains(where: { $0 == .waves || $0 == .current }) {
-            let wavesAndCurrents = try await fetchWavesAndCurrents(coordinate: coordinate)
-            combined += wavesAndCurrents
+            return try await fetchWavesAndCurrents(coordinate: coordinate)
+        } else {
+            return []
         }
-        
-        log.debug("Finished downloading \(combined.count) forecast items.")
-        
-        return merge(data: combined)
     }
     
     private func fetchWavesAndCurrents(coordinate: CLLocationCoordinate2D) async throws -> [Weather] {

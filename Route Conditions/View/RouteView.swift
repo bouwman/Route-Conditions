@@ -12,6 +12,18 @@ import SwiftData
 import WeatherKit
 import OSLog
 
+enum WeatherServiceType: Identifiable {
+    case apple
+    case stormGlass
+    case grib
+    
+    var all: [WeatherServiceType] {
+        [.apple, .stormGlass, .grib]
+    }
+    
+    var id: Self { return self }
+}
+
 @MainActor struct RouteView: View {
     
     @Environment(\.modelContext) private var context: ModelContext
@@ -109,7 +121,7 @@ import OSLog
                         Button {
                             showVehicleEditor = true
                         } label: {
-                            Label("Edit", systemImage: "pencil")
+                            Label("Edit Speed", systemImage: "pencil")
                         }
                     } label: {
                         Label(vehicle.type.title, systemImage: vehicle.type.imageName)
@@ -160,8 +172,17 @@ import OSLog
                     .accessibilityLabel("Departure Time Stepper")
                 }
                 ToolbarItem(id: "update_weather", placement: .primaryAction) {
-                    Button {
-                        updateWeather()
+                    Menu {
+                        Button {
+                            downloadWeather(from: .apple)
+                        } label: {
+                            Label("Apple Weather", systemImage: "apple.logo")
+                        }
+                        Button {
+                            downloadWeather(from: .stormGlass)
+                        } label: {
+                            Label("StormGlass", systemImage: "staroflife")
+                        }
                     } label: {
                         if isLoadingWeather {
                             ProgressView()
@@ -255,23 +276,34 @@ import OSLog
         }
     }
     
-    private func updateWeather() {
+    private func downloadWeather(from service: WeatherServiceType) {
         isLoadingWeather = true
         log.debug("Start updating weather for \(weatherWaypoints.count) customWaypoints ...")
         
-        $weatherWaypoints.forEach { waypoint in
-            Task(priority: .userInitiated) {
+        Task(priority: .userInitiated) {
+            for waypoint in weatherWaypoints {
                 do {
-                    let neededData = try weatherService.weatherParametersThatNeedsData(at: waypoint.coordinate.wrappedValue, existingData: waypoint.weather.wrappedValue)
-                    let weather = try await weatherService.fetchWeather(parameters: neededData, coordinate: waypoint.coordinate.wrappedValue)
+                    let neededData = try weatherService.weatherParametersThatNeedsData(at: waypoint.coordinate, existingData: waypoint.weather)
+                    let existing = waypoint.weather
                     
-                    waypoint.weather.wrappedValue = weather
+                    let new: [Weather]
+                    
+                    switch service {
+                    case .apple:
+                        new = try await weatherService.fetchAppleWeather(parameters: neededData, coordinate: waypoint.coordinate)
+                    case .stormGlass:
+                        new = try await weatherService.fetchStormGlassWeather(parameters: neededData, coordinate: waypoint.coordinate)
+                    case .grib:
+                        new = []
+                    }
+                    
+                    waypoint.weather = weatherService.merge(data: new + existing)
                 } catch {
                     print(error.localizedDescription)
                 }
-                log.debug("Finished updating \(weatherWaypoints.count) customWaypoints")
-                isLoadingWeather = false
             }
+            log.debug("Finished updating \(weatherWaypoints.count) customWaypoints")
+            isLoadingWeather = false
         }
     }
     
