@@ -8,6 +8,8 @@
 import SwiftData
 import CoreLocation
 import OSLog
+import CoreData
+
 /*
 @globalActor struct PersistenceActor {
     actor MyPersistenceActor { }
@@ -62,7 +64,9 @@ actor BackgroundPersistence: ModelActor {
             context.insert(newWaypoint)
         }
         
-        try context.save()
+        if context.hasChanges {
+            try context.save()
+        }
     }
     
     func store(weatherWaypoints: [WeatherWaypoint]) throws {
@@ -83,7 +87,9 @@ actor BackgroundPersistence: ModelActor {
         }
         log.debug("Finished inserting \(weatherWaypoints.count) weather waypoints")
         
-        try context.save()
+        if context.hasChanges {
+            try context.save()
+        }
     }
     
     func deleteAllWeatherWaypoints() throws {
@@ -144,7 +150,9 @@ actor BackgroundPersistence: ModelActor {
             context.insert(data)
         }
         
-        try context.save()
+        if context.hasChanges {
+            try context.save()
+        }
     }
     
     private func fetchWeather(for coordinate: CLLocationCoordinate2D) throws -> [WeatherData]? {

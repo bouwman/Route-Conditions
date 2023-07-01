@@ -196,6 +196,9 @@ enum WeatherServiceType: Identifiable {
         .onAppear {
             prepareView()
         }
+        .task(priority: .userInitiated) {
+            await loadStoredData()
+        }
         .onDisappear {
             // TODO: Crashes
             // save()
@@ -204,24 +207,21 @@ enum WeatherServiceType: Identifiable {
     
     private func prepareView() {
         LocationManager.shared.requestPermission()
-        loadStoredData()
     }
     
-    private func loadStoredData() {
-        Task(priority: .userInitiated) {
-            let persistence = BackgroundPersistence(container: context.container)
-            do {
-                customWaypoints = try await persistence.loadAllCustomWaypoints()
-                weatherWaypoints = try await persistence.loadAllWeatherWaypoints()
-                
-                if customWaypoints.count > 0 {
-                    position = MapCameraPosition.region(customWaypoints.region)
-                } else {
-                    position = .userLocation(fallback: .automatic)
-                }
-            } catch {
-                print(error.localizedDescription)
+    private func loadStoredData() async {
+        let persistence = BackgroundPersistence(container: context.container)
+        do {
+            customWaypoints = try await persistence.loadAllCustomWaypoints()
+            weatherWaypoints = try await persistence.loadAllWeatherWaypoints()
+            
+            if customWaypoints.count > 0 {
+                position = MapCameraPosition.region(customWaypoints.region)
+            } else {
+                position = .userLocation(fallback: .automatic)
             }
+        } catch {
+            print(error.localizedDescription)
         }
     }
     
@@ -307,6 +307,9 @@ enum WeatherServiceType: Identifiable {
                 let persistence = BackgroundPersistence(container: context.container)
                 try await persistence.store(customWaypoints: weatherWaypoints)
                 try await persistence.store(weatherWaypoints: weatherWaypoints)
+                
+                // Not sure if this is needed
+                try context.save()
             } catch {
                 print(error.localizedDescription)
             }
