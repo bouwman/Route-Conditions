@@ -78,8 +78,16 @@ protocol SolarModelConvertible {
     var convertedSolarIsDaylight: Bool? { get }
 }
 
+protocol TemperatureModelConvertible {
+    /// Air Temperature in celsius
+    var convertableTemperatureAir: Double? { get }
+    
+    /// Water Temperature in celsius
+    var convertableTemperatureWater: Double? { get }
+}
 
-protocol WeatherModelConvertible: WindModelConvertible, WaveModelConvertible, CurrentModelConvertible, ConditionsModelConvertible, SolarModelConvertible {
+
+protocol WeatherModelConvertible: TemperatureModelConvertible, WindModelConvertible, WaveModelConvertible, CurrentModelConvertible, ConditionsModelConvertible, SolarModelConvertible {
     /// Time of the forecast
     var convertedDate: Date { get }
 }

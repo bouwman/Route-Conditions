@@ -17,6 +17,7 @@ enum VehicleType: String, Codable {
 }
 
 enum WeatherParameter: Equatable {
+    case temperature
     case wind
     case current
     case waves

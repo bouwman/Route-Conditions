@@ -23,10 +23,12 @@ struct WeatherParameterMarker: MapContent {
     
     var body: some MapContent {
         switch weatherParameter {
+        case .temperature:
+            WeatherMarker(coordinate: coordinate, time: time, value: weather?.temperature.air?.formatted(), systemImage: weather?.conditions.symbolName, tint: weather?.temperature.scaleColor)
         case .wind:
             WeatherMarker(coordinate: coordinate, time: time, value: weather?.wind.speed?.formatted(), systemImage: weather?.wind.compassDirection?.imageName, tint: weather?.wind.scaleColor)
         case .current:
-            WeatherMarker(coordinate: coordinate, time: time, value: weather?.current.speed?.formatted(), systemImage: weather?.current.compassDirection?.imageName, tint: weather?.current.scaleColor)
+            WeatherMarker(coordinate: coordinate, time: time, value: weather?.current.speed?.formatted(unit: .knots), systemImage: weather?.current.compassDirection?.imageName, tint: weather?.current.scaleColor)
         case .waves:
             WeatherMarker(coordinate: coordinate, time: time, value: weather?.waves.height?.formatted(), systemImage: weather?.waves.compassDirection?.imageName, tint: weather?.waves.scaleColor)
         case .conditions:

@@ -13,6 +13,12 @@ extension Measurement<Dimension> {
     }
 }
 
+extension Measurement<UnitSpeed> {
+    func formatted(unit: UnitSpeed) -> String {
+        formatter.string(from: self.converted(to: unit))
+    }
+}
+
 extension Vehicle {
     var speedRange: ClosedRange<Int> {
         return type.speedRange(unit: unit)

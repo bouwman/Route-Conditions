@@ -53,6 +53,7 @@ import SwiftUI
 @Observable class Weather {
     var coordinate = CLLocationCoordinate2DMake(0, 0)
     var date: Date = Date()
+    var temperature = Temperature()
     var wind = Wind()
     var current = Current()
     var waves = Wave()
@@ -62,62 +63,89 @@ import SwiftUI
     init(coordinate: CLLocationCoordinate2D, convertible: WeatherModelConvertible) {
         self.coordinate = coordinate
         self.date = convertible.convertedDate
-        self._wind = Wind(direction: .optional(value: convertible.convertedWindDirection, unit: .degrees), speed: .optional(value: convertible.convertedWindSpeed, unit: .kilometersPerHour), gust: .optional(value: convertible.convertedWindGust, unit: .kilometersPerHour))
-        self._current = Current(direction: .optional(value: convertible.convertedCurrentDirection, unit: .degrees), speed: .optional(value: convertible.convertedCurrentSpeed, unit: .kilometersPerHour))
-        self._waves = Wave(direction: .optional(value: convertible.convertedWaveDirection, unit: .degrees), height: .optional(value: convertible.convertedWaveHeight, unit: .meters))
-        self._conditions = Conditions(title: convertible.convertedConditionsTitle, symbolName: convertible.convertedConditionsSymbol)
-        self._solar = Solar(isDaylight: convertible.convertedSolarIsDaylight)
+        self._temperature = Temperature(date: date, air: .optional(value: convertible.convertableTemperatureAir, unit: .celsius), water: .optional(value: convertible.convertableTemperatureWater, unit: .celsius))
+        self._wind = Wind(date: date, direction: .optional(value: convertible.convertedWindDirection, unit: .degrees), speed: .optional(value: convertible.convertedWindSpeed, unit: .kilometersPerHour), gust: .optional(value: convertible.convertedWindGust, unit: .kilometersPerHour))
+        self._current = Current(date: date, direction: .optional(value: convertible.convertedCurrentDirection, unit: .degrees), speed: .optional(value: convertible.convertedCurrentSpeed, unit: .kilometersPerHour))
+        self._waves = Wave(date: date, direction: .optional(value: convertible.convertedWaveDirection, unit: .degrees), height: .optional(value: convertible.convertedWaveHeight, unit: .meters))
+        self._conditions = Conditions(date: date, title: convertible.convertedConditionsTitle, symbolName: convertible.convertedConditionsSymbol)
+        self._solar = Solar(date: date, isDaylight: convertible.convertedSolarIsDaylight)
     }
     
     init() { }
 }
 
 @Observable class Conditions {
+    var date: Date = Date()
     var title: String? = nil
     var symbolName: String? = nil
     
-    init(title: String? = nil, symbolName: String? = nil) {
+    init(date: Date = Date(), title: String? = nil, symbolName: String? = nil) {
+        self.date = date
         self.title = title
         self.symbolName = symbolName
     }
 }
 
-@Observable class Wind: Directional {
+@Observable class Temperature: Identifiable {
+    var date: Date = Date()
+    var air: Measurement<UnitTemperature>? = nil
+    var water: Measurement<UnitTemperature>? = nil
+    var id: Date { return date }
+    
+    init(date: Date = Date(), air: Measurement<UnitTemperature>? = nil, water: Measurement<UnitTemperature>? = nil) {
+        self.date = date
+        self.air = air
+        self.water = water
+    }
+}
+
+@Observable class Wind: Identifiable, Directional {
+    var date: Date = Date()
     var direction: Measurement<UnitAngle>? = nil
     var speed: Measurement<UnitSpeed>? = nil
     var gust: Measurement<UnitSpeed>? = nil
+    var id: Date { return date }
     
-    init(direction: Measurement<UnitAngle>? = nil, speed: Measurement<UnitSpeed>? = nil, gust: Measurement<UnitSpeed>? = nil) {
+    init(date: Date = Date(), direction: Measurement<UnitAngle>? = nil, speed: Measurement<UnitSpeed>? = nil, gust: Measurement<UnitSpeed>? = nil) {
+        self.date = date
         self.direction = direction
         self.speed = speed
         self.gust = gust
     }
 }
 
-@Observable class Current: Directional {
+@Observable class Current: Identifiable, Directional {
+    var date: Date = Date()
     var direction: Measurement<UnitAngle>? = nil
     var speed: Measurement<UnitSpeed>? = nil
+    var id: Date { return date }
     
-    init(direction: Measurement<UnitAngle>? = nil, speed: Measurement<UnitSpeed>? = nil) {
+    init(date: Date = Date(), direction: Measurement<UnitAngle>? = nil, speed: Measurement<UnitSpeed>? = nil) {
+        self.date = date
         self.direction = direction
         self.speed = speed
     }
 }
 
-@Observable class Wave: Directional {
+@Observable class Wave: Identifiable, Directional {
+    var date: Date = Date()
     var direction: Measurement<UnitAngle>? = nil
     var height: Measurement<UnitLength>? = nil
+    var id: Date { return date }
     
-    init(direction: Measurement<UnitAngle>? = nil, height: Measurement<UnitLength>? = nil) {
+    init(date: Date = Date(), direction: Measurement<UnitAngle>? = nil, height: Measurement<UnitLength>? = nil) {
+        self.date = date
         self.direction = direction
         self.height = height
     }
 }
 
 @Observable class Solar {
+    var date: Date = Date()
     var isDaylight: Bool? = nil
     
-    init(isDaylight: Bool? = nil) {
+    init(date: Date = Date(), isDaylight: Bool? = nil) {
+        self.date = date
         self.isDaylight = isDaylight
     }
 }

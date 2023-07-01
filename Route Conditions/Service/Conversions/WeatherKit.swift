@@ -52,6 +52,14 @@ extension WeatherKit.HourWeather: WeatherModelConvertible {
     var convertedSolarIsDaylight: Bool? {
         isDaylight
     }
+    
+    var convertableTemperatureAir: Double? {
+        temperature.converted(to: .celsius).value
+    }
+    
+    var convertableTemperatureWater: Double? {
+        return nil
+    }
 }
 
 extension WeatherKit.DayWeather: WeatherModelConvertible {
@@ -98,5 +106,13 @@ extension WeatherKit.DayWeather: WeatherModelConvertible {
     var convertedSolarIsDaylight: Bool? {
         guard let sunrise = sun.sunrise, let sunset = sun.sunset else { return nil }
         return date > sunrise && date < sunset
+    }
+    
+    var convertableTemperatureAir: Double? {
+        return highTemperature.converted(to: .celsius).value
+    }
+    
+    var convertableTemperatureWater: Double? {
+        return nil
     }
 }

@@ -18,6 +18,18 @@ extension Paths.Point.GetResponse.Hour: WeatherModelConvertible {
         return date
     }
     
+    var convertableTemperatureAir: Double? {
+        guard let dict = airTemperature else { return nil }
+        guard let value = dict["sg"] else { return nil }
+        return Double(value)
+    }
+    
+    var convertableTemperatureWater: Double? {
+        guard let dict = waterTemperature else { return nil }
+        guard let value = dict["sg"] else { return nil }
+        return Double(value)
+    }
+    
     var convertedWindSpeed: Double? {
         nil
     }

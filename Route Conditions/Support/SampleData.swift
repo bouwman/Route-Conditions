@@ -35,7 +35,7 @@ extension WeatherWaypoint {
 extension Weather {
     
     static func sample() -> Weather {
-        var weather = Weather()
+        let weather = Weather()
         
         weather.current = Current(direction: .init(value: 80.0, unit: .degrees), speed: .init(value: 0.8, unit: .knots))
         weather.wind = Wind(direction: .init(value: 80, unit: .degrees), speed: .init(value: 15, unit: .knots), gust: nil)
@@ -43,6 +43,21 @@ extension Weather {
         weather.solar = Solar(isDaylight: false)
         
         return weather
+    }
+}
+
+extension Temperature {
+    
+    static func allSamples() -> [Temperature] {
+        let temp1 = Temperature(date: Date(), air: .init(value: 19.0, unit: .celsius), water: .init(value: 17.2, unit: .celsius))
+        let temp2 = Temperature(date: Date(timeIntervalSinceNow: 1 * 60 * 60), air: .init(value: 19.0, unit: .celsius), water: .init(value: 17.2, unit: .celsius))
+        let temp3 = Temperature(date: Date(timeIntervalSinceNow: 2 * 60 * 60), air: .init(value: 20.5, unit: .celsius), water: .init(value: 17.3, unit: .celsius))
+        let temp4 = Temperature(date: Date(timeIntervalSinceNow: 3 * 60 * 60), air: .init(value: 23.1, unit: .celsius), water: .init(value: 17.5, unit: .celsius))
+        let temp5 = Temperature(date: Date(timeIntervalSinceNow: 4 * 60 * 60), air: .init(value: 25.6, unit: .celsius), water: .init(value: 17.8, unit: .celsius))
+        let temp6 = Temperature(date: Date(timeIntervalSinceNow: 5 * 60 * 60), air: .init(value: 24.3, unit: .celsius), water: .init(value: 18.1, unit: .celsius))
+        let temp7 = Temperature(date: Date(timeIntervalSinceNow: 6 * 60 * 60), air: .init(value: 23.5, unit: .celsius), water: .init(value: 18.0, unit: .celsius))
+
+        return [temp1, temp2, temp3, temp4, temp5, temp6, temp7]
     }
 }
 

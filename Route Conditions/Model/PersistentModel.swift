@@ -48,6 +48,7 @@ import WeatherKit
     var latitude: Double
     var longitude: Double
     
+    @Relationship(.cascade) var temperature: TemperatureData
     @Relationship(.cascade) var wind: WindData
     @Relationship(.cascade) var current: CurrentData
     @Relationship(.cascade) var waves: WaveData
@@ -59,6 +60,7 @@ import WeatherKit
         self.date = convertible.convertedDate
         self.latitude = coordinate.latitude
         self.longitude = coordinate.longitude
+        self.temperature = TemperatureData(air: convertible.convertableTemperatureAir, water: convertible.convertableTemperatureWater)
         self.wind = WindData(speedData: convertible.convertedWindSpeed, directionData: convertible.convertedWindDirection, gustData: convertible.convertedWindGust)
         self.current = CurrentData(speedData: convertible.convertedCurrentSpeed, directionData: convertible.convertedCurrentDirection)
         self.waves = WaveData(heightData: convertible.convertedWaveHeight, directionData: convertible.convertedWaveDirection)
@@ -67,6 +69,16 @@ import WeatherKit
     }
     
     init() { }
+}
+
+@Model  class TemperatureData {
+    var air: Double?
+    var water: Double?
+    
+    init(air: Double? = nil, water: Double? = nil) {
+        self.air = air
+        self.water = water
+    }
 }
 
 @Model class WindData {

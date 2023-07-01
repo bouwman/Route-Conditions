@@ -39,16 +39,13 @@ enum WeatherServiceType: Identifiable {
     @State private var departureTimeStep: Int = 1
     @State private var isEditing: Bool = true
     @State private var showVehicleEditor: Bool = false
+    @State private var showInspector: Bool = false
+    @State private var centerCoordinate = CLLocationCoordinate2DMake(0, 0)
     
     private let routeCalculationService = RouteCalculationService.shared
     private let weatherService = WeatherService.shared
     private let log = OSLog.ui
-    
-    private var showInspector: Binding<Bool> {
-        Binding { selectedWaypoint != nil } set: { newValue in selectedWaypoint = nil }
-    }
-    
-    @State private var centerCoordinate = CLLocationCoordinate2DMake(0, 0)
+    private var hasNoWeatherData: Bool { weatherWaypoints.first?.currentWeather == nil }
     
     var body: some View {
         ZStack(alignment: .center) {
@@ -78,14 +75,9 @@ enum WeatherServiceType: Identifiable {
             } content: { waypoint in
                 WeatherDetailView(waypoint: waypoint)
             }
-            .inspector(isPresented: showInspector) {
-                if let selectedWaypoint {
-                    WeatherDetailView(waypoint: selectedWaypoint)
-                        .presentationDetents([.medium, .large])
-                        .presentationBackgroundInteraction(.enabled(upThrough: .medium))
-                } else {
-                    Text("Inspector opened without waypoint selected")
-                }
+            .inspector(isPresented: $showInspector) {
+               ChartView(weatherWaypoints: $weatherWaypoints)
+                    .presentationDetents([.medium, .large])
             }
             if isEditing {
                 Rectangle()
@@ -155,6 +147,14 @@ enum WeatherServiceType: Identifiable {
                         .onChange(of: departureTime) {
                             updateWeatherWaypoints()
                         }
+                }
+                ToolbarItem(id: "inspector", placement: .secondaryAction) {
+                    Button {
+                        showInspector.toggle()
+                    } label: {
+                        Label("Charts", systemImage: "chart.bar")
+                    }
+                    .disabled(hasNoWeatherData)
                 }
                 ToolbarItem(id: "update_weather", placement: .primaryAction) {
                     Menu {

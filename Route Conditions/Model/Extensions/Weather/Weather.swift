@@ -28,6 +28,14 @@ extension Weather: Hashable {
 }
 
 extension Weather: WeatherModelConvertible {
+    var convertableTemperatureAir: Double? {
+        temperature.air?.converted(to: .celsius).value
+    }
+    
+    var convertableTemperatureWater: Double? {
+        temperature.water?.converted(to: .celsius).value
+    }
+    
     var convertedDate: Date {
         date
     }
@@ -74,6 +82,14 @@ extension Weather: WeatherModelConvertible {
 }
 
 extension WeatherData: WeatherModelConvertible {
+    var convertableTemperatureAir: Double? {
+        temperature.air
+    }
+    
+    var convertableTemperatureWater: Double? {
+        temperature.water
+    }
+    
     var convertedDate: Date {
         date
     }

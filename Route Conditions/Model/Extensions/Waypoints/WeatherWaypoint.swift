@@ -26,6 +26,8 @@ extension WeatherWaypoint {
             switch parameter {
             case .conditions:
                 hasParameter = item.conditions.title != nil
+            case .temperature:
+                hasParameter = item.temperature.air != nil
             case .wind:
                 hasParameter = item.wind.direction != nil && item.wind.speed != nil
             case .current:

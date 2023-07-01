@@ -9,11 +9,13 @@ import Foundation
 
 extension WeatherParameter {
     static var all: [WeatherParameter] {
-        [.conditions, .wind, .time, .current, .waves]
+        [.conditions, .temperature, .wind, .time, .current, .waves]
     }
     
     var string: String {
         switch self {
+        case .temperature:
+            NSLocalizedString("Temperature", comment: "")
         case .wind:
             NSLocalizedString("Wind", comment: "")
         case .current:
@@ -29,6 +31,8 @@ extension WeatherParameter {
     
     var imageName: String {
         switch self {
+        case .temperature:
+            "thermometer.medium"
         case .wind:
             "wind"
         case .current:
