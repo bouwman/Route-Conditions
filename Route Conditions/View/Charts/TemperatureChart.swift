@@ -16,10 +16,15 @@ struct TemperatureChart: View {
         ZStack {
             Chart(temperatures) { temp in
                 if let air = temp.air {
-                    LineMark(x: .value("Time", temp.date), y: .value("Temperature", air.value), series: .value("Temperature", "A"))
-                        .interpolationMethod(.monotone)
-                        .foregroundStyle(.primary)
-                        .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round))
+                    // TODO: Adapt max value based on unit settings
+                    AreaMark(x: .value("Area", temp.date), y: .value("Max Value", 40))
+                        .foregroundStyle(.linearGradient(colors: [.blue, .cyan, .yellow, .red, .darkBrown], startPoint: .bottom, endPoint: .top))
+                        .mask {
+                            LineMark(x: .value("Time", temp.date), y: .value("Temperature Value", air.value), series: .value("Temperature Series", "A"))
+                                .interpolationMethod(.monotone)
+                                .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round))
+                        }
+                    
                 }
             }
             if temperatures.count == 0 || temperatures.first?.air == nil {

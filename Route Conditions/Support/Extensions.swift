@@ -284,3 +284,15 @@ extension Measurement {
     }
 }
 
+extension Color {
+    static func from(value: Double, range: ClosedRange<Double>, minHue: Double) -> Color {
+        let percentage = min(abs(value / abs(range.upperBound - range.lowerBound)), 1.0)
+        let invertedPercentage = 1 - percentage
+        let hue = Double(invertedPercentage * minHue / 360)
+        let color = Color(hue: hue, saturation: 1.0, brightness: 0.9)
+        
+        return color
+    }
+    
+    static var darkBrown: Color = Color(hue: 0.975, saturation: 0.56, brightness: 0.29)
+}

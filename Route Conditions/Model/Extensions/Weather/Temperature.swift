@@ -24,27 +24,21 @@ extension Temperature: Hashable {
 extension Temperature: ColorScalable {
     var scaleColor: Color {
         guard let temp = air?.converted(to: .celsius).value else { return .gray}
-        switch temp {
-        case -1000..<0:
-            return .cyan
-        case 0..<15:
-            return .blue
-        case 15..<25:
-            return .yellow
-        case 25..<30:
-            return .orange
-        case 30..<40:
-            return .red
-        case 40..<50:
-            return .brown
-        case 50..<60:
-            return .pink
-        case 60..<70.0:
-            return .purple
-        case 70..<100.0:
-            return .indigo
-        default:
-            fatalError("Wave hight speed out of range")
-        }
+        
+        return Color.from(value: temp, range: -20...60, minHue: 211)
     }
+    
+//    static var minHue: Double = 211
+//    static let minValue: Double = 0
+//    static let maxValue: Double = 50
+    
+//    static func subGradient(min: Double, max: Double) -> Gradient {
+//        let grad: Gradient
+//        
+//        let lowerColor = (min - minValue) / Double(fullGradient.stops.count)
+//        
+//        grad.stops
+//    }
+//    
+    static let fullGradient: Gradient = Gradient(colors: [.cyan, .blue, .green, .yellow, .orange, .red])
 }

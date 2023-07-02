@@ -24,23 +24,7 @@ extension Wind: Hashable {
 extension Wind: ColorScalable {
     var scaleColor: Color {
         guard let speed = speed?.converted(to: .knots).value else { return .gray}
-        switch speed {
-        case 0..<6:
-            return .cyan
-        case 6..<16:
-            return .green
-        case 16..<27:
-            return .yellow
-        case 27..<40:
-            return .orange
-        case 40..<55:
-            return .red
-        case 55..<64:
-            return .brown
-        case 64..<1000:
-            return .indigo
-        default:
-            fatalError("Wind speed out of range")
-        }
+        
+        return Color.from(value: speed, range: 0...64, minHue: 211)
     }
 }
