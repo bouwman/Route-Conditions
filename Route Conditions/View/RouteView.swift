@@ -210,6 +210,7 @@ enum WeatherServiceType: Identifiable {
     }
     
     private func loadStoredData() async {
+        #if !targetEnvironment(simulator)
         let persistence = BackgroundPersistence(container: context.container)
         do {
             customWaypoints = try await persistence.loadAllCustomWaypoints()
@@ -223,9 +224,14 @@ enum WeatherServiceType: Identifiable {
         } catch {
             print(error.localizedDescription)
         }
+        #else
+        customWaypoints = CustomWaypoint.route
+        weatherWaypoints = WeatherWaypoint.createWeatherWaypoints()
+        #endif
     }
     
     private func updateWeatherWaypoints() {
+        #if !targetEnvironment(simulator)
         let newWaypoints = routeCalculationService.calculateRoute(existingWaypoints: customWaypoints, speed: vehicle.speed.value, unit: vehicle.unit, departureTime: departureTime, timeInterval: Constants.RouteCalculation.interval)
         let newCount = newWaypoints.count
         let existingCount = weatherWaypoints.count
@@ -259,9 +265,11 @@ enum WeatherServiceType: Identifiable {
                 }
             }
         }
+        #endif
     }
     
     private func downloadWeather(from service: WeatherServiceType) {
+        #if !targetEnvironment(simulator)
         isLoadingWeather = true
         log.debug("Start updating weather for \(weatherWaypoints.count) customWaypoints ...")
         
@@ -290,6 +298,7 @@ enum WeatherServiceType: Identifiable {
             log.debug("Finished updating \(weatherWaypoints.count) customWaypoints")
             isLoadingWeather = false
         }
+        #endif
     }
     
     private func addWaypoint() {
@@ -302,6 +311,7 @@ enum WeatherServiceType: Identifiable {
     }
     
     private func save() {
+        #if !targetEnvironment(simulator)
         Task(priority: .utility) {
             do {
                 let persistence = BackgroundPersistence(container: context.container)
@@ -314,20 +324,22 @@ enum WeatherServiceType: Identifiable {
                 print(error.localizedDescription)
             }
         }
+        #endif
     }
 }
 
 #Preview {
     ContentView()
-        .modelContainer(previewContainer)
 }
 
+/*
 @MainActor
 let previewContainer: ModelContainer = {
     do {
-        let container = try ModelContainer(for: [CustomWaypointData.self, WeatherWaypointData.self], ModelConfiguration(inMemory: true))
+        let container = try ModelContainer(for: [WeatherWaypointData.self, CustomWaypointData.self, WeatherData.self, WindData.self, WaveData.self, CurrentData.self, SolarData.self], ModelConfiguration(inMemory: true))
         return container
     } catch {
         fatalError("Failed to create container")
     }
 }()
+*/
