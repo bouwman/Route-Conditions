@@ -63,7 +63,7 @@ extension Temperature {
 
 extension Vehicle {
     static func sample() -> Vehicle {
-        return allSamples()[4]
+        return allSamples()[0]
     }
     
     static func allSamples() -> [Vehicle] {

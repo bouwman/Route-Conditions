@@ -148,7 +148,8 @@ enum WeatherServiceType: Identifiable {
                             updateWeatherWaypoints()
                         }
                 }
-                ToolbarItem(id: "inspector", placement: .secondaryAction) {
+                WeatherBarItem(weatherParameter: $weatherParameter)
+                ToolbarItem(id: "inspector", placement: .primaryAction) {
                     Button {
                         showInspector.toggle()
                     } label: {
@@ -156,7 +157,7 @@ enum WeatherServiceType: Identifiable {
                     }
                     .disabled(hasNoWeatherData)
                 }
-                ToolbarItem(id: "update_weather", placement: .primaryAction) {
+                ToolbarItem(id: "update_weather", placement: .secondaryAction) {
                     Menu {
                         Button {
                             downloadWeather(from: .apple)
@@ -177,7 +178,6 @@ enum WeatherServiceType: Identifiable {
                     }
                     .disabled(weatherWaypoints.count == 0)
                 }
-                WeatherBarItem(weatherParameter: $weatherParameter)
             }
         }
         .toolbarBackground(.visible, for: .navigationBar)

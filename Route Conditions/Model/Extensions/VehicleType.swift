@@ -16,7 +16,7 @@ let formatter: MeasurementFormatter = {
 
 extension VehicleType {
     static var all: [VehicleType] {
-        [.sailboat, .bicycle, .speedboat, .truck,  .car, .plane]
+        [.sailboat, .speedboat]
     }
     
     var imageName: String {

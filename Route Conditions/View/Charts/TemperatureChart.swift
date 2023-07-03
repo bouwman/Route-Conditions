@@ -27,6 +27,33 @@ struct TemperatureChart: View {
                     
                 }
             }
+            .chartXAxis {
+                AxisMarks(values: .stride(by: .hour, count: 3)) { value in
+                    if let date = value.as(Date.self) {
+                        let hour = Calendar.current.component(.hour, from: date)
+                        AxisValueLabel {
+                            VStack(alignment: .leading) {
+                                switch hour {
+                                case 0, 12:
+                                    Text(date, format: .dateTime.hour())
+                                default:
+                                    Text(date, format: .dateTime.hour(.defaultDigits(amPM: .omitted)))
+                                }
+                                if value.index == 0 || hour == 0 {
+                                    Text(date, format: .dateTime.month().day())
+                                }
+                            }
+                        }
+                        if hour == 0 {
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
+                            AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
+                        } else {
+                            AxisGridLine()
+                            AxisTick()
+                        }
+                    }
+                }
+            }
             if temperatures.count == 0 || temperatures.first?.air == nil {
                 Text("No Data")
                     .foregroundStyle(.secondary)
@@ -39,7 +66,7 @@ struct TemperatureChart: View {
 #Preview {
     List {
         Section("Temperature") {
-            TemperatureChart(temperatures: allSamples)
+            TemperatureChart(temperatures: tempSamples)
                 .padding(.vertical)
         }
         
@@ -47,10 +74,10 @@ struct TemperatureChart: View {
             TemperatureChart(temperatures: [Temperature()])
                 .padding(.vertical)
         }
-    }    
+    }
 }
 
-private let allSamples: [Temperature] = {
+private let tempSamples: [Temperature] = {
     let temp1 = Temperature(date: Date(), air: .init(value: 19.0, unit: .celsius), water: .init(value: 17.2, unit: .celsius))
     let temp2 = Temperature(date: Date(timeIntervalSinceNow: 1 * 60 * 60), air: .init(value: 19.0, unit: .celsius), water: .init(value: 17.2, unit: .celsius))
     let temp3 = Temperature(date: Date(timeIntervalSinceNow: 2 * 60 * 60), air: .init(value: 20.5, unit: .celsius), water: .init(value: 17.3, unit: .celsius))
@@ -58,6 +85,6 @@ private let allSamples: [Temperature] = {
     let temp5 = Temperature(date: Date(timeIntervalSinceNow: 4 * 60 * 60), air: .init(value: 25.6, unit: .celsius), water: .init(value: 17.8, unit: .celsius))
     let temp6 = Temperature(date: Date(timeIntervalSinceNow: 5 * 60 * 60), air: .init(value: 24.3, unit: .celsius), water: .init(value: 18.1, unit: .celsius))
     let temp7 = Temperature(date: Date(timeIntervalSinceNow: 6 * 60 * 60), air: .init(value: 23.5, unit: .celsius), water: .init(value: 18.0, unit: .celsius))
-
+    
     return [temp1, temp2, temp3, temp4, temp5, temp6, temp7]
 }()

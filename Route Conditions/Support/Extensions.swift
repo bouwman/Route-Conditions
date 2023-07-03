@@ -11,6 +11,7 @@ import CoreLocation
 import MapKit
 import OSLog
 import SwiftUI
+import Charts
 
 extension CLLocation {
     
@@ -295,4 +296,16 @@ extension Color {
     }
     
     static var darkBrown: Color = Color(hue: 0.975, saturation: 0.56, brightness: 0.29)
+}
+
+extension Measurement<UnitSpeed>: Plottable {
+    public typealias PrimitivePlottable = Double
+    
+    public var primitivePlottable: Double {
+        value
+    }
+    
+    public init?(primitivePlottable: Double) {
+        self.init(value: primitivePlottable, unit: .kilometersPerHour)
+    }
 }
