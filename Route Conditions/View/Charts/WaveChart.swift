@@ -27,7 +27,7 @@ struct WaveChart: View {
                                 .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round))
                         }
                 }
-                if let direction = wave.compassDirection {
+                if let direction = wave.compassDirection, Calendar.current.component(.hour, from: wave.date) % 3 == 0  {
                     PointMark(x: .value("Date", wave.date), y: .value("Direction", maxValue + 1))
                         .symbol {
                             Image(systemName: direction.imageName)
@@ -39,7 +39,7 @@ struct WaveChart: View {
                 AxisMarks(values: [0, 3, 6])
             }
             .chartXAxis {
-                AxisMarks(values: .stride(by: .hour, count: 3)) { value in
+                AxisMarks(values: .stride(by: .hour, count: 6)) { value in
                     if let date = value.as(Date.self) {
                         let hour = Calendar.current.component(.hour, from: date)
                         AxisValueLabel {
@@ -48,7 +48,7 @@ struct WaveChart: View {
                                 case 0, 12:
                                     Text(date, format: .dateTime.hour())
                                 default:
-                                    Text(date, format: .dateTime.hour(.defaultDigits(amPM: .omitted)))
+                                    Text(date, format: .dateTime.hour())
                                 }
                                 if value.index == 0 || hour == 0 {
                                     Text(date, format: .dateTime.month().day())
@@ -56,10 +56,8 @@ struct WaveChart: View {
                             }
                         }
                         if hour == 0 {
-                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
                             AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
                         } else {
-                            AxisGridLine()
                             AxisTick()
                         }
                     }

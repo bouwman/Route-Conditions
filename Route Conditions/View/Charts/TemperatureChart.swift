@@ -28,7 +28,7 @@ struct TemperatureChart: View {
                 }
             }
             .chartXAxis {
-                AxisMarks(values: .stride(by: .hour, count: 3)) { value in
+                AxisMarks(values: .stride(by: .hour, count: 6)) { value in
                     if let date = value.as(Date.self) {
                         let hour = Calendar.current.component(.hour, from: date)
                         AxisValueLabel {
@@ -37,7 +37,7 @@ struct TemperatureChart: View {
                                 case 0, 12:
                                     Text(date, format: .dateTime.hour())
                                 default:
-                                    Text(date, format: .dateTime.hour(.defaultDigits(amPM: .omitted)))
+                                    Text(date, format: .dateTime.hour())
                                 }
                                 if value.index == 0 || hour == 0 {
                                     Text(date, format: .dateTime.month().day())
@@ -45,10 +45,8 @@ struct TemperatureChart: View {
                             }
                         }
                         if hour == 0 {
-                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
                             AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
                         } else {
-                            AxisGridLine()
                             AxisTick()
                         }
                     }

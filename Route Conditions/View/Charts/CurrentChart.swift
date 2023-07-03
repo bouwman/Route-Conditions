@@ -28,15 +28,19 @@ struct CurrentChart: View {
                                 .lineStyle(StrokeStyle(lineWidth: 4, lineCap: .round))
                         }
                 }
-                if let direction = current.compassDirection {
-                    PointMark(x: .value("Date", current.date), y: .value("Direction", maxValue + 6))
+                if let direction = current.compassDirection, Calendar.current.component(.hour, from: current.date) % 3 == 0  {
+                    PointMark(x: .value("Date", current.date), y: .value("Direction", maxValue + 1))
                         .symbol {
                             Image(systemName: direction.imageName)
                         }
                 }
             }
+            .chartYScale(domain: [0, maxValue + 2])
+            .chartYAxis {
+                AxisMarks(format: currentFormat, values: [.init(value: 0, unit: .knots), .init(value: 3, unit: .knots), .init(value: 6, unit: .knots)])
+            }
             .chartXAxis {
-                AxisMarks(values: .stride(by: .hour, count: 3)) { value in
+                AxisMarks(values: .stride(by: .hour, count: 6)) { value in
                     if let date = value.as(Date.self) {
                         let hour = Calendar.current.component(.hour, from: date)
                         AxisValueLabel {
@@ -45,7 +49,7 @@ struct CurrentChart: View {
                                 case 0, 12:
                                     Text(date, format: .dateTime.hour())
                                 default:
-                                    Text(date, format: .dateTime.hour(.defaultDigits(amPM: .omitted)))
+                                    Text(date, format: .dateTime.hour())
                                 }
                                 if value.index == 0 || hour == 0 {
                                     Text(date, format: .dateTime.month().day())
@@ -53,10 +57,8 @@ struct CurrentChart: View {
                             }
                         }
                         if hour == 0 {
-                            AxisGridLine(stroke: StrokeStyle(lineWidth: 0.5))
                             AxisTick(stroke: StrokeStyle(lineWidth: 0.5))
                         } else {
-                            AxisGridLine()
                             AxisTick()
                         }
                     }
