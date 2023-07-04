@@ -174,7 +174,7 @@ extension Weather {
             weather.waves.direction = Measurement(value: Double.random(in: 0...360), unit: UnitAngle.degrees)
             weather.waves.height = Measurement(value: Double.random(in: 0...3), unit: UnitLength.meters)
             weather.conditions.title = "Sunny"
-            weather.conditions.symbolName = "sun.max"
+            weather.conditions.symbolName = "sun.max.fill"
             weather.solar.isDaylight = true
             
             weatherObjects.append(weather)

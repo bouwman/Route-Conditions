@@ -63,7 +63,7 @@ import SwiftUI
     init(coordinate: CLLocationCoordinate2D, convertible: WeatherModelConvertible) {
         self.coordinate = coordinate
         self.date = convertible.convertedDate
-        self._temperature = Temperature(date: date, air: .optional(value: convertible.convertableTemperatureAir, unit: .celsius), water: .optional(value: convertible.convertableTemperatureWater, unit: .celsius))
+        self._temperature = Temperature(date: date, air: .optional(value: convertible.convertableTemperatureAir, unit: .celsius), water: .optional(value: convertible.convertableTemperatureWater, unit: .celsius), symbolName: convertible.convertedConditionsSymbol)
         self._wind = Wind(date: date, direction: .optional(value: convertible.convertedWindDirection, unit: .degrees), speed: .optional(value: convertible.convertedWindSpeed, unit: .kilometersPerHour), gust: .optional(value: convertible.convertedWindGust, unit: .kilometersPerHour))
         self._current = Current(date: date, direction: .optional(value: convertible.convertedCurrentDirection, unit: .degrees), speed: .optional(value: convertible.convertedCurrentSpeed, unit: .kilometersPerHour))
         self._waves = Wave(date: date, direction: .optional(value: convertible.convertedWaveDirection, unit: .degrees), height: .optional(value: convertible.convertedWaveHeight, unit: .meters))
@@ -90,12 +90,14 @@ import SwiftUI
     var date: Date = Date()
     var air: Measurement<UnitTemperature>? = nil
     var water: Measurement<UnitTemperature>? = nil
+    var symbolName: String? = nil
     var id: Date { return date }
     
-    init(date: Date = Date(), air: Measurement<UnitTemperature>? = nil, water: Measurement<UnitTemperature>? = nil) {
+    init(date: Date = Date(), air: Measurement<UnitTemperature>? = nil, water: Measurement<UnitTemperature>? = nil, symbolName: String? = nil) {
         self.date = date
         self.air = air
         self.water = water
+        self.symbolName = symbolName
     }
 }
 

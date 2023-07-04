@@ -12,7 +12,7 @@ struct CurrentChart: View {
     
     var currents: [Current]
     
-    private let maxValue: Double = 6
+    private let maxValue: Double = 4
     private let currentFormat = Measurement<UnitSpeed>.FormatStyle(width: .abbreviated, usage: .wind)
     
     var body: some View {
@@ -29,15 +29,15 @@ struct CurrentChart: View {
                         }
                 }
                 if let direction = current.compassDirection, Calendar.current.component(.hour, from: current.date) % 3 == 0  {
-                    PointMark(x: .value("Date", current.date), y: .value("Direction", maxValue + 1))
+                    PointMark(x: .value("Date", current.date), y: .value("Direction", maxValue + 0.5))
                         .symbol {
                             Image(systemName: direction.imageName)
                         }
                 }
             }
-            .chartYScale(domain: [0, maxValue + 2])
+            .chartYScale(domain: [0, maxValue + 1])
             .chartYAxis {
-                AxisMarks(format: currentFormat, values: [.init(value: 0, unit: .knots), .init(value: 3, unit: .knots), .init(value: 6, unit: .knots)])
+                AxisMarks(format: currentFormat, values: [.init(value: 0, unit: .knots), .init(value: 2, unit: .knots), .init(value: 4, unit: .knots)])
             }
             .chartXAxis {
                 AxisMarks(values: .stride(by: .hour, count: 6)) { value in

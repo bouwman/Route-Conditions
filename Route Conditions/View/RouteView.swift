@@ -88,6 +88,29 @@ enum WeatherServiceType: Identifiable {
             Rectangle()
                 .fill(.primary)
                 .frame(width: 12, height: 2, alignment: .center)
+            VStack {
+                HStack(spacing: 8) {
+                    Button(action: {
+                        addWaypoint()
+                        updateWeatherWaypoints()
+                    }, label: {
+                        Text("Add Waypoint")
+                    })
+                    .buttonStyle(.borderedProminent)
+                    Button(action: {
+                        removeLastWaypoint()
+                        updateWeatherWaypoints()
+                    }, label: {
+                        Image(systemName: "arrow.uturn.backward")
+                            .frame(maxHeight: .infinity) // Match other button
+                    })
+                    .disabled(weatherWaypoints.count == 0)
+                    .buttonStyle(.bordered)
+                }
+                .frame(maxHeight: 36)
+                Spacer()
+            }
+            .padding()
         }
         .toolbar {
             ToolbarItem(id: "vehicle", placement: .secondaryAction) {
@@ -106,26 +129,6 @@ enum WeatherServiceType: Identifiable {
                     }
                 } label: {
                     Label(vehicle.type.title, systemImage: vehicle.type.imageName)
-                }
-            }
-            ToolbarItem(id: "edit_waypoints", placement: .bottomBar) {
-                HStack(spacing: 8) {
-                    Button(action: {
-                        addWaypoint()
-                        updateWeatherWaypoints()
-                    }, label: {
-                        Text("Add Waypoint")
-                    })
-                    .buttonStyle(.borderedProminent)
-                    Button(action: {
-                        removeLastWaypoint()
-                        updateWeatherWaypoints()
-                    }, label: {
-                        Label("Remove Waypoint", systemImage: "arrow.uturn.backward")
-                            .frame(maxHeight: .infinity) // Match other button
-                    })
-                    .disabled(weatherWaypoints.count == 0)
-                    .buttonStyle(.bordered)
                 }
             }
             ToolbarItem(id: "departure_date", placement: .bottomBar) {
