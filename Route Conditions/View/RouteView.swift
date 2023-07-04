@@ -27,6 +27,7 @@ enum WeatherServiceType: Identifiable {
 @MainActor struct RouteView: View {
     
     @Environment(\.modelContext) private var context: ModelContext
+    @Environment(\.horizontalSizeClass) private var sizeClass
     
     @State private var customWaypoints: [CustomWaypoint] = []
     @State private var weatherWaypoints: [WeatherWaypoint] = []
@@ -37,11 +38,11 @@ enum WeatherServiceType: Identifiable {
     @State private var isLoadingWeather = false
     @State private var departureTime: Date = Date()
     @State private var departureTimeStep: Int = 1
-    @State private var isEditing: Bool = true
     @State private var showVehicleEditor: Bool = false
-    @State private var showInspector: Bool = false
+    @State private var showRegularInspector: Bool = false
     @State private var centerCoordinate = CLLocationCoordinate2DMake(0, 0)
     
+    private var showCompactInspector: Binding<Bool> { Binding(get: { weatherWaypoints.count != 0 }, set: { _ in }) }
     private let routeCalculationService = RouteCalculationService.shared
     private let weatherService = WeatherService.shared
     private let log = OSLog.ui
@@ -50,11 +51,6 @@ enum WeatherServiceType: Identifiable {
     var body: some View {
         ZStack(alignment: .center) {
             Map(position: $position, selection: $selectedWaypoint) {
-                //                ForEach(customWaypoints) { waypoint in
-                //                    Annotation("", coordinate: waypoint.coordinate) {
-                //                        Circle().fill(.accent).frame(width: 10, height: 10, alignment: .center)
-                //                    }
-                //                }
                 MapPolyline(coordinates: customWaypoints.map { $0.coordinate })
                 ForEach(weatherWaypoints) { waypoint in
                     WeatherParameterMarker(weatherParameter: $weatherParameter, coordinate: waypoint.coordinate, time: waypoint.date, weather: waypoint.currentWeather(for: weatherParameter))
@@ -75,109 +71,102 @@ enum WeatherServiceType: Identifiable {
             } content: { waypoint in
                 WeatherDetailView(waypoint: waypoint)
             }
-            .inspector(isPresented: $showInspector) {
-               ChartView(weatherWaypoints: $weatherWaypoints)
-                    .presentationDetents([.medium, .large])
+            .inspector(isPresented: sizeClass == .compact ? showCompactInspector : $showRegularInspector) {
+                ChartView(weatherWaypoints: $weatherWaypoints)
+                    .presentationDetents([.height(200), .medium, .large])
+                    .presentationDragIndicator(.visible)
+                    .presentationBackgroundInteraction(.enabled(upThrough: .medium))
+                    .presentationBackground(alignment: .bottom) { // TODO: Doesn't work. Check with new release
+                        DateSlider(date: $departureTime, range: Date.threeDaysFromToday, height: 40)
+                            .frame(maxWidth: 400)
+                            .padding()
+                    }
             }
-            if isEditing {
-                Rectangle()
-                    .fill(.primary)
-                    .frame(width: 2, height: 12, alignment: .center)
-                Rectangle()
-                    .fill(.primary)
-                    .frame(width: 12, height: 2, alignment: .center)
-            }
-            VStack {
-                Picker("Edit or View", selection: $isEditing) {
-                    Text("Edit").tag(true)
-                    Text("View").tag(false)
-                }
-                .pickerStyle(.segmented)
-                .frame(maxWidth: 200)
-                .padding()
-                Spacer()
-            }
-                
+            Rectangle()
+                .fill(.primary)
+                .frame(width: 2, height: 12, alignment: .center)
+            Rectangle()
+                .fill(.primary)
+                .frame(width: 12, height: 2, alignment: .center)
         }
         .toolbar {
-            if isEditing {
-                ToolbarItem(id: "vehicle", placement: .primaryAction) {
-                    Menu {
-                        Picker(selection: $vehicle) {
-                            ForEach(Vehicle.allSamples()) { vehicle in
-                                Label(vehicle.type.title, systemImage: vehicle.type.imageName).tag(vehicle)
-                            }
-                        } label: {
-                            Label(vehicle.type.title, systemImage: vehicle.type.imageName)
-                        }
-                        Button {
-                            showVehicleEditor = true
-                        } label: {
-                            Label("Edit Speed", systemImage: "pencil")
+            ToolbarItem(id: "vehicle", placement: .secondaryAction) {
+                Menu {
+                    Picker(selection: $vehicle) {
+                        ForEach(Vehicle.allSamples()) { vehicle in
+                            Label(vehicle.type.title, systemImage: vehicle.type.imageName).tag(vehicle)
                         }
                     } label: {
                         Label(vehicle.type.title, systemImage: vehicle.type.imageName)
                     }
-                }
-                ToolbarItem(id: "edit_waypoints", placement: .bottomBar) {
-                    HStack(spacing: 8) {
-                        Button(action: {
-                            addWaypoint()
-                            updateWeatherWaypoints()
-                        }, label: {
-                            Text("Add Waypoint")
-                        })
-                        .buttonStyle(.borderedProminent)
-                        Button(action: {
-                            removeLastWaypoint()
-                            updateWeatherWaypoints()
-                        }, label: {
-                            Label("Remove Waypoint", systemImage: "arrow.uturn.backward")
-                                .frame(maxHeight: .infinity) // Match other button
-                        })
-                        .disabled(weatherWaypoints.count == 0)
-                        .buttonStyle(.bordered)
+                    Button {
+                        showVehicleEditor = true
+                    } label: {
+                        Label("Edit Speed", systemImage: "pencil")
                     }
+                } label: {
+                    Label(vehicle.type.title, systemImage: vehicle.type.imageName)
                 }
-            } else {
-                ToolbarItem(id: "departure_date", placement: .bottomBar) {
-                    DateSlider(date: $departureTime, range: Date.threeDaysFromToday, height: 40) { isActive in }
-                        .frame(maxWidth: 400)
-                        .padding()
-                        .onChange(of: departureTime) {
-                            updateWeatherWaypoints()
-                        }
+            }
+            ToolbarItem(id: "edit_waypoints", placement: .bottomBar) {
+                HStack(spacing: 8) {
+                    Button(action: {
+                        addWaypoint()
+                        updateWeatherWaypoints()
+                    }, label: {
+                        Text("Add Waypoint")
+                    })
+                    .buttonStyle(.borderedProminent)
+                    Button(action: {
+                        removeLastWaypoint()
+                        updateWeatherWaypoints()
+                    }, label: {
+                        Label("Remove Waypoint", systemImage: "arrow.uturn.backward")
+                            .frame(maxHeight: .infinity) // Match other button
+                    })
+                    .disabled(weatherWaypoints.count == 0)
+                    .buttonStyle(.bordered)
                 }
-                WeatherBarItem(weatherParameter: $weatherParameter)
+            }
+            ToolbarItem(id: "departure_date", placement: .bottomBar) {
+                DateSlider(date: $departureTime, range: Date.threeDaysFromToday, height: 40)
+                    .frame(maxWidth: 400)
+                    .padding()
+                    .onChange(of: departureTime) {
+                        updateWeatherWaypoints()
+                    }
+            }
+            WeatherBarItem(weatherParameter: $weatherParameter)
+            if sizeClass == .regular {
                 ToolbarItem(id: "inspector", placement: .primaryAction) {
                     Button {
-                        showInspector.toggle()
+                        showRegularInspector.toggle()
                     } label: {
                         Label("Charts", systemImage: "chart.bar")
                     }
                     .disabled(hasNoWeatherData)
                 }
-                ToolbarItem(id: "update_weather", placement: .secondaryAction) {
-                    Menu {
-                        Button {
-                            downloadWeather(from: .apple)
-                        } label: {
-                            Label("Apple Weather", systemImage: "apple.logo")
-                        }
-                        Button {
-                            downloadWeather(from: .stormGlass)
-                        } label: {
-                            Label("StormGlass", systemImage: "staroflife")
-                        }
+            }
+            ToolbarItem(id: "update_weather", placement: .secondaryAction) {
+                Menu {
+                    Button {
+                        downloadWeather(from: .apple)
                     } label: {
-                        if isLoadingWeather {
-                            ProgressView()
-                        } else {
-                            Label("Update Weather", systemImage: "arrow.down.circle")
-                        }
+                        Label("Apple Weather", systemImage: "apple.logo")
                     }
-                    .disabled(weatherWaypoints.count == 0)
+                    Button {
+                        downloadWeather(from: .stormGlass)
+                    } label: {
+                        Label("StormGlass", systemImage: "staroflife")
+                    }
+                } label: {
+                    if isLoadingWeather {
+                        ProgressView()
+                    } else {
+                        Label("Update Weather", systemImage: "arrow.down.circle")
+                    }
                 }
+                .disabled(weatherWaypoints.count == 0)
             }
         }
         .toolbarBackground(.visible, for: .navigationBar)
@@ -192,6 +181,13 @@ enum WeatherServiceType: Identifiable {
         }
         .onChange(of: vehicle.speed) {
             updateWeatherWaypoints()
+        }
+        .onChange(of: weatherWaypoints) { oldValue, newValue in
+            if oldValue.count == 0 && newValue.count > 0 {
+                showRegularInspector = true
+            } else if oldValue.count > 0 && newValue.count == 0 {
+                showRegularInspector = false
+            }
         }
         .onAppear {
             prepareView()
@@ -210,7 +206,7 @@ enum WeatherServiceType: Identifiable {
     }
     
     private func loadStoredData() async {
-        #if !targetEnvironment(simulator)
+#if !targetEnvironment(simulator)
         let persistence = BackgroundPersistence(container: context.container)
         do {
             customWaypoints = try await persistence.loadAllCustomWaypoints()
@@ -224,14 +220,14 @@ enum WeatherServiceType: Identifiable {
         } catch {
             print(error.localizedDescription)
         }
-        #else
+#else
         customWaypoints = CustomWaypoint.route
         weatherWaypoints = WeatherWaypoint.createWeatherWaypoints()
-        #endif
+#endif
     }
     
     private func updateWeatherWaypoints() {
-        #if !targetEnvironment(simulator)
+#if !targetEnvironment(simulator)
         let newWaypoints = routeCalculationService.calculateRoute(existingWaypoints: customWaypoints, speed: vehicle.speed.value, unit: vehicle.unit, departureTime: departureTime, timeInterval: Constants.RouteCalculation.interval)
         let newCount = newWaypoints.count
         let existingCount = weatherWaypoints.count
@@ -265,11 +261,11 @@ enum WeatherServiceType: Identifiable {
                 }
             }
         }
-        #endif
+#endif
     }
     
     private func downloadWeather(from service: WeatherServiceType) {
-        #if !targetEnvironment(simulator)
+#if !targetEnvironment(simulator)
         isLoadingWeather = true
         log.debug("Start updating weather for \(weatherWaypoints.count) customWaypoints ...")
         
@@ -298,7 +294,7 @@ enum WeatherServiceType: Identifiable {
             log.debug("Finished updating \(weatherWaypoints.count) customWaypoints")
             isLoadingWeather = false
         }
-        #endif
+#endif
     }
     
     private func addWaypoint() {
@@ -307,11 +303,13 @@ enum WeatherServiceType: Identifiable {
     }
     
     private func removeLastWaypoint() {
-        customWaypoints.removeLast()
+        if customWaypoints.count > 0 {
+            customWaypoints.removeLast()
+        }
     }
     
     private func save() {
-        #if !targetEnvironment(simulator)
+#if !targetEnvironment(simulator)
         Task(priority: .utility) {
             do {
                 let persistence = BackgroundPersistence(container: context.container)
@@ -324,7 +322,7 @@ enum WeatherServiceType: Identifiable {
                 print(error.localizedDescription)
             }
         }
-        #endif
+#endif
     }
 }
 
@@ -333,13 +331,13 @@ enum WeatherServiceType: Identifiable {
 }
 
 /*
-@MainActor
-let previewContainer: ModelContainer = {
-    do {
-        let container = try ModelContainer(for: [WeatherWaypointData.self, CustomWaypointData.self, WeatherData.self, WindData.self, WaveData.self, CurrentData.self, SolarData.self], ModelConfiguration(inMemory: true))
-        return container
-    } catch {
-        fatalError("Failed to create container")
-    }
-}()
-*/
+ @MainActor
+ let previewContainer: ModelContainer = {
+ do {
+ let container = try ModelContainer(for: [WeatherWaypointData.self, CustomWaypointData.self, WeatherData.self, WindData.self, WaveData.self, CurrentData.self, SolarData.self], ModelConfiguration(inMemory: true))
+ return container
+ } catch {
+ fatalError("Failed to create container")
+ }
+ }()
+ */

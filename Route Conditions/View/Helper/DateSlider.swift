@@ -12,11 +12,9 @@ struct DateSlider: View {
     @Binding var date: Date
     let range: ClosedRange<Date>
     let height: CGFloat
-    let onEditingChanged: (Bool) -> Void
     
-    init(date: Binding<Date>, range: ClosedRange<Date>, height: CGFloat, onEditingChanged: @escaping (Bool) -> Void) {
+    init(date: Binding<Date>, range: ClosedRange<Date>, height: CGFloat) {
         self.height = height
-        self.onEditingChanged = onEditingChanged
         self.range = range
         self.localRange = range.lowerBound.timeIntervalSince1970...range.upperBound.timeIntervalSince1970
         self._value = State(initialValue: date.wrappedValue.timeIntervalSince1970)
@@ -85,7 +83,6 @@ struct DateSlider: View {
             .onChange(of: isActive) { oldValue, newValue in
                 value = max(min(getPrgValue(), localRange.upperBound), localRange.lowerBound)
                 date = Date(timeIntervalSince1970: value)
-                onEditingChanged(newValue)
             }
             .onAppear {
                 localRealProgress = getPrgPercentage(value)
