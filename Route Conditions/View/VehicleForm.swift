@@ -26,7 +26,9 @@ struct VehicleForm: View {
                 }
             }
             .navigationTitle(vehicle.type.title)
+            #if !os(macOS)
             .navigationBarTitleDisplayMode(.inline)
+            #endif
         }
     }
 }

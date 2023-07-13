@@ -109,6 +109,14 @@ enum WeatherServiceType: Identifiable {
                 }
                 .frame(maxHeight: 36)
                 Spacer()
+                #if os(macOS)
+                DateSlider(date: $departureTime, range: Date.threeDaysFromToday, height: 40)
+                    .frame(maxWidth: 400)
+                    .padding()
+                    .onChange(of: departureTime) {
+                        updateWeatherWaypoints()
+                    }
+                #endif
             }
             .padding()
         }
@@ -131,6 +139,7 @@ enum WeatherServiceType: Identifiable {
                     Label(vehicle.type.title, systemImage: vehicle.type.imageName)
                 }
             }
+            #if !os(macOS)
             ToolbarItem(id: "departure_date", placement: .bottomBar) {
                 DateSlider(date: $departureTime, range: Date.threeDaysFromToday, height: 40)
                     .frame(maxWidth: 400)
@@ -139,6 +148,7 @@ enum WeatherServiceType: Identifiable {
                         updateWeatherWaypoints()
                     }
             }
+            #endif
             WeatherBarItem(weatherParameter: $weatherParameter)
             if sizeClass == .regular {
                 ToolbarItem(id: "inspector", placement: .primaryAction) {
@@ -172,7 +182,9 @@ enum WeatherServiceType: Identifiable {
                 .disabled(weatherWaypoints.count == 0)
             }
         }
+        #if !os(macOS)
         .toolbarBackground(.visible, for: .navigationBar)
+        #endif
         .toolbarRole(.editor)
         .popover(isPresented: $showVehicleEditor) {
             VehicleForm(vehicle: $vehicle)
