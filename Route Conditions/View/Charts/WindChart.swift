@@ -16,7 +16,11 @@ struct WindChart: View {
     private let windFormat = Measurement<UnitSpeed>.FormatStyle(width: .abbreviated, usage: .wind)
     
     var body: some View {
-        ZStack {
+        if winds.count == 0 || winds.first?.speed == nil {
+            Text("No Data")
+                .foregroundStyle(.secondary)
+                .font(.callout)
+        } else {
             Chart(winds) { wind in
                 if let speed = wind.speed {
                     AreaMark(x: .value("Area", wind.date), y: .value("Max Value", maxValue))
@@ -63,11 +67,6 @@ struct WindChart: View {
                         }
                     }
                 }
-            }
-            if winds.count == 0 || winds.first?.speed == nil {
-                Text("No Data")
-                    .foregroundStyle(.secondary)
-                    .font(.callout)
             }
         }
     }

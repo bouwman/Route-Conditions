@@ -8,8 +8,6 @@
 import Foundation
 import SwiftUI
 
-
-
 struct ChartView: View {
     
     @Binding var weatherWaypoints: [WeatherWaypoint]
@@ -34,4 +32,8 @@ struct ChartView: View {
             }
         }
     }
+}
+
+#Preview {
+    ChartView(weatherWaypoints: .constant(WeatherWaypoint.createWeatherWaypoints()))
 }

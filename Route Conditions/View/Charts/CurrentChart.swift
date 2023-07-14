@@ -16,7 +16,11 @@ struct CurrentChart: View {
     private let currentFormat = Measurement<UnitSpeed>.FormatStyle(width: .abbreviated, usage: .wind)
     
     var body: some View {
-        ZStack {
+        if currents.count == 0 || currents.first?.speed == nil {
+            Text("No Data")
+                .foregroundStyle(.secondary)
+                .font(.callout)
+        } else {
             Chart(currents) { current in
                 if let speed = current.speed {
                     AreaMark(x: .value("Area", current.date), y: .value("Max Value", maxValue))
@@ -63,11 +67,6 @@ struct CurrentChart: View {
                         }
                     }
                 }
-            }
-            if currents.count == 0 || currents.first?.speed == nil {
-                Text("No Data")
-                    .foregroundStyle(.secondary)
-                    .font(.callout)
             }
         }
     }

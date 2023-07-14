@@ -25,6 +25,6 @@ extension Wind: ColorScalable {
     var scaleColor: Color {
         guard let speed = speed?.converted(to: .knots).value else { return .gray}
         
-        return Color.from(value: speed, range: 0...64, minHue: 211)
+        return Color.from(value: speed, range: 0...64, minHue: 100)
     }
 }

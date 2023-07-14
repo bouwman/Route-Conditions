@@ -15,7 +15,11 @@ struct WaveChart: View {
     private let maxValue: Double = 6
     
     var body: some View {
-        ZStack {
+        if waves.count == 0 || waves.first?.height == nil {
+            Text("No Data")
+                .foregroundStyle(.secondary)
+                .font(.callout)
+        } else {
             Chart(waves) { wave in
                 if let height = wave.height {
                     AreaMark(x: .value("Area", wave.date), y: .value("Max Value", maxValue))
@@ -62,11 +66,6 @@ struct WaveChart: View {
                         }
                     }
                 }
-            }
-            if waves.count == 0 || waves.first?.height == nil {
-                Text("No Data")
-                    .foregroundStyle(.secondary)
-                    .font(.callout)
             }
         }
     }

@@ -29,6 +29,6 @@ extension Current: ColorScalable {
     var scaleColor: Color {
         guard let speed = speed?.converted(to: .knots).value else { return .gray}
         
-        return Color.from(value: speed, range: 0...9, minHue: 211)
+        return Color.from(value: speed, range: 0...9, minHue: 100)
     }
 }

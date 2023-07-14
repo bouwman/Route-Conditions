@@ -15,7 +15,11 @@ struct TemperatureChart: View {
     private let tempFormat = Measurement<UnitTemperature>.FormatStyle(width: .abbreviated, usage: .weather)
     
     var body: some View {
-        ZStack {
+        if temperatures.count == 0 || temperatures.first?.air == nil {
+            Text("No Data")
+                .foregroundStyle(.secondary)
+                .font(.callout)
+        } else {
             Chart(temperatures) { temp in
                 if let air = temp.air {
                     // TODO: Adapt max value based on unit settings
@@ -64,11 +68,6 @@ struct TemperatureChart: View {
                         }
                     }
                 }
-            }
-            if temperatures.count == 0 || temperatures.first?.air == nil {
-                Text("No Data")
-                    .foregroundStyle(.secondary)
-                    .font(.callout)
             }
         }
     }

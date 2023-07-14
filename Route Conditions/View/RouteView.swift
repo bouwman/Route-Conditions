@@ -42,7 +42,7 @@ enum WeatherServiceType: Identifiable {
     @State private var showRegularInspector: Bool = false
     @State private var centerCoordinate = CLLocationCoordinate2DMake(0, 0)
     
-    private var showCompactInspector: Binding<Bool> { Binding(get: { weatherWaypoints.count != 0 }, set: { _ in }) }
+    private var showCompactInspector: Binding<Bool> { Binding(get: { weatherWaypoints.count > 1 }, set: { _ in }) }
     private let routeCalculationService = RouteCalculationService.shared
     private let weatherService = WeatherService.shared
     private let log = OSLog.ui
@@ -198,9 +198,9 @@ enum WeatherServiceType: Identifiable {
             updateWeatherWaypoints()
         }
         .onChange(of: weatherWaypoints) { oldValue, newValue in
-            if oldValue.count == 0 && newValue.count > 0 {
+            if oldValue.count == 1 && newValue.count > 1 {
                 showRegularInspector = true
-            } else if oldValue.count > 0 && newValue.count == 0 {
+            } else if oldValue.count > 1 && newValue.count == 1 {
                 showRegularInspector = false
             }
         }

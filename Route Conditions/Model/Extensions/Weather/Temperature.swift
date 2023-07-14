@@ -25,7 +25,7 @@ extension Temperature: ColorScalable {
     var scaleColor: Color {
         guard let temp = air?.converted(to: .celsius).value else { return .gray}
         
-        return Color.from(value: temp, range: -20...60, minHue: 211)
+        return Color.from(value: temp, range: -20...60, minHue: 100)
     }
     
 //    static var minHue: Double = 211

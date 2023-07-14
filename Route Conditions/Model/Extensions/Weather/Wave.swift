@@ -25,6 +25,6 @@ extension Wave: ColorScalable {
     var scaleColor: Color {
         guard let height = height?.converted(to: .meters).value else { return .gray}
         
-        return Color.from(value: height, range: 0...9, minHue: 211)
+        return Color.from(value: height, range: 0...9, minHue: 100)
     }
 }
