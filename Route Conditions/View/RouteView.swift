@@ -238,6 +238,7 @@ enum WeatherServiceType: Identifiable {
 #else
         customWaypoints = CustomWaypoint.route
         weatherWaypoints = WeatherWaypoint.createWeatherWaypoints()
+        position = MapCameraPosition.region(customWaypoints.region)
 #endif
     }
     

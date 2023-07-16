@@ -50,6 +50,7 @@
 		476FEF022A44594E00B59573 /* VehicleForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = 476FEF012A44594E00B59573 /* VehicleForm.swift */; };
 		476FEF042A446B0600B59573 /* VehicleType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 476FEF032A446B0600B59573 /* VehicleType.swift */; };
 		4779B9FD2A40DF7C0049B9AF /* WeatherParameter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4779B9FC2A40DF7C0049B9AF /* WeatherParameter.swift */; };
+		478C39E72A6335D90009FB9A /* DateRangeSlider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 478C39E62A6335D90009FB9A /* DateRangeSlider.swift */; };
 		4799D6912A17C20A0090EBF1 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4799D6902A17C20A0090EBF1 /* App.swift */; };
 		4799D6932A17C20A0090EBF1 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4799D6922A17C20A0090EBF1 /* ContentView.swift */; };
 		4799D6952A17C2120090EBF1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4799D6942A17C2120090EBF1 /* Assets.xcassets */; };
@@ -112,6 +113,7 @@
 		476FEF012A44594E00B59573 /* VehicleForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleForm.swift; sourceTree = "<group>"; };
 		476FEF032A446B0600B59573 /* VehicleType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleType.swift; sourceTree = "<group>"; };
 		4779B9FC2A40DF7C0049B9AF /* WeatherParameter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherParameter.swift; sourceTree = "<group>"; };
+		478C39E62A6335D90009FB9A /* DateRangeSlider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateRangeSlider.swift; sourceTree = "<group>"; };
 		4799D68D2A17C20A0090EBF1 /* Route Conditions.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Route Conditions.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4799D6902A17C20A0090EBF1 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		4799D6922A17C20A0090EBF1 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 				472DA9512A3EDD3F008E16F2 /* WeatherParameterMarker.swift */,
 				4729FBD92A4C6E4A0057118D /* WeatherMarker.swift */,
 				475C493B2A4F336D00A72FC7 /* DateSlider.swift */,
+				478C39E62A6335D90009FB9A /* DateRangeSlider.swift */,
 				475C493D2A4F3BCE00A72FC7 /* VerticalSlider.swift */,
 			);
 			path = Helper;
@@ -444,6 +447,7 @@
 				47641DE22A46D9CE00318992 /* Vehicle.swift in Sources */,
 				473E9C3C2A3F0E0100247F74 /* SampleData.swift in Sources */,
 				47641DD92A46D63A00318992 /* Current.swift in Sources */,
+				478C39E72A6335D90009FB9A /* DateRangeSlider.swift in Sources */,
 				47641DD32A46D58900318992 /* Weather.swift in Sources */,
 				47641DC82A45CA6B00318992 /* StormGlassService.swift in Sources */,
 				47641DE72A46F2C700318992 /* StormGlass.swift in Sources */,
@@ -544,7 +548,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -604,7 +608,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MACOSX_DEPLOYMENT_TARGET = "$(RECOMMENDED_MACOSX_DEPLOYMENT_TARGET)";
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
